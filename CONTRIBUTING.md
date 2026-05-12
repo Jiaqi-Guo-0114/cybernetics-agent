@@ -14,14 +14,11 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/guojiaqi/cybernetics-agent.git
+git clone https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git
 cd cybernetics-agent
 
 # 运行测试
 PYTHONPATH=src python3 -m pytest tests/ -v
-
-# 运行冒烟测试
-PYTHONPATH=src python3 -c "import cybernetics_agent; print('OK')"
 ```
 
 ## 提交规范
