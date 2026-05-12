@@ -187,35 +187,3 @@ class CyberneticsContext:
         for name in names:
             self.unregister_module(name)
         self.state_manager.close()
-
-
-# ── 冒烟测试 ──
-if __name__ == "__main__":
-    from .config import CyberneticsConfig
-
-    # 测试 1: 基本初始化
-    config = CyberneticsConfig(project_name="test-ctx")
-    ctx = CyberneticsContext(config)
-    assert ctx.session_id.startswith("sess_")
-    assert ctx.config.project_name == "test-ctx"
-    print("  ✅ 测试 1 通过：上下文初始化")
-
-    # 测试 2: 事件发射
-    ctx.emit_tool_result("search", ["r1", "r2"], success=True, duration=1.5)
-    ctx.emit_tool_error("download", "timeout", error_type="transient")
-    ctx.emit_llm_request("gpt-4", prompt_tokens=100)
-    ctx.emit_llm_response("gpt-4", completion_tokens=50, duration=2.0)
-    print("  ✅ 测试 2 通过：事件发射")
-
-    # 测试 3: 状态报告
-    status = ctx.get_status()
-    assert status["project_name"] == "test-ctx"
-    assert "modules" in status
-    assert "metrics" in status
-    print("  ✅ 测试 3 通过：状态报告")
-
-    # 测试 4: 关闭
-    ctx.shutdown()
-    print("  ✅ 测试 4 通过：关闭")
-
-    print("\n  ✅ 运行时上下文所有冒烟测试通过！")

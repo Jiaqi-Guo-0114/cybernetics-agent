@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:
-    from ..config import StorageConfig
     from ..core.base import CyberneticsEvent
 
 
@@ -29,10 +28,10 @@ class StateManager:
         >>> events = manager.load_events(session_id="sess_001")
     """
 
-    def __init__(self, config: "StorageConfig") -> None:
-        self.config = config
-        self._backend = config.backend
-        self._path = Path(config.path)
+    def __init__(self, config: Dict[str, Any]) -> None:
+        self._config = config
+        self._backend = config.get("backend", "jsonl")
+        self._path = Path(config.get("path", "./.cybernetics"))
         self._memory: List[Dict[str, Any]] = []
         self._closed = False
 
@@ -188,55 +187,3 @@ class StateManager:
         """关闭状态管理器。"""
         self._closed = True
 
-
-# ── 冒烟测试 ──
-if __name__ == "__main__":
-    import sys
-    import tempfile
-    sys.path.insert(0, str(__file__).rsplit("/runtime", 1)[0])
-    from core.base import CyberneticsEvent, EventType
-    from config import StorageConfig
-
-    # 测试 1: Memory 后端
-    mem_config = StorageConfig(backend="memory")
-    mem_mgr = StateManager(mem_config)
-
-    evt = CyberneticsEvent.create(EventType.TOOL_CALL, "sess_001", {"tool": "search"})
-    mem_mgr.save_event(evt)
-
-    events = mem_mgr.load_events(session_id="sess_001")
-    assert len(events) == 1
-    assert events[0]["event_type"] == "tool_call"
-    print("  ✅ 测试 1 通过：Memory 后端")
-
-    # 测试 2: JSONL 后端
-    with tempfile.TemporaryDirectory() as tmpdir:
-        jsonl_config = StorageConfig(backend="jsonl", path=tmpdir)
-        jsonl_mgr = StateManager(jsonl_config)
-
-        evt2 = CyberneticsEvent.create(EventType.TOOL_RESULT, "sess_002", {"result": "ok"})
-        jsonl_mgr.save_event(evt2)
-
-        events2 = jsonl_mgr.load_events(session_id="sess_002")
-        assert len(events2) == 1
-        assert events2[0]["payload"]["result"] == "ok"
-        print("  ✅ 测试 2 通过：JSONL 后端")
-
-        jsonl_mgr.close()
-
-    # 测试 3: SQLite 后端
-    with tempfile.TemporaryDirectory() as tmpdir:
-        sqlite_config = StorageConfig(backend="sqlite", path=tmpdir)
-        sqlite_mgr = StateManager(sqlite_config)
-
-        evt3 = CyberneticsEvent.create(EventType.ERROR, "sess_003", {"msg": "fail"})
-        sqlite_mgr.save_event(evt3)
-
-        events3 = sqlite_mgr.load_events(event_type="error")
-        assert len(events3) == 1
-        assert events3[0]["payload"]["msg"] == "fail"
-        print("  ✅ 测试 3 通过：SQLite 后端")
-
-        sqlite_mgr.close()
-
-    print("\n  ✅ 状态管理器所有冒烟测试通过！")

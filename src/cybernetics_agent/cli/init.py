@@ -127,3 +127,4 @@ def run_init(args: Namespace) -> int:
     print(f"   格式: {args.format}")
     print(f"   项目名: {config['project_name']}")
     return 0
+

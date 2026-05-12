@@ -229,3 +229,4 @@ def _generate_dashboard_html(config: Dict[str, Any]) -> str:
     </script>
 </body>
 </html>"""
+

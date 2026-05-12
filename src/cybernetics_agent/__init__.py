@@ -20,13 +20,12 @@ cybernetics-agent: 一个框架无关的控制论 Agent 增强层。
 __version__ = "0.1.0"
 __author__ = "Cybernetics Agent Contributors"
 
-from .config import CyberneticsConfig, StorageConfig
+from .config import CyberneticsConfig
 from .context import CyberneticsContext
 from .core.base import ICyberneticsModule, EventType, CyberneticsEvent
 
 __all__ = [
     "CyberneticsConfig",
-    "StorageConfig",
     "CyberneticsContext",
     "ICyberneticsModule",
     "EventType",

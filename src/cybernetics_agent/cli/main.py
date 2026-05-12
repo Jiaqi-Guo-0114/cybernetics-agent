@@ -164,7 +164,3 @@ def main(args: Optional[List[str]] = None) -> int:
     else:
         parser.print_help()
         return 1
-
-
-if __name__ == "__main__":
-    sys.exit(main())

@@ -147,3 +147,4 @@ def _generate_html(data: Dict[str, Any]) -> str:
     {findings_html}
 </body>
 </html>"""
+
