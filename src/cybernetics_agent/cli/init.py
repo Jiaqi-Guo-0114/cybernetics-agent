@@ -101,7 +101,7 @@ def run_init(args: Namespace) -> int:
     """执行 init 命令。"""
     output_path = Path(args.output)
 
-    if output_path.exists():
+    if output_path.exists() and not getattr(args, "force", False):
         print(f"⚠️  文件已存在: {output_path}")
         response = input("要覆盖吗？(y/N): ").strip().lower()
         if response != "y":

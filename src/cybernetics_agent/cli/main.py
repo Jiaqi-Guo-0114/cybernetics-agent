@@ -43,7 +43,12 @@ def create_parser() -> argparse.ArgumentParser:
         help="输出文件路径 (默认: cybernetics.json)",
     )
     init_parser.add_argument(
-        "-f", "--format",
+        "-f", "--force",
+        action="store_true",
+        help="强制覆盖已存在的配置文件",
+    )
+    init_parser.add_argument(
+        "--format",
         choices=["json", "yaml"],
         default="json",
         help="配置文件格式",

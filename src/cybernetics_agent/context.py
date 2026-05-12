@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import threading
 import uuid
 from typing import Any, Dict, Optional
 
@@ -40,6 +41,7 @@ class CyberneticsContext:
         self.metrics = MetricsCollector()
         self._modules: Dict[str, ICyberneticsModule] = {}
         self._session_id = f"sess_{uuid.uuid4().hex[:8]}"
+        self._lock = threading.Lock()
 
     @property
     def session_id(self) -> str:
@@ -54,13 +56,15 @@ class CyberneticsContext:
         """
         if not module.enabled:
             return
-        self._modules[module.name] = module
+        with self._lock:
+            self._modules[module.name] = module
         self.event_bus.subscribe(module)
         module.initialize()
 
     def unregister_module(self, name: str) -> None:
         """卸载模块。"""
-        module = self._modules.pop(name, None)
+        with self._lock:
+            module = self._modules.pop(name, None)
         if module:
             self.event_bus.unsubscribe(module)
             module.shutdown()
@@ -154,27 +158,33 @@ class CyberneticsContext:
 
     def get_module(self, name: str) -> Optional[ICyberneticsModule]:
         """获取指定名称的模块实例。"""
-        return self._modules.get(name)
+        with self._lock:
+            return self._modules.get(name)
 
     def get_all_modules(self) -> Dict[str, ICyberneticsModule]:
         """获取所有已注册模块。"""
-        return dict(self._modules)
+        with self._lock:
+            return dict(self._modules)
 
     def get_status(self) -> Dict[str, Any]:
         """获取整体状态报告。"""
+        with self._lock:
+            modules = dict(self._modules)
         return {
             "session_id": self._session_id,
             "project_name": self.config.project_name,
             "modules": {
                 name: mod.get_status()
-                for name, mod in self._modules.items()
+                for name, mod in modules.items()
             },
             "metrics": self.metrics.get_summary(),
         }
 
     def shutdown(self) -> None:
         """关闭上下文，清理所有模块。"""
-        for name in list(self._modules.keys()):
+        with self._lock:
+            names = list(self._modules.keys())
+        for name in names:
             self.unregister_module(name)
         self.state_manager.close()
 

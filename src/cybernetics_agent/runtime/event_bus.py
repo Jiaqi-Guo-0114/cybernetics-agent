@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import threading
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 if TYPE_CHECKING:
@@ -30,6 +31,7 @@ class EventBus:
         self._all_subscribers: List["ICyberneticsModule"] = []
         self._event_log: List["CyberneticsEvent"] = []
         self._max_log_size = 1000
+        self._lock = threading.Lock()
 
     def subscribe(
         self,
@@ -43,21 +45,23 @@ class EventBus:
             module: 要订阅的模块
             event_types: 关注的事件类型列表。为 None 则关注所有事件。
         """
-        if event_types is None:
-            self._all_subscribers.append(module)
-        else:
-            for et in event_types:
-                if et not in self._subscribers:
-                    self._subscribers[et] = []
-                self._subscribers[et].append(module)
+        with self._lock:
+            if event_types is None:
+                self._all_subscribers.append(module)
+            else:
+                for et in event_types:
+                    if et not in self._subscribers:
+                        self._subscribers[et] = []
+                    self._subscribers[et].append(module)
 
     def unsubscribe(self, module: "ICyberneticsModule") -> None:
         """取消订阅。"""
-        if module in self._all_subscribers:
-            self._all_subscribers.remove(module)
-        for subscribers in self._subscribers.values():
-            if module in subscribers:
-                subscribers.remove(module)
+        with self._lock:
+            if module in self._all_subscribers:
+                self._all_subscribers.remove(module)
+            for subscribers in self._subscribers.values():
+                if module in subscribers:
+                    subscribers.remove(module)
 
     def emit(self, event: "CyberneticsEvent") -> None:
         """
@@ -69,26 +73,27 @@ class EventBus:
         3. 通知类型订阅者
         4. 如果某订阅者返回 None，事件停止传播
         """
-        # 记录事件
-        self._event_log.append(event)
-        if len(self._event_log) > self._max_log_size:
-            self._event_log = self._event_log[-self._max_log_size // 2:]
+        with self._lock:
+            # 记录事件
+            self._event_log.append(event)
+            if len(self._event_log) > self._max_log_size:
+                self._event_log = self._event_log[-self._max_log_size // 2:]
 
-        current_event = event
-        event_type_str = event.event_type.value
+            current_event = event
+            event_type_str = event.event_type.value
 
-        # 通知全局订阅者
-        for subscriber in self._all_subscribers:
-            if current_event is None:
-                break
-            current_event = subscriber.on_event(current_event)
-
-        # 通知类型订阅者
-        if current_event is not None and event_type_str in self._subscribers:
-            for subscriber in self._subscribers[event_type_str]:
+            # 通知全局订阅者
+            for subscriber in list(self._all_subscribers):
                 if current_event is None:
                     break
                 current_event = subscriber.on_event(current_event)
+
+            # 通知类型订阅者
+            if current_event is not None and event_type_str in self._subscribers:
+                for subscriber in list(self._subscribers[event_type_str]):
+                    if current_event is None:
+                        break
+                    current_event = subscriber.on_event(current_event)
 
     def get_recent_events(
         self,
