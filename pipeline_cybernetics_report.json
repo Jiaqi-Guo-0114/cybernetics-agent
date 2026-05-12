@@ -1,0 +1,26 @@
+{
+  "query": "mindfulness depression",
+  "max_papers": 2,
+  "stages": {
+    "search": {
+      "error": "object of type 'coroutine' has no len()"
+    },
+    "download": {
+      "error": "'coroutine' object is not iterable"
+    },
+    "generate": {
+      "error": "ReviewGenerator.generate() got an unexpected keyword argument 'query'"
+    }
+  },
+  "cybernetics_status": {
+    "session_id": "sess_bdfc0cd1",
+    "project_name": "psychology-pipeline",
+    "modules": {},
+    "metrics": {
+      "counters": {},
+      "gauges": {},
+      "histograms": {}
+    }
+  },
+  "conversion_funnel": {}
+}
