@@ -1,0 +1,113 @@
+{
+  "$schema": "https://raw.githubusercontent.com/guojiaqi/cybernetics-agent/main/schemas/cybernetics-schema.json",
+  "version": "1.0",
+  "project_name": "my-research-pipeline",
+
+  "feedback_loop": {
+    "enabled": true,
+    "mode": "automatic",
+    "actions": [
+      { "trigger": "tool_error_rate > 0.3", "action": "retry_with_deeper_model" },
+      { "trigger": "stage_failure_rate > 0.5", "action": "degrade_to_abstract_mode" }
+    ],
+    "max_feedback_depth": 3
+  },
+
+  "stability": {
+    "enabled": true,
+    "timeout": {
+      "default": 30,
+      "llm": 120,
+      "download": 60,
+      "tool": 30
+    },
+    "retry": {
+      "max_retries": 3,
+      "backoff": "exponential",
+      "base_delay": 1.0,
+      "max_delay": 60.0
+    },
+    "circuit_breaker": {
+      "enabled": true,
+      "failure_threshold": 5,
+      "recovery_timeout": 60,
+      "half_open_max_calls": 3
+    },
+    "graceful_degradation": {
+      "enabled": true,
+      "chain": [
+        { "condition": "pdf_unavailable", "fallback": "abstract_mode" },
+        { "condition": "all_downloaders_fail", "fallback": "metadata_only" }
+      ]
+    },
+    "parallel_competition": {
+      "enabled": true,
+      "groups": [
+        { "name": "http", "concurrency": "parallel", "members": ["pdf", "oa", "scihub"] },
+        { "name": "cdp", "concurrency": "serial", "members": ["publisher", "carsi", "sd"] }
+      ],
+      "timeout_seconds": 120
+    }
+  },
+
+  "system_id": {
+    "enabled": true,
+    "metrics": ["conversion_rate", "latency", "error_rate", "token_usage"],
+    "sampling_rate": 1.0,
+    "retention_days": 30
+  },
+
+  "optimal_control": {
+    "enabled": true,
+    "budgets": {
+      "tokens_per_session": 100000,
+      "api_calls_per_session": 50,
+      "cost_usd_per_session": 5.0
+    },
+    "constraints": {
+      "max_concurrent_tools": 5,
+      "max_llm_requests_per_minute": 10
+    }
+  },
+
+  "info_flow": {
+    "enabled": true,
+    "filters": [
+      { "type": "deduplicate", "params": { "window_seconds": 5 } },
+      { "type": "rate_limit", "params": { "max_events_per_second": 100 } }
+    ],
+    "channels": ["event_bus", "metrics", "storage"]
+  },
+
+  "adaptive": {
+    "enabled": true,
+    "learning_rate": 0.3,
+    "parameters": [
+      { "name": "max_papers", "base": 10, "min": 3, "max": 50 },
+      { "name": "search_depth", "base": "normal", "options": ["shallow", "normal", "deep"] }
+    ],
+    "user_behavior": {
+      "track_topics": true,
+      "track_feedback": true,
+      "topic_decay_half_life_days": 7
+    }
+  },
+
+  "hierarchy": {
+    "enabled": true,
+    "layers": [
+      { "name": "strategic", "decision_types": ["goal", "branch", "budget"] },
+      { "name": "tactical", "decision_types": ["parameter", "resource", "schedule"] },
+      { "name": "executive", "decision_types": ["tool", "retry", "error_recovery"] }
+    ]
+  },
+
+  "storage": {
+    "backend": "jsonl",
+    "path": "./.cybernetics",
+    "rotation": {
+      "max_file_size_mb": 10,
+      "max_files": 10
+    }
+  }
+}
