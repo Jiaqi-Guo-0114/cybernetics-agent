@@ -75,6 +75,15 @@ cybernetix dashboard         # Iniciar panel de control
 cybernetix run ./task.py     # Ejecutar tarea y recolectar métricas
 ```
 
+## 📊 Panel de Control
+
+![Dashboard Preview](assets/dashboard_preview.png)
+
+Iniciar panel de control:
+```bash
+cybernetix dashboard
+```
+
 ## 📝 Licencia
 
 MIT License © 2026 Cybernetics Agent Contributors

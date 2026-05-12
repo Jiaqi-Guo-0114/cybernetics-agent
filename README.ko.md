@@ -75,6 +75,15 @@ cybernetix dashboard         # 모니터링 대시보드 실행
 cybernetix run ./task.py     # 작업 실행 및 지표 수집
 ```
 
+## 📊 대시보드
+
+![Dashboard Preview](assets/dashboard_preview.png)
+
+대시보드 실행:
+```bash
+cybernetix dashboard
+```
+
 ## 📝 라이센스
 
 MIT License © 2026 Cybernetics Agent Contributors

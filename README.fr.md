@@ -75,6 +75,15 @@ cybernetix dashboard         # Lancer tableau de bord
 cybernetix run ./task.py     # Exécuter tâche et collecter métriques
 ```
 
+## 📊 Tableau de Bord
+
+![Dashboard Preview](assets/dashboard_preview.png)
+
+Lancer le tableau de bord:
+```bash
+cybernetix dashboard
+```
+
 ## 📝 Licence
 
 MIT License © 2026 Cybernetics Agent Contributors

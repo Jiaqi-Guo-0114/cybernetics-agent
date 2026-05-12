@@ -75,6 +75,15 @@ cybernetix dashboard         # 監視ダッシュボード起動
 cybernetix run ./task.py     # タスク実行と指標収集
 ```
 
+## 📊 ダッシュボード
+
+![Dashboard Preview](assets/dashboard_preview.png)
+
+ダッシュボード起動:
+```bash
+cybernetix dashboard
+```
+
 ## 📝 ライセンス
 
 MIT License © 2026 Cybernetics Agent Contributors

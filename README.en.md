@@ -75,6 +75,15 @@ cybernetix dashboard         # Launch monitoring dashboard
 cybernetix run ./task.py     # Run task and collect metrics
 ```
 
+## 📊 Dashboard
+
+![Dashboard Preview](assets/dashboard_preview.png)
+
+Launch dashboard:
+```bash
+cybernetix dashboard
+```
+
 ## 📝 License
 
 MIT License © 2026 Cybernetics Agent Contributors
