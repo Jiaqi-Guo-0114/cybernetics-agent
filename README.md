@@ -5,149 +5,76 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Tests](https://img.shields.io/badge/tests-15%2F15-brightgreen.svg)]()
+
+🌐 **[English](README.en.md)** · **[Français](README.fr.md)** · **[Español](README.es.md)** · **[日本語](README.ja.md)** · **[한국어](README.ko.md)**
 
 ---
 
-## ✨ 特性
+## ✅ 特性
 
-- 🔧 **框架无关** — 支持 Hermes、LangChain、CrewAI、AutoGen、纯 Python 等任何框架
-- 📊 **七大原则** — 反馈闭环、稳定性优先、系统辨识、最优控制、信息流、自适应、分层控制
-- ⚡ **零依赖** — 纯标准库，无需安装任何额外依赖
-- 📄️ **声明式配置** — JSON/YAML 配置，即配即用
-- 📈 **实时 Dashboard** — 本地 Web 仪表盘，可视化系统状态
-- 🧠 **智能审计** — CLI 工具自动检测代码中的控制论缺陷
-
----
+- **框架无关** — 不依赖任何 LLM 框架，纯标准库
+- **七大原则** — 钱学森《工程控制论》全覆盖
+- **多框架适配** — 支持 LangChain、AutoGen、CrewAI、Hermes、Claude Code、Codex 等
+- **声明式配置** — JSON/YAML 配置，灵活可控
+- **完整 CLI** — `cybernetix` 命令行工具（init / audit / dashboard / run）
+- **线程安全** — 内置线程锁保护
 
 ## 🚀 快速开始
 
-### 安装
-
 ```bash
+# 安装
 pip install cybernetics-agent
-```
 
-### 配置
-
-创建 `cybernetics.json`：
-
-```json
-{
-  "version": "1.0",
-  "project_name": "my-agent",
-  "feedback_loop": { "enabled": true },
-  "stability": { "enabled": true }
-}
-```
-
-### 代码中使用
-
-```python
-from cybernetics_agent import CyberneticsContext, CyberneticsConfig
-
-# 加载配置
-config = CyberneticsConfig.from_json("cybernetics.json")
-
-# 创建上下文
-ctx = CyberneticsContext(config)
-
-# 发射事件（自动触发所有已启用的控制论模块）
-ctx.emit_tool_result("search", ["result1", "result2"])
-ctx.emit_tool_error("download", "timeout")
-
-# 查看状态
-print(ctx.get_status())
-```
-
-### 与 LangChain 整合
-
-```python
-from langchain_openai import ChatOpenAI
-from cybernetics_agent.adapters import LangChainAdapter
-from cybernetics_agent import CyberneticsContext, CyberneticsConfig
-
-# 初始化控制论层
-config = CyberneticsConfig.from_json("cybernetics.json")
-ctx = CyberneticsContext(config)
-
-# 创建 LangChain LLM 并接入适配器
-llm = ChatOpenAI()
-adapter = LangChainAdapter(ctx)
-adapter.install(llm)
-
-# 使用 LLM 时，所有调用自动被记录和分析
-result = llm.invoke("Hello, world!")
-```
-
-### CLI 工具
-
-```bash
 # 初始化配置
 cybernetix init
 
-# 审计代码目录
-cybernetix audit ./my_project
-
-# 生成审计报告
-cybernetix report --format markdown
-
-# 启动 Dashboard
-cybernetix dashboard --port 8080
+# 使用
+python -c "
+from cybernetics_agent import CyberneticsConfig, CyberneticsContext
+ctx = CyberneticsContext(CyberneticsConfig(project_name='my-agent'))
+ctx.emit_tool_result('search', ['paper1', 'paper2'])
+print(ctx.get_status())
+"
 ```
 
----
+## 🎯 七大原则
 
-## 🏠 架构
+| 原则 | 模块 | 功能 |
+|------|------|------|
+| 1. 反馈闭环 | FeedbackLoop | 触发式行动，自动调整 |
+| 2. 稳定性优先 | StabilityEngine | 重试、熔断器、降级、超时控制 |
+| 3. 系统辨识 | SystemIdentifier | 转化漏斗、效率指标采集 |
+| 4. 最优控制 | OptimalController | 预算管理、约束检查 |
+| 5. 信息论 | InfoFlow | 消息过滤、分发 |
+| 6. 自适应 | AdaptiveTuner | 参数自动调优 |
+| 7. 分层控制 | HierarchyController | 战略/战术/执行三层架构 |
 
+## 🔧 支持的框架
+
+```python
+from cybernetics_agent.adapters import (
+    NativeAdapter,       # 纯 Python
+    LangChainAdapter,    # LangChain
+    AutoGenAdapter,      # AutoGen
+    CrewAIAdapter,       # CrewAI
+    HermesAdapter,       # Hermes Agent
+    ClaudeCodeAdapter,   # Claude Code CLI
+    CodexAdapter,        # OpenAI Codex CLI
+    OpenClawAdapter,     # OpenClaw (HTTP)
+    QwenpawAdapter,      # Qwenpaw
+)
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                     你的 Agent 项目                           │
-├─────────────────────────────────────────────────────────────────┤
-│  适配层（Hermes / LangChain / CrewAI / AutoGen / Native）    │
-├─────────────────────────────────────────────────────────────────┤
-│  核心框架 — 七大原则实现                       │
-│  ─ FeedbackLoop / StabilityEngine / SystemIdentifier        │
-│  ─ OptimalController / InfoFlow / AdaptiveTuner              │
-│  ─ HierarchyController                                       │
-├─────────────────────────────────────────────────────────────────┤
-│  运行时层 — EventBus + StateManager + MetricsCollector   │
-├─────────────────────────────────────────────────────────────────┤
-│  存储层 — JSONL / SQLite / Redis（可插拔）              │
-└─────────────────────────────────────────────────────────────────┘
+
+## 📁 CLI 工具
+
+```bash
+cybernetix init              # 初始化配置
+cybernetix audit ./src       # 审计代码缺陷
+cybernetix dashboard         # 启动监控仪表盘
+cybernetix run ./task.py     # 运行任务并采集指标
 ```
 
----
-
-## 📖 七大原则快速对照
-
-| 原则 | 问题 | 解决方案 |
-|------|------|---------|
-| **反馈闭环** | 检测到问题但不行动？ | 检测→决策→行动的真闭环 |
-| **稳定性优先** | 失败时崩溃？ | 重试、降级、熔断、并行竞争 |
-| **系统辨识** | 不知道系统跑得怎么样？ | 性能指标采集、转化漏斗、预测模型 |
-| **最优控制** | 浪费资源或超预算？ | Token/API/成本预算管理 |
-| **信息流** | 信息噪声大、丢失？ | 事件滤波、去重、速率限制 |
-| **自适应** | 参数一成不变？ | EMA 学习、用户行为追踪、动态调参 |
-| **分层控制** | 所有决策压在同一层？ | 战略/战术/执行三层架构 |
-
----
-
-## 📑 相关资料
-
-- [RFC-001: 架构与接口设计](docs/RFC-001.md)
-- [快速开始指南](docs/quickstart.md)
-- [API 参考](docs/api-reference.md)
-- [实际案例](examples/)
-
----
-
-## 👥 贡献
-
-欢迎 Issue 和 PR！请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
----
-
-## 📄️ License
+## 📝 许可证
 
 MIT License © 2026 Cybernetics Agent Contributors
