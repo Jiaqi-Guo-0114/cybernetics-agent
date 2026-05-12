@@ -75,6 +75,36 @@ cybernetix dashboard         # 启动监控仪表盘
 cybernetix run ./task.py     # 运行任务并采集指标
 ```
 
+## 📊 监控仪表盘示例
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║              🦙 Cybernetics Agent Dashboard              ║
+╠══════════════════════════════════════════════════════════════════╓
+║  Session: sess_a39878fa                                 ║
+║  Project: demo-project                                  ║
+╠══════════════════════════════════════════════════════════════════╓
+║  事件统计                                               ║
+║    tool_calls_total                        38            ║
+║    tool_errors_total                        3            ║
+║    llm_requests_total                       0            ║
+╠══════════════════════════════════════════════════════════════════╓
+║  模块状态                                               ║
+║    ✅ feedback_loop                         active        ║
+║    ✅ stability                             active        ║
+║    ✅ system_id                             active        ║
+║    ✅ optimal_control                       active        ║
+║    ✅ info_flow                             active        ║
+║    ✅ adaptive                              active        ║
+║    ✅ hierarchy                             active        ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+启动监控仪表盘：
+```bash
+cybernetix dashboard
+```
+
 ## 📝 许可证
 
 MIT License © 2026 Cybernetics Agent Contributors
