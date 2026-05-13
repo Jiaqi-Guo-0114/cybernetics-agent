@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.3.0] - 2026-05-13
+
+### Added
+- **Metrics 导出**: `MetricsCollector.to_prometheus()` / `to_openmetrics()` 支持 Prometheus 文本格式导出
+- **Plugin 系统**: 热插拔自定义模块
+  - `PluginLoader.discover()` 自动发现插件目录
+  - `CyberneticsContext.load_plugins()` 动态加载/卸载
+  - CLI: `cybernetix plugin list|discover`
+- **真实 Dashboard**: FastAPI + SSE 实时事件流
+  - 优先使用 FastAPI，回退到 http.server
+  - `/metrics` Prometheus 端点
+  - `/api/events` SSE 实时事件流
+  - `/api/metrics|status|config` JSON API
+  - 前端实时指标刷新 + 事件日志
+- **自适应调优落地**: `AdaptiveTuner`
+  - `auto_tune()`: ε-greedy 自动参数优化
+  - `suggest_parameters()`: 推荐调整方案（不应用）
+  - `_estimate_confidence()`: 样本量化置信度估计
+  - 支持数值型和选项型参数自动调整
+- **测试覆盖**: 从 47 项增至 63 项，新增 metrics 导出、plugin、dashboard、auto-tuning 测试
+
+### Fixed
+- 修复隐私泄露: 移除本地路径、内部端口和旧用户名引用
+
 ## [0.2.0] - 2026-05-13
 
 ### Added
