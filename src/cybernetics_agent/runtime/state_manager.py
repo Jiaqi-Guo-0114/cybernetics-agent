@@ -7,9 +7,8 @@
 from __future__ import annotations
 
 import json
-import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..core.base import CyberneticsEvent
@@ -28,17 +27,17 @@ class StateManager:
         >>> events = manager.load_events(session_id="sess_001")
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(self, config: dict[str, Any]) -> None:
         self._config = config
         self._backend = config.get("backend", "jsonl")
         self._path = Path(config.get("path", "./.cybernetics"))
-        self._memory: List[Dict[str, Any]] = []
+        self._memory: list[dict[str, Any]] = []
         self._closed = False
 
         if self._backend in ("jsonl", "sqlite"):
             self._path.mkdir(parents=True, exist_ok=True)
 
-    def save_event(self, event: "CyberneticsEvent") -> None:
+    def save_event(self, event: CyberneticsEvent) -> None:
         """
         保存事件到存储。
 
@@ -63,13 +62,13 @@ class StateManager:
         elif self._backend == "sqlite":
             self._insert_sqlite(record)
 
-    def _append_jsonl(self, record: Dict[str, Any]) -> None:
+    def _append_jsonl(self, record: dict[str, Any]) -> None:
         """追加写入 JSONL 文件。"""
         filepath = self._path / "events.jsonl"
         with open(filepath, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-    def _insert_sqlite(self, record: Dict[str, Any]) -> None:
+    def _insert_sqlite(self, record: dict[str, Any]) -> None:
         """插入 SQLite 数据库。"""
         import sqlite3
 
@@ -104,11 +103,11 @@ class StateManager:
 
     def load_events(
         self,
-        session_id: Optional[str] = None,
-        event_type: Optional[str] = None,
-        since: Optional[float] = None,
+        session_id: str | None = None,
+        event_type: str | None = None,
+        since: float | None = None,
         limit: int = 1000,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         加载历史事件。
 
@@ -139,21 +138,21 @@ class StateManager:
         events.sort(key=lambda e: e.get("timestamp", 0), reverse=True)
         return events[:limit]
 
-    def _load_jsonl_events(self) -> List[Dict[str, Any]]:
+    def _load_jsonl_events(self) -> list[dict[str, Any]]:
         """加载 JSONL 文件中的所有事件。"""
         filepath = self._path / "events.jsonl"
         if not filepath.exists():
             return []
 
         events = []
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
                     events.append(json.loads(line))
         return events
 
-    def _load_sqlite_events(self) -> List[Dict[str, Any]]:
+    def _load_sqlite_events(self) -> list[dict[str, Any]]:
         """加载 SQLite 数据库中的所有事件。"""
         import sqlite3
 
@@ -181,7 +180,7 @@ class StateManager:
     def get_session_count(self) -> int:
         """获取唯一 session 数量。"""
         events = self.load_events(limit=10000)
-        return len(set(e.get("session_id") for e in events if e.get("session_id")))
+        return len({e.get("session_id") for e in events if e.get("session_id")})
 
     def close(self) -> None:
         """关闭状态管理器。"""

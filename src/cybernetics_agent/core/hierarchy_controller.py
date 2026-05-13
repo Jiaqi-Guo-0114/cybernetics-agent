@@ -9,7 +9,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base import CyberneticsEvent, EventType, ICyberneticsModule
 
@@ -26,7 +26,7 @@ class Decision:
     """单个决策。"""
     layer: str
     decision_type: str
-    params: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     timestamp: float = field(default_factory=time.time)
     approved: bool = True
 
@@ -54,11 +54,11 @@ class HierarchyController(ICyberneticsModule):
 
     name = "hierarchy"
 
-    def __init__(self, config: Dict[str, Any], ctx: Any) -> None:
+    def __init__(self, config: dict[str, Any], ctx: Any) -> None:
         super().__init__(config, ctx)
 
         # 解析层配置
-        self._layers: Dict[str, List[str]] = {}
+        self._layers: dict[str, list[str]] = {}
         layer_order = []
         for layer_data in config.get("layers", []):
             name = layer_data["name"]
@@ -69,14 +69,14 @@ class HierarchyController(ICyberneticsModule):
         self._layer_order = layer_order
 
         # 决策记录
-        self._decisions: List[Decision] = []
-        self._pending_decisions: Dict[str, Decision] = {}
+        self._decisions: list[Decision] = []
+        self._pending_decisions: dict[str, Decision] = {}
 
         # 统计
         self._decision_count = 0
         self._override_count = 0
 
-    def on_event(self, event: CyberneticsEvent) -> Optional[CyberneticsEvent]:
+    def on_event(self, event: CyberneticsEvent) -> CyberneticsEvent | None:
         """监听事件，确定哪一层负责处理。"""
         et = event.event_type
 
@@ -104,7 +104,7 @@ class HierarchyController(ICyberneticsModule):
 
         return event
 
-    def _record_decision(self, layer: str, decision_type: str, params: Dict[str, Any]) -> None:
+    def _record_decision(self, layer: str, decision_type: str, params: dict[str, Any]) -> None:
         """记录一个决策。"""
         decision = Decision(
             layer=layer,
@@ -118,7 +118,7 @@ class HierarchyController(ICyberneticsModule):
         self,
         layer: str,
         decision_type: str,
-        params: Dict[str, Any],
+        params: dict[str, Any],
     ) -> Decision:
         """在指定层做出一个决策。
 
@@ -140,7 +140,7 @@ class HierarchyController(ICyberneticsModule):
         self._decision_count += 1
         return decision
 
-    def _find_layer_for_type(self, decision_type: str) -> Optional[str]:
+    def _find_layer_for_type(self, decision_type: str) -> str | None:
         """查找某个决策类型属于哪一层。"""
         for layer_name, types in self._layers.items():
             if decision_type in types:
@@ -149,9 +149,9 @@ class HierarchyController(ICyberneticsModule):
 
     def get_decision_chain(
         self,
-        layer: Optional[str] = None,
-        since: Optional[float] = None,
-    ) -> List[Decision]:
+        layer: str | None = None,
+        since: float | None = None,
+    ) -> list[Decision]:
         """
         获取决策链。
 
@@ -166,18 +166,18 @@ class HierarchyController(ICyberneticsModule):
             decisions = [d for d in decisions if d.timestamp >= since]
         return decisions
 
-    def get_layer_stats(self) -> Dict[str, Any]:
+    def get_layer_stats(self) -> dict[str, Any]:
         """获取各层级的决策统计。"""
-        stats: Dict[str, Dict[str, Any]] = {}
+        stats: dict[str, dict[str, Any]] = {}
         for layer in self._layer_order:
             layer_decisions = [d for d in self._decisions if d.layer == layer]
             stats[layer] = {
                 "total_decisions": len(layer_decisions),
-                "decision_types": list(set(d.decision_type for d in layer_decisions)),
+                "decision_types": list({d.decision_type for d in layer_decisions}),
             }
         return stats
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取模块状态。"""
         return {
             "enabled": self.enabled,

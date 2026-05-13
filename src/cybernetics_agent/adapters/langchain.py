@@ -14,11 +14,11 @@ class LangChainAdapter(BaseAdapter):
     def install(self, target: Any) -> None:
         try:
             from langchain.callbacks.base import BaseCallbackHandler
-        except ImportError:
-            raise ImportError("pip install langchain")
+        except ImportError as err:
+            raise ImportError("pip install langchain") from err
 
         class _Handler(BaseCallbackHandler):
-            def __init__(self, adapter: "LangChainAdapter"):
+            def __init__(self, adapter: LangChainAdapter):
                 self._a = adapter
 
             def on_llm_start(self, serialized: dict, prompts: list, **kwargs: Any) -> None:

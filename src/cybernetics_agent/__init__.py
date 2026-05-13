@@ -22,8 +22,8 @@ __author__ = "Cybernetics Agent Contributors"
 
 from .config import CyberneticsConfig
 from .context import CyberneticsContext
-from .core.base import ICyberneticsModule, EventType, CyberneticsEvent
-from .presets import list_presets, get_preset, apply_preset, describe_preset
+from .core.base import CyberneticsEvent, EventType, ICyberneticsModule
+from .presets import apply_preset, describe_preset, get_preset, list_presets
 
 __all__ = [
     "CyberneticsConfig",

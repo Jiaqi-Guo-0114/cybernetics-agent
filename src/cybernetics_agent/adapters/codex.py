@@ -12,8 +12,9 @@ Codex 适配器。
 
 from __future__ import annotations
 
+import contextlib
 import subprocess
-from typing import Any, List, Optional
+from typing import Any
 
 from .base import BaseAdapter
 
@@ -27,18 +28,16 @@ class CodexAdapter(BaseAdapter):
 
     def install(self, target: Any) -> None:
         """检查 Codex 是否可用。"""
-        try:
+        with contextlib.suppress(FileNotFoundError, subprocess.CalledProcessError):
             subprocess.run([self.cli_path, "--version"], capture_output=True, check=True)
-        except (FileNotFoundError, subprocess.CalledProcessError):
-            pass
         self._installed = True
 
     def run(
         self,
         prompt: str,
-        approval_mode: Optional[str] = None,
-        model: Optional[str] = None,
-        cwd: Optional[str] = None,
+        approval_mode: str | None = None,
+        model: str | None = None,
+        cwd: str | None = None,
     ) -> str:
         """
         执行 Codex 并采集事件。
@@ -52,7 +51,7 @@ class CodexAdapter(BaseAdapter):
         返回:
             Codex 的输出文本
         """
-        cmd: List[str] = [self.cli_path, "-q", prompt]
+        cmd: list[str] = [self.cli_path, "-q", prompt]
         if approval_mode:
             cmd.extend(["--approval-mode", approval_mode])
         if model:

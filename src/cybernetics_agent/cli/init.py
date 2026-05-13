@@ -11,7 +11,6 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any
 
-
 DEFAULT_CONFIG: dict[str, Any] = {
     "version": "1.0",
     "project_name": "my-agent",

@@ -11,10 +11,9 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..config import CyberneticsConfig
     from ..context import CyberneticsContext
 
 
@@ -58,8 +57,8 @@ class CyberneticsEvent:
     event_type: EventType
     timestamp: float
     session_id: str
-    payload: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    payload: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     event_id: str = field(default_factory=lambda: uuid.uuid4().hex[:16])
 
     @classmethod
@@ -67,9 +66,9 @@ class CyberneticsEvent:
         cls,
         event_type: EventType,
         session_id: str,
-        payload: Optional[Dict[str, Any]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> "CyberneticsEvent":
+        payload: dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> CyberneticsEvent:
         """便捷构造方法。"""
         return cls(
             event_type=event_type,
@@ -101,7 +100,7 @@ class ICyberneticsModule(ABC):
     name: str = ""
     enabled: bool = True
 
-    def __init__(self, config: Dict[str, Any], ctx: "CyberneticsContext") -> None:
+    def __init__(self, config: dict[str, Any], ctx: CyberneticsContext) -> None:
         self.config = config
         self.ctx = ctx
         self._initialized = False
@@ -115,7 +114,7 @@ class ICyberneticsModule(ABC):
         self._initialized = False
 
     @abstractmethod
-    def on_event(self, event: CyberneticsEvent) -> Optional[CyberneticsEvent]:
+    def on_event(self, event: CyberneticsEvent) -> CyberneticsEvent | None:
         """
         处理事件。
 
@@ -129,7 +128,7 @@ class ICyberneticsModule(ABC):
         ...
 
     @abstractmethod
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """
         返回模块当前状态。
 

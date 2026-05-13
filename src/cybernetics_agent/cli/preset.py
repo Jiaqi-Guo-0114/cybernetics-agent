@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import json
-import sys
 from argparse import Namespace
 from pathlib import Path
-from typing import Optional
 
 from ..config import CyberneticsConfig
 from ..presets import apply_preset, describe_preset, get_preset, list_presets

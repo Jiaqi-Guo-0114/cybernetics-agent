@@ -6,14 +6,14 @@ import pytest
 
 from cybernetics_agent import CyberneticsConfig
 from cybernetics_agent.presets import (
-    HIGH_CONCURRENCY,
-    LOW_COST,
-    HIGH_RELIABILITY,
     DEBUG,
-    list_presets,
-    get_preset,
+    HIGH_CONCURRENCY,
+    HIGH_RELIABILITY,
+    LOW_COST,
     apply_preset,
     describe_preset,
+    get_preset,
+    list_presets,
 )
 
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base import CyberneticsEvent, EventType, ICyberneticsModule
 
@@ -22,7 +22,7 @@ class ParameterState:
     base_value: Any
     min_value: Any = None
     max_value: Any = None
-    options: List[Any] = field(default_factory=list)
+    options: list[Any] = field(default_factory=list)
     ema_value: float = 0.0
     adjustment_count: int = 0
 
@@ -54,13 +54,13 @@ class AdaptiveTuner(ICyberneticsModule):
 
     name = "adaptive"
 
-    def __init__(self, config: Dict[str, Any], ctx: Any) -> None:
+    def __init__(self, config: dict[str, Any], ctx: Any) -> None:
         super().__init__(config, ctx)
 
         self._learning_rate = config.get("learning_rate", 0.3)
 
         # 参数配置
-        self._parameters: Dict[str, ParameterState] = {}
+        self._parameters: dict[str, ParameterState] = {}
         for p in config.get("parameters", []):
             ps = ParameterState(
                 name=p["name"],
@@ -80,12 +80,12 @@ class AdaptiveTuner(ICyberneticsModule):
         self._topic_decay_days = ub_config.get("topic_decay_half_life_days", 7)
 
         # 学习状态
-        self._tool_scores: Dict[str, float] = {}  # tool_name -> EMA 得分
-        self._topic_weights: Dict[str, float] = {}  # topic -> 权重
-        self._user_feedback: List[Dict[str, Any]] = []
+        self._tool_scores: dict[str, float] = {}  # tool_name -> EMA 得分
+        self._topic_weights: dict[str, float] = {}  # topic -> 权重
+        self._user_feedback: list[dict[str, Any]] = []
         self._banned_tools: set = set()
 
-    def on_event(self, event: CyberneticsEvent) -> Optional[CyberneticsEvent]:
+    def on_event(self, event: CyberneticsEvent) -> CyberneticsEvent | None:
         """处理事件，更新学习状态。"""
         et = event.event_type
         payload = event.payload
@@ -99,13 +99,12 @@ class AdaptiveTuner(ICyberneticsModule):
         elif et == EventType.USER_FEEDBACK:
             self._process_user_feedback(payload)
 
-        elif et == EventType.USER_INPUT:
-            if self._track_topics:
-                self._extract_topics(payload.get("text", ""))
+        elif et == EventType.USER_INPUT and self._track_topics:
+            self._extract_topics(payload.get("text", ""))
 
         return event
 
-    def _update_tool_score(self, payload: Dict[str, Any], is_error: bool = False) -> None:
+    def _update_tool_score(self, payload: dict[str, Any], is_error: bool = False) -> None:
         """更新工具的 EMA 得分。"""
         tool_name = payload.get("tool_name", "unknown")
         success = 0.0 if is_error else 1.0
@@ -121,7 +120,7 @@ class AdaptiveTuner(ICyberneticsModule):
         new_score = self._learning_rate * score + (1 - self._learning_rate) * old_score
         self._tool_scores[tool_name] = new_score
 
-    def _process_user_feedback(self, payload: Dict[str, Any]) -> None:
+    def _process_user_feedback(self, payload: dict[str, Any]) -> None:
         """处理用户反馈。"""
         feedback_type = payload.get("type", "rating")
 
@@ -166,13 +165,13 @@ class AdaptiveTuner(ICyberneticsModule):
         correction_lower = correction.lower()
 
         # 检测禁用工具
-        for tool_name in self._tool_scores.keys():
+        for tool_name in self._tool_scores:
             if f"别用 {tool_name}" in correction_lower or f"禁用 {tool_name}" in correction_lower:
                 self._banned_tools.add(tool_name)
                 self._tool_scores[tool_name] = 0.0
 
         # 检测提高工具权重
-        for tool_name in self._tool_scores.keys():
+        for tool_name in self._tool_scores:
             if f"多用 {tool_name}" in correction_lower:
                 self._tool_scores[tool_name] = min(1.0, self._tool_scores.get(tool_name, 0.5) + 0.2)
 
@@ -207,7 +206,7 @@ class AdaptiveTuner(ICyberneticsModule):
             ps.current_value = value
             ps.adjustment_count += 1
 
-    def get_tool_ranking(self) -> List[Tuple[str, float]]:
+    def get_tool_ranking(self) -> list[tuple[str, float]]:
         """获取工具排名（按 EMA 得分从高到低）。"""
         scored = [
             (name, score)
@@ -216,7 +215,7 @@ class AdaptiveTuner(ICyberneticsModule):
         ]
         return sorted(scored, key=lambda x: x[1], reverse=True)
 
-    def get_topic_focus(self) -> List[Tuple[str, float]]:
+    def get_topic_focus(self) -> list[tuple[str, float]]:
         """获取用户当前主题焦点。"""
         # 应用衰减
         now = time.time()
@@ -236,7 +235,7 @@ class AdaptiveTuner(ICyberneticsModule):
         ]
         return sorted(ranked, key=lambda x: x[1], reverse=True)
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取模块状态。"""
         return {
             "enabled": self.enabled,
@@ -256,13 +255,13 @@ class AdaptiveTuner(ICyberneticsModule):
             "recent_feedback_count": len(self._user_feedback),
         }
 
-    def auto_tune(self) -> Dict[str, Any]:
+    def auto_tune(self) -> dict[str, Any]:
         """
         基于历史数据自动调整所有参数。
 
         返回调整日志，包含每个参数的旧值、新值和调整原因。
         """
-        changes: Dict[str, Any] = {}
+        changes: dict[str, Any] = {}
 
         # 1. 数值型参数自动调整
         for name, ps in self._parameters.items():
@@ -373,13 +372,13 @@ class AdaptiveTuner(ICyberneticsModule):
 
         return ps.current_value
 
-    def suggest_parameters(self) -> Dict[str, Dict[str, Any]]:
+    def suggest_parameters(self) -> dict[str, dict[str, Any]]:
         """
         推荐参数调整方案（不应用）。
 
         返回每个参数的建议新值和理由。
         """
-        suggestions: Dict[str, Dict[str, Any]] = {}
+        suggestions: dict[str, dict[str, Any]] = {}
 
         for name, ps in self._parameters.items():
             if isinstance(ps.base_value, (int, float)) and ps.min_value is not None:

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import statistics
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .base import CyberneticsEvent, EventType, ICyberneticsModule
 
@@ -23,7 +23,7 @@ class StageMetrics:
     success_count: int = 0
     error_count: int = 0
     total_duration: float = 0.0
-    durations: List[float] = field(default_factory=list)
+    durations: list[float] = field(default_factory=list)
 
     @property
     def conversion_rate(self) -> float:
@@ -74,22 +74,22 @@ class SystemIdentifier(ICyberneticsModule):
 
     name = "system_id"
 
-    def __init__(self, config: Dict[str, Any], ctx: Any) -> None:
+    def __init__(self, config: dict[str, Any], ctx: Any) -> None:
         super().__init__(config, ctx)
-        self._metrics_list: List[str] = config.get("metrics", [
+        self._metrics_list: list[str] = config.get("metrics", [
             "conversion_rate", "latency", "error_rate", "token_usage"
         ])
         self._sampling_rate: float = config.get("sampling_rate", 1.0)
         self._retention_days: int = config.get("retention_days", 30)
 
         # stage 性能数据
-        self._stage_metrics: Dict[str, StageMetrics] = {}
+        self._stage_metrics: dict[str, StageMetrics] = {}
         # 工具性能数据: tool_name -> {calls, errors, durations}
-        self._tool_stats: Dict[str, Dict[str, Any]] = {}
+        self._tool_stats: dict[str, dict[str, Any]] = {}
         # LLM 性能数据: model -> {calls, errors, prompt_tokens, completion_tokens}
-        self._llm_stats: Dict[str, Dict[str, Any]] = {}
+        self._llm_stats: dict[str, dict[str, Any]] = {}
 
-    def on_event(self, event: CyberneticsEvent) -> Optional[CyberneticsEvent]:
+    def on_event(self, event: CyberneticsEvent) -> CyberneticsEvent | None:
         """收集事件并更新统计指标。"""
         et = event.event_type
         payload = event.payload
@@ -105,7 +105,7 @@ class SystemIdentifier(ICyberneticsModule):
 
         return event
 
-    def _record_stage_transition(self, payload: Dict[str, Any]) -> None:
+    def _record_stage_transition(self, payload: dict[str, Any]) -> None:
         """记录阶段转化。"""
         stage = payload.get("stage", payload.get("to_stage", "unknown"))
         success = payload.get("success", True)
@@ -129,7 +129,7 @@ class SystemIdentifier(ICyberneticsModule):
             if len(sm.durations) > 1000:
                 sm.durations = sm.durations[-500:]
 
-    def _record_tool_event(self, payload: Dict[str, Any], is_error: bool) -> None:
+    def _record_tool_event(self, payload: dict[str, Any], is_error: bool) -> None:
         """记录工具事件。"""
         tool_name = payload.get("tool_name", "unknown")
         duration = payload.get("duration", 0.0)
@@ -148,7 +148,7 @@ class SystemIdentifier(ICyberneticsModule):
             if len(stats["durations"]) > 1000:
                 stats["durations"] = stats["durations"][-500:]
 
-    def _record_llm_event(self, payload: Dict[str, Any], is_error: bool) -> None:
+    def _record_llm_event(self, payload: dict[str, Any], is_error: bool) -> None:
         """记录 LLM 事件。"""
         model = payload.get("model", "unknown")
 
@@ -174,8 +174,8 @@ class SystemIdentifier(ICyberneticsModule):
 
     def get_conversion_funnel(
         self,
-        stages: List[str],
-    ) -> Dict[str, Any]:
+        stages: list[str],
+    ) -> dict[str, Any]:
         """
         计算转化漏斗。
 
@@ -189,7 +189,7 @@ class SystemIdentifier(ICyberneticsModule):
                 "overall": 0.45
             }
         """
-        funnel: Dict[str, Any] = {}
+        funnel: dict[str, Any] = {}
 
         for i in range(len(stages) - 1):
             from_stage = stages[i]
@@ -218,8 +218,8 @@ class SystemIdentifier(ICyberneticsModule):
     def predict_performance(
         self,
         query_type: str = "normal",
-        expected_stages: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        expected_stages: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         基于历史数据预测性能。
 
@@ -309,7 +309,7 @@ class SystemIdentifier(ICyberneticsModule):
             "query_type": query_type,
         }
 
-    def get_tool_performance(self, tool_name: Optional[str] = None) -> Dict[str, Any]:
+    def get_tool_performance(self, tool_name: str | None = None) -> dict[str, Any]:
         """获取工具性能数据。"""
         if tool_name:
             stats = self._tool_stats.get(tool_name)
@@ -325,10 +325,10 @@ class SystemIdentifier(ICyberneticsModule):
 
         return {
             name: self.get_tool_performance(name)
-            for name in self._tool_stats.keys()
+            for name in self._tool_stats
         }
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取模块状态。"""
         return {
             "enabled": self.enabled,

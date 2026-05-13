@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base import CyberneticsEvent, EventType, ICyberneticsModule
 
@@ -19,7 +19,7 @@ from .base import CyberneticsEvent, EventType, ICyberneticsModule
 class FeedbackAction:
     """反馈动作。"""
     action_type: str  # "retry", "degrade", "adjust", "abort", "proceed"
-    params: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     reason: str = ""
     timestamp: float = field(default_factory=time.time)
 
@@ -29,7 +29,7 @@ class TriggerRule:
     """触发规则。"""
     trigger: str  # 如 "tool_error_rate > 0.3"
     action: str   # 如 "retry_with_deeper_model"
-    params: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
 
 
 class FeedbackLoop(ICyberneticsModule):
@@ -57,10 +57,10 @@ class FeedbackLoop(ICyberneticsModule):
 
     name = "feedback_loop"
 
-    def __init__(self, config: Dict[str, Any], ctx: Any) -> None:
+    def __init__(self, config: dict[str, Any], ctx: Any) -> None:
         super().__init__(config, ctx)
-        self._rules: List[TriggerRule] = []
-        self._action_history: List[FeedbackAction] = []
+        self._rules: list[TriggerRule] = []
+        self._action_history: list[FeedbackAction] = []
         self._current_depth = 0
         self._max_depth = config.get("max_feedback_depth", 3)
         self._mode = config.get("mode", "automatic")
@@ -68,7 +68,7 @@ class FeedbackLoop(ICyberneticsModule):
         # 实时指标统计
         self._tool_calls = 0
         self._tool_errors = 0
-        self._stage_transitions: Dict[str, Dict[str, int]] = {}
+        self._stage_transitions: dict[str, dict[str, int]] = {}
 
         # 解析配置规则
         for rule_data in config.get("actions", []):
@@ -78,7 +78,7 @@ class FeedbackLoop(ICyberneticsModule):
                 params=rule_data.get("params", {}),
             ))
 
-    def on_event(self, event: CyberneticsEvent) -> Optional[CyberneticsEvent]:
+    def on_event(self, event: CyberneticsEvent) -> CyberneticsEvent | None:
         """
         处理事件，更新指标并检查触发条件。
         """
@@ -96,7 +96,7 @@ class FeedbackLoop(ICyberneticsModule):
 
         elif et == EventType.STAGE_TRANSITION:
             from_stage = event.payload.get("from_stage", "unknown")
-            to_stage = event.payload.get("to_stage", "unknown")
+            event.payload.get("to_stage", "unknown")
             success = event.payload.get("success", True)
 
             if from_stage not in self._stage_transitions:
@@ -125,9 +125,9 @@ class FeedbackLoop(ICyberneticsModule):
                 self._current_depth += 1
                 break  # 一次只触发一个动作
 
-    def _build_context(self) -> Dict[str, float]:
+    def _build_context(self) -> dict[str, float]:
         """构建评估上下文。"""
-        ctx: Dict[str, float] = {}
+        ctx: dict[str, float] = {}
 
         # 工具错误率
         if self._tool_calls > 0:
@@ -147,7 +147,7 @@ class FeedbackLoop(ICyberneticsModule):
 
         return ctx
 
-    def _evaluate_trigger(self, trigger: str, context: Dict[str, float]) -> bool:
+    def _evaluate_trigger(self, trigger: str, context: dict[str, float]) -> bool:
         """
         评估单个触发条件。
 
@@ -223,7 +223,7 @@ class FeedbackLoop(ICyberneticsModule):
             )
             self.ctx.emit(feedback_event)
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取模块状态。"""
         return {
             "enabled": self.enabled,
@@ -245,7 +245,7 @@ class FeedbackLoop(ICyberneticsModule):
             ],
         }
 
-    def get_actions(self) -> List[FeedbackAction]:
+    def get_actions(self) -> list[FeedbackAction]:
         """获取所有历史反馈动作。"""
         return list(self._action_history)
 

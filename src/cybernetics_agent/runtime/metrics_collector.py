@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..core.base import CyberneticsEvent
@@ -19,7 +19,7 @@ class MetricSnapshot:
     timestamp: float
     metric_name: str
     value: float
-    labels: Dict[str, str] = field(default_factory=dict)
+    labels: dict[str, str] = field(default_factory=dict)
 
 
 class MetricsCollector:
@@ -41,16 +41,16 @@ class MetricsCollector:
 
     def __init__(self) -> None:
         # Counter: metric_name -> {label_key: count}
-        self._counters: Dict[str, Dict[str, int]] = {}
+        self._counters: dict[str, dict[str, int]] = {}
         # Gauge: metric_name -> {label_key: current_value}
-        self._gauges: Dict[str, Dict[str, float]] = {}
+        self._gauges: dict[str, dict[str, float]] = {}
         # Histogram: metric_name -> {label_key: [values]}
-        self._histograms: Dict[str, Dict[str, List[float]]] = {}
+        self._histograms: dict[str, dict[str, list[float]]] = {}
         # 时间窗口：保留最近 N 条原始记录
-        self._raw_events: List[Dict[str, Any]] = []
+        self._raw_events: list[dict[str, Any]] = []
         self._max_raw_events = 5000
 
-    def record_event(self, event: "CyberneticsEvent") -> None:
+    def record_event(self, event: CyberneticsEvent) -> None:
         """
         从事件中自动提取指标。
 
@@ -98,7 +98,7 @@ class MetricsCollector:
             error_type = payload.get("error_type", "unknown")
             self.increment("errors_total", labels={"type": error_type})
 
-    def increment(self, name: str, value: int = 1, labels: Optional[Dict[str, str]] = None) -> None:
+    def increment(self, name: str, value: int = 1, labels: dict[str, str] | None = None) -> None:
         """增加计数器。"""
         labels = labels or {}
         label_key = self._label_key(labels)
@@ -107,7 +107,7 @@ class MetricsCollector:
             self._counters[name] = {}
         self._counters[name][label_key] = self._counters[name].get(label_key, 0) + value
 
-    def gauge(self, name: str, value: float, labels: Optional[Dict[str, str]] = None) -> None:
+    def gauge(self, name: str, value: float, labels: dict[str, str] | None = None) -> None:
         """设置仪表值。"""
         labels = labels or {}
         label_key = self._label_key(labels)
@@ -116,7 +116,7 @@ class MetricsCollector:
             self._gauges[name] = {}
         self._gauges[name][label_key] = value
 
-    def record(self, name: str, value: float, labels: Optional[Dict[str, str]] = None) -> None:
+    def record(self, name: str, value: float, labels: dict[str, str] | None = None) -> None:
         """记录到直方图。"""
         labels = labels or {}
         label_key = self._label_key(labels)
@@ -127,13 +127,13 @@ class MetricsCollector:
             self._histograms[name][label_key] = []
         self._histograms[name][label_key].append(value)
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """
         获取指标汇总报告。
 
         返回包括计数器、仪表和直方图的统计信息。
         """
-        summary: Dict[str, Any] = {
+        summary: dict[str, Any] = {
             "counters": dict(self._counters),
             "gauges": dict(self._gauges),
             "histograms": {},
@@ -171,9 +171,9 @@ class MetricsCollector:
 
     def get_conversion_funnel(
         self,
-        stages: List[str],
-        session_id: Optional[str] = None,
-    ) -> Dict[str, float]:
+        stages: list[str],
+        session_id: str | None = None,
+    ) -> dict[str, float]:
         """
         计算转化漏斗。
 
@@ -188,7 +188,7 @@ class MetricsCollector:
         if session_id:
             events = [e for e in events if e.get("session_id") == session_id]
 
-        stage_counts: Dict[str, int] = {}
+        stage_counts: dict[str, int] = {}
         for stage in stages:
             stage_counts[stage] = len([
                 e for e in events
@@ -196,7 +196,7 @@ class MetricsCollector:
                 or e.get("event_type") == stage
             ])
 
-        funnel: Dict[str, float] = {}
+        funnel: dict[str, float] = {}
         for i in range(len(stages) - 1):
             from_stage = stages[i]
             to_stage = stages[i + 1]
@@ -217,7 +217,7 @@ class MetricsCollector:
         self._raw_events.clear()
 
     @staticmethod
-    def _label_key(labels: Dict[str, str]) -> str:
+    def _label_key(labels: dict[str, str]) -> str:
         """将 label 字典转换为排序的字符串键。"""
         return "|".join(f"{k}={v}" for k, v in sorted(labels.items()))
 
@@ -233,8 +233,8 @@ class MetricsCollector:
         Returns:
             Prometheus 暴露格式字符串
         """
-        lines: List[str] = []
-        ts = __import__("time").time()
+        lines: list[str] = []
+        __import__("time").time()
 
         # Counter
         for name, label_data in self._counters.items():
@@ -293,9 +293,9 @@ class MetricsCollector:
         return "\n".join(lines)
 
     @staticmethod
-    def _parse_label_key(label_key: str) -> Dict[str, str]:
+    def _parse_label_key(label_key: str) -> dict[str, str]:
         """将 label 字符串键解析回字典。"""
-        result: Dict[str, str] = {}
+        result: dict[str, str] = {}
         if not label_key:
             return result
         for part in label_key.split("|"):

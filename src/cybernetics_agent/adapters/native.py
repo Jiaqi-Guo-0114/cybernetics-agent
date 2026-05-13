@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from .base import BaseAdapter, _Ctx
 
@@ -13,11 +13,11 @@ class NativeAdapter(BaseAdapter):
     def install(self, target: Any) -> None:
         self._installed = True
 
-    def instrument_tool(self, name: Optional[str] = None) -> Callable:
+    def instrument_tool(self, name: str | None = None) -> Callable:
         """工具装饰器。"""
         return self.decorator(name)
 
-    def instrument_method(self, name: Optional[str] = None) -> Callable:
+    def instrument_method(self, name: str | None = None) -> Callable:
         """方法装饰器。"""
         def _d(func: Callable) -> Callable:
             n = name or func.__name__

@@ -5,7 +5,7 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-15%2F15-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-63%2F63-brightgreen.svg)]()
 
 🌐 **[English](README.en.md)** · **[Français](README.fr.md)** · **[Español](README.es.md)** · **[日本語](README.ja.md)** · **[한국어](README.ko.md)**
 
@@ -17,7 +17,12 @@
 - **七大原则** — 钱学森《工程控制论》全覆盖
 - **多框架适配** — 支持 LangChain、AutoGen、CrewAI、Hermes、Claude Code、Codex 等
 - **声明式配置** — JSON/YAML 配置，灵活可控
-- **完整 CLI** — `cybernetix` 命令行工具（init / audit / dashboard / run）
+- **策略预设** — 4 种开箱即用配置模板（高并发/低成本/高可靠/调试）
+- **Metrics 导出** — Prometheus / OpenMetrics 文本格式，可接入 Grafana
+- **Plugin 系统** — 热插拔自定义模块，自动发现插件目录
+- **实时 Dashboard** — FastAPI + SSE 事件流，前端实时刷新
+- **自适应调优** — ε-greedy 参数自动优化，置信度估计
+- **完整 CLI** — `cybernetix` 命令行工具（init / audit / dashboard / preset / plugin / validate / run）
 - **线程安全** — 内置线程锁保护
 
 ## 🚀 快速开始
@@ -69,10 +74,17 @@ from cybernetics_agent.adapters import (
 ## 📁 CLI 工具
 
 ```bash
-cybernetix init              # 初始化配置
-cybernetix audit ./src       # 审计代码缺陷
-cybernetix dashboard         # 启动监控仪表盘
-cybernetix run ./task.py     # 运行任务并采集指标
+cybernetix init                          # 初始化配置
+cybernetix preset list                   # 列出策略预设
+cybernetix preset show <name>            # 查看预设详情
+cybernetix preset apply <name> -o cfg.json  # 应用预设
+cybernetix validate cfg.json             # 验证配置文件
+cybernetix plugin list                   # 列出插件
+cybernetix plugin discover               # 发现插件
+cybernetix dashboard                     # 启动监控仪表盘
+cybernetix audit ./src                   # 审计代码缺陷
+cybernetix run ./task.py                 # 运行任务并采集指标
+cybernetix --version                     # 查看版本号
 ```
 
 ## 📊 监控仪表盘

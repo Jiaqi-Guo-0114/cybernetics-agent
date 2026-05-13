@@ -13,9 +13,10 @@ Qwenpaw 适配器。
 
 from __future__ import annotations
 
+import contextlib
 import json
 import subprocess
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.request import Request, urlopen
 
 from .base import BaseAdapter
@@ -30,7 +31,7 @@ class QwenpawAdapter(BaseAdapter):
         mode: str = "http",
         base_url: str = "http://localhost:8000",
         cli_path: str = "qwenpaw",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
     ) -> None:
         super().__init__(ctx)
         self.mode = mode
@@ -48,13 +49,11 @@ class QwenpawAdapter(BaseAdapter):
             except Exception:
                 pass
         else:
-            try:
+            with contextlib.suppress(FileNotFoundError, subprocess.CalledProcessError):
                 subprocess.run([self.cli_path, "--version"], capture_output=True, check=True)
-            except (FileNotFoundError, subprocess.CalledProcessError):
-                pass
         self._installed = True
 
-    def _http_request(self, endpoint: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _http_request(self, endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
         """HTTP 模式请求。"""
         url = f"{self.base_url}{endpoint}"
         data = json.dumps(payload).encode("utf-8")
@@ -64,9 +63,9 @@ class QwenpawAdapter(BaseAdapter):
         with urlopen(req, timeout=120) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
-    def _cli_run(self, prompt: str, args: Optional[List[str]] = None) -> str:
+    def _cli_run(self, prompt: str, args: list[str] | None = None) -> str:
         """CLI 模式执行。"""
-        cmd: List[str] = [self.cli_path, prompt]
+        cmd: list[str] = [self.cli_path, prompt]
         if args:
             cmd.extend(args)
 
@@ -86,7 +85,7 @@ class QwenpawAdapter(BaseAdapter):
 
         return result.stdout
 
-    def chat(self, message: str, session_id: Optional[str] = None) -> str:
+    def chat(self, message: str, session_id: str | None = None) -> str:
         """发送消息并获取响应。"""
         if self.mode == "http":
             self.emit(self._event_type("AGENT_START"), {"task": "qwenpaw_chat", "message": message[:200]})
@@ -104,7 +103,7 @@ class QwenpawAdapter(BaseAdapter):
         else:
             return self._cli_run(message)
 
-    def run_with_files(self, prompt: str, files: List[str]) -> str:
+    def run_with_files(self, prompt: str, files: list[str]) -> str:
         """传入文件上下文后运行。"""
         if self.mode == "cli":
             file_args = []

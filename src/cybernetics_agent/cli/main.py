@@ -7,11 +7,8 @@ CLI 入口。
 from __future__ import annotations
 
 import argparse
-import sys
-from typing import Any, List, Optional
 
 from .. import __version__
-
 
 DESCRIPTION = """
 Cybernetics Agent CLI
@@ -145,7 +142,7 @@ def create_parser() -> argparse.ArgumentParser:
     preset_parser = subparsers.add_parser("preset", help="策略预设管理")
     preset_subparsers = preset_parser.add_subparsers(dest="preset_command", help="预设命令")
 
-    preset_list = preset_subparsers.add_parser("list", help="列出所有预设")
+    preset_subparsers.add_parser("list", help="列出所有预设")
 
     preset_show = preset_subparsers.add_parser("show", help="查看预设详情")
     preset_show.add_argument("name", help="预设名称")
@@ -162,7 +159,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(args: Optional[List[str]] = None) -> int:
+def main(args: list[str] | None = None) -> int:
     """
     CLI 入口函数。
     """

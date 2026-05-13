@@ -7,8 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner, ParameterState
-from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner
 
 
 def test_auto_tune_numeric():

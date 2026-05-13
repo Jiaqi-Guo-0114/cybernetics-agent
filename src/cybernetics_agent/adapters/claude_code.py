@@ -14,8 +14,9 @@ Claude Code 适配器。
 
 from __future__ import annotations
 
+import contextlib
 import subprocess
-from typing import Any, List, Optional
+from typing import Any
 
 from .base import BaseAdapter
 
@@ -29,18 +30,16 @@ class ClaudeCodeAdapter(BaseAdapter):
 
     def install(self, target: Any) -> None:
         """检查 Claude Code 是否可用。"""
-        try:
-            subprocess.run([self.cli_path, "--version"], capture_output=True, check=True)
-        except (FileNotFoundError, subprocess.CalledProcessError):
-            pass  # 允许未安装，适配器仍可创建
+        with contextlib.suppress(FileNotFoundError, subprocess.CalledProcessError):
+            subprocess.run([self.cli_path, "--version"], capture_output=True, check=True)  # 允许未安装
         self._installed = True
 
     def run(
         self,
         prompt: str,
-        approval_mode: Optional[str] = None,
-        cwd: Optional[str] = None,
-        env: Optional[dict] = None,
+        approval_mode: str | None = None,
+        cwd: str | None = None,
+        env: dict | None = None,
     ) -> str:
         """
         执行 Claude Code 并采集事件。
@@ -54,7 +53,7 @@ class ClaudeCodeAdapter(BaseAdapter):
         返回:
             Claude 的输出文本
         """
-        cmd: List[str] = [self.cli_path]
+        cmd: list[str] = [self.cli_path]
         if approval_mode:
             cmd.extend(["--approval-mode", approval_mode])
         cmd.extend(["-p", prompt])
@@ -98,8 +97,8 @@ class ClaudeCodeAdapter(BaseAdapter):
     def run_with_files(
         self,
         prompt: str,
-        files: List[str],
-        approval_mode: Optional[str] = None,
+        files: list[str],
+        approval_mode: str | None = None,
     ) -> str:
         """传入文件上下文后运行 Claude Code。"""
         file_context = "\n".join(f"@ {f}" for f in files)

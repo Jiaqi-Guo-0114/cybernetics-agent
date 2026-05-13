@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import threading
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..core.base import CyberneticsEvent, ICyberneticsModule
@@ -27,16 +27,16 @@ class EventBus:
 
     def __init__(self) -> None:
         # 事件类型 -> 订阅者列表
-        self._subscribers: Dict[str, List["ICyberneticsModule"]] = {}
-        self._all_subscribers: List["ICyberneticsModule"] = []
-        self._event_log: List["CyberneticsEvent"] = []
+        self._subscribers: dict[str, list[ICyberneticsModule]] = {}
+        self._all_subscribers: list[ICyberneticsModule] = []
+        self._event_log: list[CyberneticsEvent] = []
         self._max_log_size = 1000
         self._lock = threading.Lock()
 
     def subscribe(
         self,
-        module: "ICyberneticsModule",
-        event_types: Optional[List[str]] = None,
+        module: ICyberneticsModule,
+        event_types: list[str] | None = None,
     ) -> None:
         """
         订阅事件。
@@ -54,7 +54,7 @@ class EventBus:
                         self._subscribers[et] = []
                     self._subscribers[et].append(module)
 
-    def unsubscribe(self, module: "ICyberneticsModule") -> None:
+    def unsubscribe(self, module: ICyberneticsModule) -> None:
         """取消订阅。"""
         with self._lock:
             if module in self._all_subscribers:
@@ -63,7 +63,7 @@ class EventBus:
                 if module in subscribers:
                     subscribers.remove(module)
 
-    def emit(self, event: "CyberneticsEvent") -> None:
+    def emit(self, event: CyberneticsEvent) -> None:
         """
         发射事件到所有订阅者。
 
@@ -97,9 +97,9 @@ class EventBus:
 
     def get_recent_events(
         self,
-        event_type: Optional[str] = None,
+        event_type: str | None = None,
         limit: int = 100,
-    ) -> List["CyberneticsEvent"]:
+    ) -> list[CyberneticsEvent]:
         """
         获取最近的事件。
 
@@ -116,9 +116,9 @@ class EventBus:
         """清空事件日志。"""
         self._event_log.clear()
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """获取事件统计。"""
-        stats: Dict[str, int] = {}
+        stats: dict[str, int] = {}
         for event in self._event_log:
             key = event.event_type.value
             stats[key] = stats.get(key, 0) + 1

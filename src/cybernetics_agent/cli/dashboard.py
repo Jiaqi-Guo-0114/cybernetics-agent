@@ -10,11 +10,10 @@ dashboard 命令。
 from __future__ import annotations
 
 import json
-import threading
 import time
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ..config import CyberneticsConfig
 from ..context import CyberneticsContext
@@ -35,7 +34,7 @@ def run_dashboard(args: Namespace) -> int:
 
     ctx = CyberneticsContext(config)
 
-    print(f"📊 启动 Cybernetics Dashboard...")
+    print("📊 启动 Cybernetics Dashboard...")
     print(f"   地址: http://{host}:{port}")
     print(f"   Prometheus: http://{host}:{port}/metrics")
     print(f"   API: http://{host}:{port}/api/metrics")
@@ -111,7 +110,7 @@ def start_http_server(host: str, port: int, config: CyberneticsConfig, ctx: Cybe
             summary["timestamp"] = time.time()
             self._send_json(summary)
 
-        def _send_json(self, data: Dict[str, Any]) -> None:
+        def _send_json(self, data: dict[str, Any]) -> None:
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()

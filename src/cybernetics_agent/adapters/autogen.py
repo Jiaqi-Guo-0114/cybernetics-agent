@@ -13,12 +13,12 @@ class AutoGenAdapter(BaseAdapter):
 
     def install(self, target: Any) -> None:
         try:
-            import autogen
-        except ImportError:
-            raise ImportError("pip install pyautogen")
+            import autogen  # noqa: F401
+        except ImportError as err:
+            raise ImportError("pip install pyautogen") from err
 
         class _Handler:
-            def __init__(self, adapter: "AutoGenAdapter"):
+            def __init__(self, adapter: AutoGenAdapter):
                 self._a = adapter
 
             def on_llm_start(self, **kwargs: Any) -> None:

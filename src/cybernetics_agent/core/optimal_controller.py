@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base import CyberneticsEvent, EventType, ICyberneticsModule
 
@@ -82,12 +82,12 @@ class OptimalController(ICyberneticsModule):
 
     name = "optimal_control"
 
-    def __init__(self, config: Dict[str, Any], ctx: Any) -> None:
+    def __init__(self, config: dict[str, Any], ctx: Any) -> None:
         super().__init__(config, ctx)
 
         # 预算配置
         budgets = config.get("budgets", {})
-        self._pools: Dict[str, BudgetPool] = {
+        self._pools: dict[str, BudgetPool] = {
             "tokens": BudgetPool("tokens", budgets.get("tokens_per_session", 100000)),
             "api_calls": BudgetPool("api_calls", budgets.get("api_calls_per_session", 50)),
             "cost_usd": BudgetPool("cost_usd", budgets.get("cost_usd_per_session", 5.0)),
@@ -99,14 +99,14 @@ class OptimalController(ICyberneticsModule):
         self._max_llm_rpm = constraints.get("max_llm_requests_per_minute", 10)
 
         # 速率限制计数
-        self._llm_request_times: List[float] = []
+        self._llm_request_times: list[float] = []
         self._active_tools = 0
 
         # 统计
         self._rejected_requests = 0
         self._throttled_requests = 0
 
-    def on_event(self, event: CyberneticsEvent) -> Optional[CyberneticsEvent]:
+    def on_event(self, event: CyberneticsEvent) -> CyberneticsEvent | None:
         """监听资源消耗事件，更新预算池。"""
         et = event.event_type
         payload = event.payload
@@ -135,7 +135,7 @@ class OptimalController(ICyberneticsModule):
 
         return event
 
-    def _estimate_cost(self, payload: Dict[str, Any]) -> float:
+    def _estimate_cost(self, payload: dict[str, Any]) -> float:
         """估算一次 LLM 调用的成本。"""
         model = payload.get("model", "")
         completion_tokens = payload.get("completion_tokens", 0)
@@ -174,7 +174,7 @@ class OptimalController(ICyberneticsModule):
         """检查工具并发数是否超限。"""
         return self._active_tools < self._max_concurrent_tools
 
-    def get_budget_status(self) -> Dict[str, Any]:
+    def get_budget_status(self) -> dict[str, Any]:
         """获取预算使用情况。"""
         return {
             name: {
@@ -187,7 +187,7 @@ class OptimalController(ICyberneticsModule):
             for name, pool in self._pools.items()
         }
 
-    def get_fallback_strategy(self) -> Dict[str, Any]:
+    def get_fallback_strategy(self) -> dict[str, Any]:
         """
         获取当前的降级策略。
 
@@ -230,7 +230,7 @@ class OptimalController(ICyberneticsModule):
             "most_critical_pool": self._get_most_critical_pool(),
         }
 
-    def _get_most_critical_pool(self) -> Optional[str]:
+    def _get_most_critical_pool(self) -> str | None:
         """获取最紧张的预算池。"""
         max_usage = -1.0
         critical = None
@@ -240,7 +240,7 @@ class OptimalController(ICyberneticsModule):
                 critical = name
         return critical
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取模块状态。"""
         return {
             "enabled": self.enabled,

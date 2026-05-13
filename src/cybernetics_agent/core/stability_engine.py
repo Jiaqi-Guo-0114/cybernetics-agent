@@ -11,7 +11,7 @@ import threading
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable
 
 from .base import CyberneticsEvent, EventType, ICyberneticsModule
 
@@ -63,7 +63,7 @@ class CircuitBreaker:
         self._state = CircuitState.CLOSED
         self._failure_count = 0
         self._success_count = 0
-        self._last_failure_time: Optional[float] = None
+        self._last_failure_time: float | None = None
         self._lock = threading.Lock()
 
     def can_execute(self) -> bool:
@@ -102,11 +102,10 @@ class CircuitBreaker:
             self._failure_count += 1
             self._last_failure_time = time.time()
 
-            if self._state == CircuitState.HALF_OPEN:
+            if self._state == CircuitState.HALF_OPEN or (
+                self._state == CircuitState.CLOSED and self._failure_count >= self._failure_threshold
+            ):
                 self._state = CircuitState.OPEN
-            elif self._state == CircuitState.CLOSED:
-                if self._failure_count >= self._failure_threshold:
-                    self._state = CircuitState.OPEN
 
     def _should_attempt_reset(self) -> bool:
         """检查是否应该尝试重置。"""
@@ -114,7 +113,7 @@ class CircuitBreaker:
             return True
         return (time.time() - self._last_failure_time) >= self._recovery_timeout
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取熔断器状态。"""
         return {
             "state": self._state.value,
@@ -148,7 +147,7 @@ class StabilityEngine(ICyberneticsModule):
 
     name = "stability"
 
-    def __init__(self, config: Dict[str, Any], ctx: Any) -> None:
+    def __init__(self, config: dict[str, Any], ctx: Any) -> None:
         super().__init__(config, ctx)
 
         # 超时配置
@@ -172,19 +171,19 @@ class StabilityEngine(ICyberneticsModule):
         # 熔断器配置
         cb_cfg = config.get("circuit_breaker", {})
         if cb_cfg.get("enabled", True):
-            self._circuit_breakers: Dict[str, CircuitBreaker] = {}
+            self._circuit_breakers: dict[str, CircuitBreaker] = {}
         else:
             self._circuit_breakers = None  # type: ignore
 
         # 降级配置
         deg_cfg = config.get("graceful_degradation", {})
         self._degradation_enabled = deg_cfg.get("enabled", True)
-        self._degradation_chain: List[Dict[str, str]] = deg_cfg.get("chain", [])
+        self._degradation_chain: list[dict[str, str]] = deg_cfg.get("chain", [])
 
         # 并行竞争配置
         pc_cfg = config.get("parallel_competition", {})
         self._parallel_enabled = pc_cfg.get("enabled", True)
-        self._parallel_groups: List[Dict[str, Any]] = pc_cfg.get("groups", [])
+        self._parallel_groups: list[dict[str, Any]] = pc_cfg.get("groups", [])
         self._parallel_timeout = pc_cfg.get("timeout_seconds", 120.0)
 
         # 统计
@@ -193,11 +192,11 @@ class StabilityEngine(ICyberneticsModule):
         self._degradation_count = 0
         self._circuit_events = 0
 
-    def on_event(self, event: CyberneticsEvent) -> Optional[CyberneticsEvent]:
+    def on_event(self, event: CyberneticsEvent) -> CyberneticsEvent | None:
         """监听错误事件，更新熔断器状态。"""
         if event.event_type == EventType.TOOL_ERROR:
             tool_name = event.payload.get("tool_name", "unknown")
-            error_type = event.payload.get("error_type", "unknown")
+            event.payload.get("error_type", "unknown")
 
             # 更新熔断器
             if self._circuit_breakers is not None:
@@ -259,9 +258,9 @@ class StabilityEngine(ICyberneticsModule):
             future = executor.submit(func, *args, **kwargs)
             try:
                 return future.result(timeout=timeout)
-            except concurrent.futures.TimeoutError:
+            except concurrent.futures.TimeoutError as err:
                 self._timeout_count += 1
-                raise TimeoutError(f"函数执行超时（限制 {timeout}秒）")
+                raise TimeoutError(f"函数执行超时（限制 {timeout}秒）") from err
 
     def _async_with_timeout(
         self,
@@ -278,7 +277,7 @@ class StabilityEngine(ICyberneticsModule):
     def with_retry(
         self,
         func: Callable[..., Any],
-        retry_policy: Optional[RetryPolicy] = None,
+        retry_policy: RetryPolicy | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> Any:
@@ -288,7 +287,7 @@ class StabilityEngine(ICyberneticsModule):
         只对暂时性错误进行重试，永久性错误直接抛出。
         """
         policy = retry_policy or self._retry_policy
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
 
         for attempt in range(policy.max_retries + 1):
             try:
@@ -339,7 +338,7 @@ class StabilityEngine(ICyberneticsModule):
     def degrade(
         self,
         primary_func: Callable[..., Any],
-        fallback_chain: Optional[List[Callable[..., Any]]] = None,
+        fallback_chain: list[Callable[..., Any]] | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> Any:
@@ -353,7 +352,7 @@ class StabilityEngine(ICyberneticsModule):
 
         chain = fallback_chain or []
         all_funcs = [primary_func] + chain
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
 
         for i, func in enumerate(all_funcs):
             try:
@@ -369,9 +368,9 @@ class StabilityEngine(ICyberneticsModule):
             raise last_error
         raise RuntimeError("所有降级路径均失败")
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取稳定性引擎状态。"""
-        status: Dict[str, Any] = {
+        status: dict[str, Any] = {
             "enabled": self.enabled,
             "timeouts": self._timeouts,
             "retry_policy": {

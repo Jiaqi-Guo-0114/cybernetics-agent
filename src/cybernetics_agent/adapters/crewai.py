@@ -13,9 +13,9 @@ class CrewAIAdapter(BaseAdapter):
 
     def install(self, target: Any) -> None:
         try:
-            import crewai
-        except ImportError:
-            raise ImportError("pip install crewai")
+            import crewai  # noqa: F401
+        except ImportError as err:
+            raise ImportError("pip install crewai") from err
 
         original_execute = target.execute
 

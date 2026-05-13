@@ -8,8 +8,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+from cybernetics_agent.core.base import CyberneticsEvent, ICyberneticsModule
 from cybernetics_agent.runtime.plugin_loader import PluginLoader
-from cybernetics_agent.core.base import ICyberneticsModule, CyberneticsEvent, EventType
 
 
 class DummyModule(ICyberneticsModule):

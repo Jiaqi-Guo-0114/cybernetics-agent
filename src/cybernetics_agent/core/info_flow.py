@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from .base import CyberneticsEvent, EventType, ICyberneticsModule
+from .base import CyberneticsEvent, ICyberneticsModule
 
 
 @dataclass
@@ -44,21 +44,21 @@ class InfoFlow(ICyberneticsModule):
 
     name = "info_flow"
 
-    def __init__(self, config: Dict[str, Any], ctx: Any) -> None:
+    def __init__(self, config: dict[str, Any], ctx: Any) -> None:
         super().__init__(config, ctx)
 
         # 解析过滤器配置
-        self._filters: List[Dict[str, Any]] = []
+        self._filters: list[dict[str, Any]] = []
         for f in config.get("filters", []):
             self._filters.append({
                 "type": f.get("type", "deduplicate"),
                 "params": f.get("params", {}),
             })
 
-        self._channels: List[str] = config.get("channels", ["event_bus", "metrics", "storage"])
+        self._channels: list[str] = config.get("channels", ["event_bus", "metrics", "storage"])
 
         # 去重状态
-        self._dedup_window: Dict[str, DedupWindow] = {}
+        self._dedup_window: dict[str, DedupWindow] = {}
         self._dedup_window_seconds = 5.0
         for f in self._filters:
             if f["type"] == "deduplicate":
@@ -66,7 +66,7 @@ class InfoFlow(ICyberneticsModule):
 
         # 速率限制状态
         self._rate_limit_max = 100
-        self._rate_limit_window: List[float] = []
+        self._rate_limit_window: list[float] = []
         for f in self._filters:
             if f["type"] == "rate_limit":
                 self._rate_limit_max = f["params"].get("max_events_per_second", 100)
@@ -76,7 +76,7 @@ class InfoFlow(ICyberneticsModule):
         self._throttled_count = 0
         self._filtered_count = 0
 
-    def on_event(self, event: CyberneticsEvent) -> Optional[CyberneticsEvent]:
+    def on_event(self, event: CyberneticsEvent) -> CyberneticsEvent | None:
         """
         处理事件，应用信息流过滤。
 
@@ -143,11 +143,9 @@ class InfoFlow(ICyberneticsModule):
     def _should_route(self, event: CyberneticsEvent) -> bool:
         """检查事件是否应该被路由到当前模块。"""
         # 简单实现：检查通道列表
-        if "event_bus" in self._channels:
-            return True
-        return False
+        return "event_bus" in self._channels
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取模块状态。"""
         now = time.time()
         recent_events = [t for t in self._rate_limit_window if now - t < 1.0]

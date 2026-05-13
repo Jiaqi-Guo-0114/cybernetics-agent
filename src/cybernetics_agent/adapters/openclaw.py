@@ -12,8 +12,9 @@ OpenClaw 适配器。
 
 from __future__ import annotations
 
+import contextlib
 import json
-from typing import Any, Dict, Optional
+from typing import Any
 from urllib.request import Request, urlopen
 
 from .base import BaseAdapter
@@ -26,7 +27,7 @@ class OpenClawAdapter(BaseAdapter):
         self,
         ctx: Any,
         base_url: str = "http://localhost:8080",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
     ) -> None:
         super().__init__(ctx)
         self.base_url = base_url.rstrip("/")
@@ -34,10 +35,8 @@ class OpenClawAdapter(BaseAdapter):
 
     def install(self, target: Any) -> None:
         """检查 OpenClaw 服务是否可达。"""
-        try:
-            self._health_check()
-        except Exception:
-            pass  # 允许未启动
+        with contextlib.suppress(Exception):
+            self._health_check()  # 允许未启动
         self._installed = True
 
     def _health_check(self) -> bool:
@@ -46,7 +45,7 @@ class OpenClawAdapter(BaseAdapter):
         with urlopen(req, timeout=5) as resp:
             return resp.status == 200
 
-    def _request(self, endpoint: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _request(self, endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
         """发送 HTTP 请求。"""
         url = f"{self.base_url}{endpoint}"
         data = json.dumps(payload).encode("utf-8")
@@ -62,7 +61,7 @@ class OpenClawAdapter(BaseAdapter):
         with urlopen(req, timeout=120) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
-    def chat(self, message: str, session_id: Optional[str] = None) -> str:
+    def chat(self, message: str, session_id: str | None = None) -> str:
         """
         发送消息到 OpenClaw 并获取响应。
 
@@ -100,8 +99,8 @@ class OpenClawAdapter(BaseAdapter):
         self,
         tool_name: str,
         result: Any,
-        session_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        session_id: str | None = None,
+    ) -> dict[str, Any]:
         """发送工具结果到 OpenClaw。"""
         self.emit(self._event_type("TOOL_RESULT"), {"tool_name": tool_name})
         payload = {"tool_name": tool_name, "result": result}

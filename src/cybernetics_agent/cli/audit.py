@@ -10,8 +10,7 @@ import ast
 import json
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Dict, List
-
+from typing import Any
 
 RULES = [
     ("CYB001", "warning", "缺少错误处理"),
@@ -24,7 +23,7 @@ RULES = [
 ]
 
 
-def _scan(tree: ast.AST, source: str, path: Path) -> List[Dict[str, Any]]:
+def _scan(tree: ast.AST, source: str, path: Path) -> list[dict[str, Any]]:
     """扫描代码返回问题列表。"""
     findings = []
     src = source.lower()

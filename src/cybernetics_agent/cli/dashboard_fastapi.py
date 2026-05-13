@@ -9,7 +9,8 @@ from __future__ import annotations
 import asyncio
 import json
 import time
-from typing import Any, AsyncGenerator, Dict, Optional
+from collections.abc import AsyncGenerator
+from typing import Any
 
 from ..config import CyberneticsConfig
 from ..context import CyberneticsContext
@@ -23,7 +24,7 @@ except ImportError:
     HAS_FASTAPI = False
 
 
-def create_app(config: CyberneticsConfig, ctx: CyberneticsContext) -> Optional[Any]:
+def create_app(config: CyberneticsConfig, ctx: CyberneticsContext) -> Any | None:
     """创建 FastAPI 应用。"""
     if not HAS_FASTAPI:
         return None
@@ -46,17 +47,17 @@ def create_app(config: CyberneticsConfig, ctx: CyberneticsContext) -> Optional[A
         return ctx.metrics.to_prometheus()
 
     @app.get("/api/status")
-    async def api_status() -> Dict[str, Any]:
+    async def api_status() -> dict[str, Any]:
         status = ctx.get_status()
         status["timestamp"] = time.time()
         return status
 
     @app.get("/api/config")
-    async def api_config() -> Dict[str, Any]:
+    async def api_config() -> dict[str, Any]:
         return config.to_dict()
 
     @app.get("/api/metrics")
-    async def api_metrics() -> Dict[str, Any]:
+    async def api_metrics() -> dict[str, Any]:
         summary = ctx.metrics.get_summary()
         summary["timestamp"] = time.time()
         return summary

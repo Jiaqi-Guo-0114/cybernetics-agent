@@ -10,7 +10,7 @@ import importlib.util
 import inspect
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 from ..core.base import ICyberneticsModule
 
@@ -21,7 +21,7 @@ class PluginInfo:
     def __init__(
         self,
         name: str,
-        module_class: Type[ICyberneticsModule],
+        module_class: type[ICyberneticsModule],
         source_file: Path,
         description: str = "",
     ) -> None:
@@ -46,9 +46,9 @@ class PluginLoader:
     """
 
     def __init__(self) -> None:
-        self._loaded: Dict[str, PluginInfo] = {}
+        self._loaded: dict[str, PluginInfo] = {}
 
-    def discover(self, directory: Path) -> List[PluginInfo]:
+    def discover(self, directory: Path) -> list[PluginInfo]:
         """
         扫描目录发现所有可用插件。
 
@@ -61,7 +61,7 @@ class PluginLoader:
         if not directory.exists() or not directory.is_dir():
             return []
 
-        discovered: List[PluginInfo] = []
+        discovered: list[PluginInfo] = []
         for py_file in sorted(directory.glob("*.py")):
             if py_file.name.startswith("_"):
                 continue
@@ -70,7 +70,7 @@ class PluginLoader:
 
         return discovered
 
-    def _inspect_file(self, file_path: Path) -> List[PluginInfo]:
+    def _inspect_file(self, file_path: Path) -> list[PluginInfo]:
         """检查单个 Python 文件中的插件类。"""
         module_name = f"_cybernetics_plugin_{file_path.stem}"
 
@@ -85,8 +85,8 @@ class PluginLoader:
         except Exception:
             return []
 
-        plugins: List[PluginInfo] = []
-        for name, obj in inspect.getmembers(module, inspect.isclass):
+        plugins: list[PluginInfo] = []
+        for _name, obj in inspect.getmembers(module, inspect.isclass):
             if obj is ICyberneticsModule:
                 continue
             if issubclass(obj, ICyberneticsModule) and hasattr(obj, "name") and obj.name:
@@ -102,9 +102,9 @@ class PluginLoader:
     def load(
         self,
         plugin_info: PluginInfo,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         ctx: Any,
-    ) -> Optional[ICyberneticsModule]:
+    ) -> ICyberneticsModule | None:
         """
         加载单个插件并实例化。
 
@@ -120,7 +120,7 @@ class PluginLoader:
             instance = plugin_info.module_class(config=config, ctx=ctx)
             self._loaded[plugin_info.name] = plugin_info
             return instance
-        except Exception as e:
+        except Exception:
             return None
 
     def unload(self, name: str) -> bool:
@@ -130,7 +130,7 @@ class PluginLoader:
             return True
         return False
 
-    def list_loaded(self) -> List[str]:
+    def list_loaded(self) -> list[str]:
         """列出已加载的插件名称。"""
         return list(self._loaded.keys())
 

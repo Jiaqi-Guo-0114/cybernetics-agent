@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 
 def run_report(args: Namespace) -> int:
@@ -50,7 +50,7 @@ def run_report(args: Namespace) -> int:
     return 0
 
 
-def _generate_markdown(data: Dict[str, Any]) -> str:
+def _generate_markdown(data: dict[str, Any]) -> str:
     """生成 Markdown 报告。"""
     summary = data["summary"]
     findings = data["findings"]
@@ -60,8 +60,8 @@ def _generate_markdown(data: Dict[str, Any]) -> str:
         "",
         "## 括要",
         "",
-        f"| 指标 | 数值 |",
-        f"|------|------|",
+        "| 指标 | 数值 |",
+        "|------|------|",
         f"| 总问题数 | {summary['total']} |",
         f"| 错误 | {summary['error']} |",
         f"| 警告 | {summary['warning']} |",
@@ -90,7 +90,7 @@ def _generate_markdown(data: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _generate_html(data: Dict[str, Any]) -> str:
+def _generate_html(data: dict[str, Any]) -> str:
     """生成 HTML 报告。"""
     summary = data["summary"]
     findings = data["findings"]

@@ -7,13 +7,12 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Dict
+from typing import Any
 
 from .config import CyberneticsConfig
 
-
 #: 高并发预设 — 最大化并行处理能力，适合批量任务和并行下载场景。
-HIGH_CONCURRENCY: Dict[str, Any] = {
+HIGH_CONCURRENCY: dict[str, Any] = {
     "feedback_loop": {"enabled": True, "mode": "automatic", "actions": [], "max_feedback_depth": 5},
     "stability": {
         "enabled": True,
@@ -32,7 +31,7 @@ HIGH_CONCURRENCY: Dict[str, Any] = {
 }
 
 #: 低成本预设 — 严格预算控制，适合开发测试和资源受限环境。
-LOW_COST: Dict[str, Any] = {
+LOW_COST: dict[str, Any] = {
     "feedback_loop": {"enabled": True, "mode": "manual", "actions": [], "max_feedback_depth": 1},
     "stability": {
         "enabled": True,
@@ -51,7 +50,7 @@ LOW_COST: Dict[str, Any] = {
 }
 
 #: 高可靠性预设 — 最大化稳定性，适合生产环境关键任务。
-HIGH_RELIABILITY: Dict[str, Any] = {
+HIGH_RELIABILITY: dict[str, Any] = {
     "feedback_loop": {"enabled": True, "mode": "automatic", "actions": ["retry", "degrade", "alert"], "max_feedback_depth": 5},
     "stability": {
         "enabled": True,
@@ -70,7 +69,7 @@ HIGH_RELIABILITY: Dict[str, Any] = {
 }
 
 #: 调试预设 — 详细日志和完整指标采集，适合排查问题和开发调试。
-DEBUG: Dict[str, Any] = {
+DEBUG: dict[str, Any] = {
     "feedback_loop": {"enabled": True, "mode": "automatic", "actions": ["log", "retry", "degrade"], "max_feedback_depth": 10},
     "stability": {
         "enabled": True,
@@ -102,7 +101,7 @@ def list_presets() -> list:
     return list(_PRESETS.keys())
 
 
-def get_preset(name: str) -> Dict[str, Any]:
+def get_preset(name: str) -> dict[str, Any]:
     """
     获取指定名称的预设配置字典。
 

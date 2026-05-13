@@ -13,7 +13,7 @@ from cybernetics_agent import CyberneticsConfig, CyberneticsContext
 def test_dashboard_fastapi_app_creation():
     """FastAPI 应用能正确创建。"""
     try:
-        from cybernetics_agent.cli.dashboard_fastapi import create_app, HAS_FASTAPI
+        from cybernetics_agent.cli.dashboard_fastapi import HAS_FASTAPI, create_app
     except ImportError:
         return  # 可选依赖未安装
 

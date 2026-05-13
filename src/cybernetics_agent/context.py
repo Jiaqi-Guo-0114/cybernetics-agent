@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import threading
 import uuid
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any
 
 from .config import CyberneticsConfig
 from .core.base import CyberneticsEvent, EventType, ICyberneticsModule
@@ -16,6 +16,9 @@ from .runtime.event_bus import EventBus
 from .runtime.metrics_collector import MetricsCollector
 from .runtime.plugin_loader import PluginLoader
 from .runtime.state_manager import StateManager
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class CyberneticsContext:
@@ -40,12 +43,12 @@ class CyberneticsContext:
         self.event_bus = EventBus()
         self.state_manager = StateManager(config.storage)
         self.metrics = MetricsCollector()
-        self._modules: Dict[str, ICyberneticsModule] = {}
+        self._modules: dict[str, ICyberneticsModule] = {}
         self._session_id = f"sess_{uuid.uuid4().hex[:8]}"
         self._lock = threading.Lock()
         self._plugin_loader = PluginLoader()
 
-    def load_plugins(self, plugin_dirs: Optional[List[str]] = None) -> int:
+    def load_plugins(self, plugin_dirs: list[str] | None = None) -> int:
         """
         加载插件目录中的所有插件。
 
@@ -79,7 +82,7 @@ class CyberneticsContext:
         self.unregister_module(name)
         return True
 
-    def list_plugins(self) -> Dict[str, Any]:
+    def list_plugins(self) -> dict[str, Any]:
         """列出已加载的插件状态。"""
         return {
             "loaded": self._plugin_loader.list_loaded(),
@@ -128,7 +131,7 @@ class CyberneticsContext:
         result: Any,
         success: bool = True,
         duration: float = 0.0,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """便捷方法：发射工具调用结果事件。"""
         event = CyberneticsEvent.create(
@@ -149,7 +152,7 @@ class CyberneticsContext:
         tool_name: str,
         error: str,
         error_type: str = "unknown",
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """便捷方法：发射工具错误事件。"""
         event = CyberneticsEvent.create(
@@ -168,7 +171,7 @@ class CyberneticsContext:
         self,
         model: str,
         prompt_tokens: int = 0,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """便捷方法：发射 LLM 请求事件。"""
         event = CyberneticsEvent.create(
@@ -184,7 +187,7 @@ class CyberneticsContext:
         model: str,
         completion_tokens: int = 0,
         duration: float = 0.0,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """便捷方法：发射 LLM 响应事件。"""
         event = CyberneticsEvent.create(
@@ -199,17 +202,17 @@ class CyberneticsContext:
         )
         self.emit(event)
 
-    def get_module(self, name: str) -> Optional[ICyberneticsModule]:
+    def get_module(self, name: str) -> ICyberneticsModule | None:
         """获取指定名称的模块实例。"""
         with self._lock:
             return self._modules.get(name)
 
-    def get_all_modules(self) -> Dict[str, ICyberneticsModule]:
+    def get_all_modules(self) -> dict[str, ICyberneticsModule]:
         """获取所有已注册模块。"""
         with self._lock:
             return dict(self._modules)
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """获取整体状态报告。"""
         with self._lock:
             modules = dict(self._modules)

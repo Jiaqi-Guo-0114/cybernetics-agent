@@ -6,10 +6,9 @@ import copy
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any
 
-
-_DEFAULTS: Dict[str, Any] = {
+_DEFAULTS: dict[str, Any] = {
     "feedback_loop": {
         "enabled": True,
         "mode": "automatic",
@@ -67,46 +66,46 @@ class CyberneticsConfig:
     """声明式配置对象。"""
     version: str = "1.0"
     project_name: str = "unnamed-project"
-    feedback_loop: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["feedback_loop"]))
-    stability: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["stability"]))
-    system_id: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["system_id"]))
-    optimal_control: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["optimal_control"]))
-    info_flow: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["info_flow"]))
-    adaptive: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["adaptive"]))
-    hierarchy: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["hierarchy"]))
-    storage: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["storage"]))
-    plugins: Dict[str, Any] = field(default_factory=dict)
+    feedback_loop: dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["feedback_loop"]))
+    stability: dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["stability"]))
+    system_id: dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["system_id"]))
+    optimal_control: dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["optimal_control"]))
+    info_flow: dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["info_flow"]))
+    adaptive: dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["adaptive"]))
+    hierarchy: dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["hierarchy"]))
+    storage: dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["storage"]))
+    plugins: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CyberneticsConfig":
+    def from_dict(cls, data: dict[str, Any]) -> CyberneticsConfig:
         """从字典加载。"""
         return cls(**{k: data.get(k, getattr(cls(), k)) for k in cls.__dataclass_fields__})
 
     @classmethod
-    def from_json(cls, path: Union[str, Path]) -> "CyberneticsConfig":
+    def from_json(cls, path: str | Path) -> CyberneticsConfig:
         """从 JSON 文件加载。"""
         data = json.loads(Path(path).read_text(encoding="utf-8"))
         return cls(**{k: data.get(k, getattr(cls(), k)) for k in cls.__dataclass_fields__})
 
     @classmethod
-    def from_yaml(cls, path: Union[str, Path]) -> "CyberneticsConfig":
+    def from_yaml(cls, path: str | Path) -> CyberneticsConfig:
         """从 YAML 文件加载（需要 PyYAML）。"""
         import yaml
         data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
         return cls(**{k: data.get(k, getattr(cls(), k)) for k in cls.__dataclass_fields__})
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转为字典。"""
         return asdict(self)
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """
         验证配置有效性。
 
         Returns:
             错误信息列表。空列表表示验证通过。
         """
-        errors: List[str] = []
+        errors: list[str] = []
 
         # 基础字段
         if not self.project_name or not isinstance(self.project_name, str):
@@ -161,7 +160,7 @@ class CyberneticsConfig:
         return errors
 
     @classmethod
-    def from_json_validated(cls, path: Union[str, Path]) -> "CyberneticsConfig":
+    def from_json_validated(cls, path: str | Path) -> CyberneticsConfig:
         """
         从 JSON 文件加载并验证。
 
@@ -175,7 +174,7 @@ class CyberneticsConfig:
         return cfg
 
     @classmethod
-    def from_yaml_validated(cls, path: Union[str, Path]) -> "CyberneticsConfig":
+    def from_yaml_validated(cls, path: str | Path) -> CyberneticsConfig:
         """
         从 YAML 文件加载并验证。
 
@@ -189,7 +188,7 @@ class CyberneticsConfig:
         return cfg
 
     @classmethod
-    def from_dict_validated(cls, data: Dict[str, Any]) -> "CyberneticsConfig":
+    def from_dict_validated(cls, data: dict[str, Any]) -> CyberneticsConfig:
         """
         从字典加载并验证。
 

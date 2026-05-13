@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from ..config import CyberneticsConfig
 
@@ -20,10 +20,10 @@ class ConfigValidator:
     VALID_BACKENDS = ["jsonl", "sqlite", "redis"]
 
     def __init__(self) -> None:
-        self._errors: List[str] = []
-        self._warnings: List[str] = []
+        self._errors: list[str] = []
+        self._warnings: list[str] = []
 
-    def validate(self, config: Dict[str, Any]) -> bool:
+    def validate(self, config: dict[str, Any]) -> bool:
         """验证配置。
 
         返回 True 表示验证通过。
@@ -64,10 +64,10 @@ class ConfigValidator:
 
         return len(self._errors) == 0
 
-    def get_errors(self) -> List[str]:
+    def get_errors(self) -> list[str]:
         return list(self._errors)
 
-    def get_warnings(self) -> List[str]:
+    def get_warnings(self) -> list[str]:
         return list(self._warnings)
 
 
@@ -85,7 +85,7 @@ def run_validate(args: Namespace) -> int:
     # 加载配置
     try:
         if file_path.suffix == ".json":
-            config: Dict[str, Any] = json.loads(file_path.read_text(encoding="utf-8"))
+            config: dict[str, Any] = json.loads(file_path.read_text(encoding="utf-8"))
         elif file_path.suffix in [".yaml", ".yml"]:
             try:
                 import yaml
