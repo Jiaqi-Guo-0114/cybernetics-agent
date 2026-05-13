@@ -12,19 +12,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .base import CyberneticsEvent, EventType, ICyberneticsModule
-
-
-@dataclass
-class ParameterState:
-    """单个参数的学习状态。"""
-    name: str
-    current_value: Any
-    base_value: Any
-    min_value: Any = None
-    max_value: Any = None
-    options: list[Any] = field(default_factory=list)
-    ema_value: float = 0.0
-    adjustment_count: int = 0
+from .parameter_state import ParameterState
 
 
 class AdaptiveTuner(ICyberneticsModule):
