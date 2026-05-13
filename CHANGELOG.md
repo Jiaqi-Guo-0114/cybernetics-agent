@@ -13,11 +13,12 @@
   - Runtime 模块 3 个：EventBus、MetricsCollector、EventStore
   - 23 个 benchmark 测试全部通过
 - **CI 覆盖率检查** — GitHub Actions 新增 `--cov-fail-under=90`
-- **测试覆盖率大幅提升** — 从 58% → 96%（+38%）
-  - 新增 650+ 测试用例，总计 806 个测试全部通过
-  - 核心模块全覆盖：FeedbackLoop（99%）、SystemIdentifier（100%）、AdaptiveTuner、OptimalController、StabilityEngine、HierarchyController（100%）、InfoFlow（100%）、base
+- **测试覆盖率大幅提升** — 从 58% → 98%（+40%）
+  - 新增 720+ 测试用例，总计 876 个测试全部通过
+  - 核心模块全覆盖：AdaptiveTuner（99%）、OptimalController（99%）、StabilityEngine（99%）、FeedbackLoop（99%）、SystemIdentifier（100%）、HierarchyController（100%）、InfoFlow（100%）、base
   - Runtime 层全覆盖：EventBus、EventStore（100%）、MetricsCollector（98%）、PluginLoader、StateManager（99%）
   - Alert 层全覆盖：6 个渠道（含错误处理 mock）、Manager、Rules、AlertChannel
+  - Config 与 Context 覆盖率 94%–97%
   - 新增 `.coveragerc` 配置文件，omit adapters/ 和 cli/ 目录
 - **Bug 修复**: EventStore.prune() TypeError、context.py Path 导入
 
