@@ -41,3 +41,33 @@ def test_validate_valid_config():
 def test_validate_invalid_file():
     result = main(["validate", "/nonexistent/file.json"])
     assert result == 1
+
+
+def test_preset_list():
+    result = main(["preset", "list"])
+    assert result == 0
+
+
+def test_preset_show():
+    result = main(["preset", "show", "debug"])
+    assert result == 0
+
+
+def test_preset_show_unknown():
+    result = main(["preset", "show", "nonexistent"])
+    assert result == 1
+
+
+def test_preset_init():
+    import os
+    if os.path.exists("/tmp/test_preset_init.json"):
+        os.remove("/tmp/test_preset_init.json")
+    result = main(["preset", "init", "low_cost", "-o", "/tmp/test_preset_init.json"])
+    assert result == 0
+    assert Path("/tmp/test_preset_init.json").exists()
+
+
+def test_version_flag():
+    with pytest.raises(SystemExit) as exc_info:
+        main(["--version"])
+    assert exc_info.value.code == 0

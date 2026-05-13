@@ -10,6 +10,8 @@ import argparse
 import sys
 from typing import Any, List, Optional
 
+from .. import __version__
+
 
 DESCRIPTION = """
 Cybernetics Agent CLI
@@ -29,8 +31,12 @@ def create_parser() -> argparse.ArgumentParser:
     """创建命令行解析器。"""
     parser = argparse.ArgumentParser(
         prog="cybernetix",
-        description=DESCRIPTION,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Cybernetics Agent CLI — 钱学森工程控制论增强层",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
 
     subparsers = parser.add_subparsers(dest="command", help="可用命令")
@@ -125,6 +131,24 @@ def create_parser() -> argparse.ArgumentParser:
         help="配置文件路径 (默认: cybernetics.json)",
     )
 
+    # preset
+    preset_parser = subparsers.add_parser("preset", help="策略预设管理")
+    preset_subparsers = preset_parser.add_subparsers(dest="preset_command", help="预设命令")
+
+    preset_list = preset_subparsers.add_parser("list", help="列出所有预设")
+
+    preset_show = preset_subparsers.add_parser("show", help="查看预设详情")
+    preset_show.add_argument("name", help="预设名称")
+
+    preset_apply = preset_subparsers.add_parser("apply", help="将预设应用到配置文件")
+    preset_apply.add_argument("name", help="预设名称")
+    preset_apply.add_argument("-c", "--config", default="cybernetics.json", help="配置文件路径")
+    preset_apply.add_argument("-o", "--output", help="输出文件路径 (默认覆盖原文件)")
+
+    preset_init = preset_subparsers.add_parser("init", help="用预设初始化新配置")
+    preset_init.add_argument("name", help="预设名称")
+    preset_init.add_argument("-o", "--output", default="cybernetics.json", help="输出文件路径")
+
     return parser
 
 
@@ -160,6 +184,10 @@ def main(args: Optional[List[str]] = None) -> int:
     elif command == "validate":
         from .validate import run_validate
         return run_validate(parsed)
+
+    elif command == "preset":
+        from .preset import run_preset
+        return run_preset(parsed)
 
     else:
         parser.print_help()

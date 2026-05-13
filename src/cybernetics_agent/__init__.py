@@ -17,12 +17,13 @@ cybernetics-agent: 一个框架无关的控制论 Agent 增强层。
     >>> ctx.emit_tool_result(tool_name="search", result=["paper1", "paper2"])
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Cybernetics Agent Contributors"
 
 from .config import CyberneticsConfig
 from .context import CyberneticsContext
 from .core.base import ICyberneticsModule, EventType, CyberneticsEvent
+from .presets import list_presets, get_preset, apply_preset, describe_preset
 
 __all__ = [
     "CyberneticsConfig",
@@ -30,4 +31,8 @@ __all__ = [
     "ICyberneticsModule",
     "EventType",
     "CyberneticsEvent",
+    "list_presets",
+    "get_preset",
+    "apply_preset",
+    "describe_preset",
 ]

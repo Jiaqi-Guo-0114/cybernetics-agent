@@ -1,11 +1,12 @@
-"""配置中心。支持 JSON 加载。"""
+"""配置中心。支持 JSON 加载与 schema 验证。"""
 
 from __future__ import annotations
 
+import copy
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
 
 _DEFAULTS: Dict[str, Any] = {
@@ -66,14 +67,14 @@ class CyberneticsConfig:
     """声明式配置对象。"""
     version: str = "1.0"
     project_name: str = "unnamed-project"
-    feedback_loop: Dict[str, Any] = field(default_factory=lambda: dict(_DEFAULTS["feedback_loop"]))
-    stability: Dict[str, Any] = field(default_factory=lambda: dict(_DEFAULTS["stability"]))
-    system_id: Dict[str, Any] = field(default_factory=lambda: dict(_DEFAULTS["system_id"]))
-    optimal_control: Dict[str, Any] = field(default_factory=lambda: dict(_DEFAULTS["optimal_control"]))
-    info_flow: Dict[str, Any] = field(default_factory=lambda: dict(_DEFAULTS["info_flow"]))
-    adaptive: Dict[str, Any] = field(default_factory=lambda: dict(_DEFAULTS["adaptive"]))
-    hierarchy: Dict[str, Any] = field(default_factory=lambda: dict(_DEFAULTS["hierarchy"]))
-    storage: Dict[str, Any] = field(default_factory=lambda: dict(_DEFAULTS["storage"]))
+    feedback_loop: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["feedback_loop"]))
+    stability: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["stability"]))
+    system_id: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["system_id"]))
+    optimal_control: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["optimal_control"]))
+    info_flow: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["info_flow"]))
+    adaptive: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["adaptive"]))
+    hierarchy: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["hierarchy"]))
+    storage: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["storage"]))
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "CyberneticsConfig":
@@ -96,3 +97,106 @@ class CyberneticsConfig:
     def to_dict(self) -> Dict[str, Any]:
         """转为字典。"""
         return asdict(self)
+
+    def validate(self) -> List[str]:
+        """
+        验证配置有效性。
+
+        Returns:
+            错误信息列表。空列表表示验证通过。
+        """
+        errors: List[str] = []
+
+        # 基础字段
+        if not self.project_name or not isinstance(self.project_name, str):
+            errors.append("project_name 必须是非空字符串")
+
+        # feedback_loop
+        fb = self.feedback_loop
+        if not isinstance(fb, dict):
+            errors.append("feedback_loop 必须是字典")
+        else:
+            if fb.get("max_feedback_depth", 0) < 0:
+                errors.append("feedback_loop.max_feedback_depth 不能为负数")
+
+        # stability
+        st = self.stability
+        if not isinstance(st, dict):
+            errors.append("stability 必须是字典")
+        else:
+            timeout = st.get("timeout", {})
+            for k, v in timeout.items():
+                if not isinstance(v, (int, float)) or v <= 0:
+                    errors.append(f"stability.timeout.{k} 必须是正数")
+
+            retry = st.get("retry", {})
+            if retry.get("max_retries", 0) < 0:
+                errors.append("stability.retry.max_retries 不能为负数")
+
+            cb = st.get("circuit_breaker", {})
+            if cb.get("failure_threshold", 0) < 1:
+                errors.append("stability.circuit_breaker.failure_threshold 必须 ≥ 1")
+
+        # optimal_control
+        oc = self.optimal_control
+        if isinstance(oc, dict):
+            budgets = oc.get("budgets", {})
+            for k, v in budgets.items():
+                if not isinstance(v, (int, float)) or v < 0:
+                    errors.append(f"optimal_control.budgets.{k} 必须是非负数")
+
+            constraints = oc.get("constraints", {})
+            for k, v in constraints.items():
+                if not isinstance(v, int) or v < 1:
+                    errors.append(f"optimal_control.constraints.{k} 必须是正整数")
+
+        # system_id
+        sid = self.system_id
+        if isinstance(sid, dict):
+            rate = sid.get("sampling_rate", 1.0)
+            if not isinstance(rate, (int, float)) or not 0 <= rate <= 1:
+                errors.append("system_id.sampling_rate 必须在 [0, 1] 区间内")
+
+        return errors
+
+    @classmethod
+    def from_json_validated(cls, path: Union[str, Path]) -> "CyberneticsConfig":
+        """
+        从 JSON 文件加载并验证。
+
+        Raises:
+            ValueError: 如果配置无效
+        """
+        cfg = cls.from_json(path)
+        errors = cfg.validate()
+        if errors:
+            raise ValueError(f"配置验证失败 ({len(errors)} 个错误):\n" + "\n".join(f"  - {e}" for e in errors))
+        return cfg
+
+    @classmethod
+    def from_yaml_validated(cls, path: Union[str, Path]) -> "CyberneticsConfig":
+        """
+        从 YAML 文件加载并验证。
+
+        Raises:
+            ValueError: 如果配置无效
+        """
+        cfg = cls.from_yaml(path)
+        errors = cfg.validate()
+        if errors:
+            raise ValueError(f"配置验证失败 ({len(errors)} 个错误):\n" + "\n".join(f"  - {e}" for e in errors))
+        return cfg
+
+    @classmethod
+    def from_dict_validated(cls, data: Dict[str, Any]) -> "CyberneticsConfig":
+        """
+        从字典加载并验证。
+
+        Raises:
+            ValueError: 如果配置无效
+        """
+        cfg = cls.from_dict(data)
+        errors = cfg.validate()
+        if errors:
+            raise ValueError(f"配置验证失败 ({len(errors)} 个错误):\n" + "\n".join(f"  - {e}" for e in errors))
+        return cfg

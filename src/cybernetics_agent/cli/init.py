@@ -18,30 +18,16 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "feedback_loop": {
         "enabled": True,
         "mode": "automatic",
-        "actions": [
-            {"trigger": "tool_error_rate > 0.3", "action": "retry"},
-            {"trigger": "stage_failure_rate > 0.5", "action": "degrade"}
-        ],
+        "actions": ["retry", "degrade"],
         "max_feedback_depth": 3
     },
     "stability": {
         "enabled": True,
         "timeout": {"default": 30, "llm": 120, "download": 60, "tool": 30},
         "retry": {"max_retries": 3, "backoff": "exponential", "base_delay": 1.0, "max_delay": 60.0},
-        "circuit_breaker": {"enabled": True, "failure_threshold": 5, "recovery_timeout": 60},
-        "graceful_degradation": {
-            "enabled": True,
-            "chain": [
-                {"condition": "pdf_unavailable", "fallback": "abstract_mode"}
-            ]
-        },
-        "parallel_competition": {
-            "enabled": True,
-            "groups": [
-                {"name": "http", "concurrency": "parallel", "members": ["pdf", "oa", "scihub"]}
-            ],
-            "timeout_seconds": 120
-        }
+        "circuit_breaker": {"enabled": True, "failure_threshold": 5, "recovery_timeout": 60, "half_open_max_calls": 3},
+        "graceful_degradation": {"enabled": True, "chain": ["fulltext", "abstract", "metadata"]},
+        "parallel_competition": {"enabled": True, "groups": [], "timeout_seconds": 120}
     },
     "system_id": {
         "enabled": True,
@@ -51,35 +37,15 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "optimal_control": {
         "enabled": True,
-        "budgets": {
-            "tokens_per_session": 100000,
-            "api_calls_per_session": 50,
-            "cost_usd_per_session": 5.0
-        },
-        "constraints": {
-            "max_concurrent_tools": 5,
-            "max_llm_requests_per_minute": 10
-        }
+        "budgets": {"tokens_per_session": 100000, "api_calls_per_session": 50, "cost_usd_per_session": 5.0},
+        "constraints": {"max_concurrent_tools": 5, "max_llm_requests_per_minute": 10}
     },
-    "info_flow": {
-        "enabled": True,
-        "filters": [
-            {"type": "deduplicate", "params": {"window_seconds": 5}},
-            {"type": "rate_limit", "params": {"max_events_per_second": 100}}
-        ],
-        "channels": ["event_bus", "metrics", "storage"]
-    },
+    "info_flow": {"enabled": True, "filters": [], "channels": ["event_bus", "metrics", "storage"]},
     "adaptive": {
         "enabled": True,
         "learning_rate": 0.3,
-        "parameters": [
-            {"name": "max_papers", "base": 10, "min": 3, "max": 50}
-        ],
-        "user_behavior": {
-            "track_topics": True,
-            "track_feedback": True,
-            "topic_decay_half_life_days": 7
-        }
+        "parameters": [],
+        "user_behavior": {"track_topics": True, "track_feedback": True, "topic_decay_half_life_days": 7}
     },
     "hierarchy": {
         "enabled": True,
@@ -89,11 +55,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
             {"name": "executive", "decision_types": ["tool", "retry", "error_recovery"]}
         ]
     },
-    "storage": {
-        "backend": "jsonl",
-        "path": "./.cybernetics",
-        "rotation": {"max_file_size_mb": 10, "max_files": 10}
-    }
+    "storage": {"backend": "jsonl", "path": "./.cybernetics", "rotation": {"max_file_size_mb": 10, "max_files": 10}}
 }
 
 
