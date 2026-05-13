@@ -42,12 +42,10 @@ class QwenpawAdapter(BaseAdapter):
     def install(self, target: Any) -> None:
         """检查 Qwenpaw 是否可用。"""
         if self.mode == "http":
-            try:
+            with contextlib.suppress(Exception):
                 req = Request(f"{self.base_url}/health", method="GET")
                 with urlopen(req, timeout=5):
                     pass
-            except Exception:
-                pass
         else:
             with contextlib.suppress(FileNotFoundError, subprocess.CalledProcessError):
                 subprocess.run([self.cli_path, "--version"], capture_output=True, check=True)
