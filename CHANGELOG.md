@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.4.0] - 2026-05-13
+
+### Added
+- **告警与通知系统** (Alert & Notify)
+  - `alert/core.py`: `AlertEvent`, `AlertRule` 基础类
+  - `alert/rules.py`: 阈值规则 (`ThresholdRule`)、频率限制 (`RateRule`)、静默期 (`SilenceRule`)
+  - `alert/channels/stdout.py`: 标准输出渠道（默认，零依赖）
+  - `alert/channels/webhook.py`: 通用 HTTP Webhook
+  - `alert/channels/feishu.py`: 飞书自定义机器人（支持签名验证）
+  - `alert/channels/discord.py`: Discord Webhook（支持富文本嵌入）
+  - `alert/channels/dingtalk.py`: 钉钉自定义机器人（支持签名验证）
+  - `alert/channels/slack.py`: Slack Incoming Webhook
+  - `alert/channels/email.py`: SMTP 邮件（标准库 smtplib）
+  - `cli/alert_cmd.py`: CLI 命令 `cybernetix alert test|status|fire`
+  - 所有渠道均使用标准库，零外部依赖
+- **设计原则写入核心文档**: RFC-001.md、CONTRIBUTING.md、README.md 新增「如无必要，勿增实体」「大把拆小」原则
+- **代码现代化**: ruff 自动修复 385 个问题，完全降至 0 错误
+  - `typing.Dict/List/Tuple/Optional` → `dict/list/tuple/|None`
+  - B904 `raise ... from err`
+  - SIM105 `contextlib.suppress`
+- **模块拆分**: 拆分超长文件
+  - `circuit_breaker.py` 从 `stability_engine.py` 拆分
+  - `stage_metrics.py` 从 `system_identifier.py` 拆分
+  - `parameter_state.py` 从 `adaptive_tuner.py` 拆分
+  - 删除空 `storage/` 目录
+- **测试覆盖**: 从 63 项增至 83 项，新增 alert 核心、规则引擎、渠道、CLI 测试
+
 ## [0.3.0] - 2026-05-13
 
 ### Added
