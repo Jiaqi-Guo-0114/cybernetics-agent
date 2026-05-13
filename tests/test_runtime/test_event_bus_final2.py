@@ -6,15 +6,15 @@ sys.path.insert(0, 'src')
 from cybernetics_agent.runtime.event_bus import EventBus
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 
-class TestEventBusFinal:
-    def test_get_stats_empty(self):
+class TestEventBusFinal2:
+    def test_emit_no_subscribers(self):
         bus = EventBus()
-        stats = bus.get_stats()
-        assert isinstance(stats, dict)
+        bus.emit(CyberneticsEvent.create(EventType.TOOL_CALL, "s1", {}))
+        assert len(bus.get_recent_events()) == 1
 
-    def test_get_recent_events(self):
+    def test_get_stats_with_events(self):
         bus = EventBus()
-        for i in range(5):
+        for _ in range(5):
             bus.emit(CyberneticsEvent.create(EventType.TOOL_CALL, "s1", {}))
-        events = bus.get_recent_events()
-        assert len(events) == 5
+        stats = bus.get_stats()
+        assert stats.get("tool_call", 0) >= 5

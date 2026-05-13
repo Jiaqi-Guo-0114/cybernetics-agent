@@ -1,4 +1,4 @@
-"""PluginLoader 最终补充"""
+"""PluginLoader 最终补充测试"""
 import pytest
 import sys
 sys.path.insert(0, 'src')
@@ -6,11 +6,11 @@ sys.path.insert(0, 'src')
 from cybernetics_agent.runtime.plugin_loader import PluginLoader
 
 class TestPluginLoaderFinal:
-    def test_init(self):
+    def test_list_loaded_empty(self):
         pl = PluginLoader()
-        assert pl is not None
+        assert pl.list_loaded() == []
 
-    def test_load_nonexistent(self):
+    def test_load_no_module(self):
         pl = PluginLoader()
         result = pl.load("nonexistent", {}, None)
         assert result is None
