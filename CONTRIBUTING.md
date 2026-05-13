@@ -27,6 +27,9 @@ cd cybernetics-agent
 
 # 运行测试
 PYTHONPATH=src python3 -m pytest tests/ -v
+
+# 运行测试并生成覆盖率报告
+PYTHONPATH=src python3 -m pytest tests/ --cov=src/cybernetics_agent -v
 ```
 
 ## 提交规范

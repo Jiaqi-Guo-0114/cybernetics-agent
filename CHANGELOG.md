@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.1] - 2026-05-13
+
+### Added
+- **测试覆盖率大幅提升** — 从 58% → 87%（+29%）
+  - 新增 380+ 测试用例，总计 465 个测试全部通过
+  - 核心模块全覆盖：FeedbackLoop、SystemIdentifier、AdaptiveTuner、OptimalController、StabilityEngine、HierarchyController、InfoFlow
+  - Runtime 层全覆盖：EventBus、EventStore（100%）、MetricsCollector、PluginLoader、StateManager（99%）
+  - Alert 层全覆盖：6 个渠道（含错误处理 mock）、Manager、Rules
+  - 新增 `.coveragerc` 配置文件，omit adapters/ 和 cli/ 目录
+- **Bug 修复**: EventStore.prune() TypeError
+
 ## [0.6.0] - 2026-05-13
 
 ### Added
