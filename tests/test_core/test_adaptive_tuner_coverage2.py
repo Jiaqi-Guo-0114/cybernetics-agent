@@ -21,7 +21,9 @@ class TestAdaptiveTunerBranches:
             ctx=ctx,
         )
         # no tool scores, avg=0.5, current=base, tune returns same value
-        changes = at.auto_tune()
+        # patch random to avoid epsilon-greedy exploration (10% chance)
+        with patch("random.random", return_value=0.5):
+            changes = at.auto_tune()
         assert "p1" not in changes
 
     def test_auto_tune_numeric_change(self):
