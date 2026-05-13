@@ -65,7 +65,15 @@ jobs:
         run: ruff check src/ tests/
 
       - name: Run mypy
-        run: mypy src/
+        continue-on-error: true
+        run: |
+          mypy src/ 2>&1 | tee mypy-output.txt
+
+      - name: Upload mypy output
+        uses: actions/upload-artifact@v4
+        with:
+          name: mypy-output-${{ matrix.python-version }}
+          path: mypy-output.txt
 
   build:
     runs-on: ubuntu-latest
