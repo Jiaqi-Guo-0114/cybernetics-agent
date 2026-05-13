@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.5.0] - 2026-05-13
+
+### Added
+- **Dashboard 告警面板**
+  - `alert/manager.py`: AlertManager 协调器 — 统一管理规则、渠道、告警历史
+  - Dashboard 前端增加告警状态显示区域（规则、渠道健康、最近告警）
+  - `GET /alert/status` API 端点
+  - FastAPI 和 http.server fallback 均支持告警面板
+- **配置热重载**
+  - `runtime/config_watcher.py`: 轮询 mtime 检测配置文件变化，零外部依赖
+  - Dashboard 启动时自动启用，配置修改后自动重新加载配置和 AlertManager
+- **测试覆盖**: 从 83 项增至 93 项
+  - 新增 AlertManager 测试（7 项）
+  - 新增 ConfigWatcher 测试（3 项）
+
 ## [0.4.0] - 2026-05-13
 
 ### Added
