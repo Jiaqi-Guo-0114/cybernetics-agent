@@ -53,10 +53,46 @@ def run_dashboard(args: Namespace) -> int:
                     severity=rule_cfg.get("severity", "warning"),
                 ))
 
+    # 创建 ConfigWatcher
+    watcher = None
+    if config_path.exists():
+        from ..runtime.config_watcher import ConfigWatcher
+        def reload_config():
+            nonlocal config, ctx, alert_manager
+            print(f"\n  配置文件变更，重新加载...")
+            try:
+                config = CyberneticsConfig.from_json(config_path)
+                ctx.shutdown()
+                ctx = CyberneticsContext(config)
+                # 重新加载 AlertManager
+                alert_cfg = config.to_dict().get("alert", {})
+                if alert_cfg.get("enabled", False):
+                    from ..alert import AlertManager, ThresholdRule
+                    from ..alert.channels import StdoutChannel
+                    alert_manager = AlertManager()
+                    alert_manager.register_channel("stdout", StdoutChannel())
+                    for rule_cfg in alert_cfg.get("rules", []):
+                        if rule_cfg.get("type") == "threshold":
+                            alert_manager.add_rule(ThresholdRule(
+                                name=rule_cfg["name"],
+                                metric=rule_cfg["metric"],
+                                operator=rule_cfg["operator"],
+                                threshold=rule_cfg["threshold"],
+                                duration=rule_cfg.get("duration", 0),
+                                severity=rule_cfg.get("severity", "warning"),
+                            ))
+                print("✅ 配置已重新加载\n")
+            except Exception as e:
+                print(f"  重新加载失败: {e}")
+        watcher = ConfigWatcher(str(config_path), reload_config, interval=5.0)
+        watcher.start()
+
     print("启动 Cybernetics Dashboard...")
     print(f"   地址: http://{host}:{port}")
     print(f"   Prometheus: http://{host}:{port}/metrics")
     print(f"   API: http://{host}:{port}/api/metrics")
+    if watcher:
+        print(f"   热重载: 已启用 (监听 {config_path})")
     print()
 
     # 尝试 FastAPI
@@ -74,6 +110,8 @@ def run_dashboard(args: Namespace) -> int:
         start_http_server(host, port, config, ctx, alert_manager=alert_manager)
     except KeyboardInterrupt:
         print("\n Dashboard 已关闭")
+        if watcher:
+            watcher.stop()
         ctx.shutdown()
         return 0
 
