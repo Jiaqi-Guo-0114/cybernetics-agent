@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.6.0] - 2026-05-13
+
+### Added
+- **事件持久化** (EventStore)
+  - `runtime/event_store.py`: SQLite 存储层，零外部依赖
+  - 三个表：`events`、`metrics`、`alerts`，带索引加速查询
+  - 支持按时间范围、类型、严重级别筛选查询
+  - `自动清理` 超过 30 天的旧数据
+- **集成点**
+  - MetricsCollector 自动将所有事件写入 SQLite
+  - AlertManager 自动将触发的告警写入 SQLite
+  - Dashboard 新增 `/api/history/*` 端点
+- **测试覆盖**: 从 93 项增至 98 项
+  - 新增 EventStore 测试（5 项）
+
 ## [0.5.0] - 2026-05-13
 
 ### Added
