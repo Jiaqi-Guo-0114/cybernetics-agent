@@ -1,12 +1,13 @@
 """InfoFlow 补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.info_flow import InfoFlow
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.info_flow import InfoFlow
 
-class TestInfoFlowExtra:
+
+class TestInfoFlowExtra2:
     def test_on_event_llm_request(self):
         iflow = InfoFlow({}, None)
         evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {})

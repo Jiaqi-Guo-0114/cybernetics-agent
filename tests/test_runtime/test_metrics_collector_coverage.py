@@ -1,10 +1,11 @@
 """MetricsCollector 剩余代码补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.runtime.metrics_collector import MetricsCollector
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.runtime.metrics_collector import MetricsCollector
+
 
 class TestMetricsCollectorCoverage:
     def test_raw_events_prune(self):

@@ -1,9 +1,10 @@
 """ParameterState 测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.core.parameter_state import ParameterState
+
 
 class TestParameterState:
     def test_init(self):

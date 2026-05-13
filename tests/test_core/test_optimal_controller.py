@@ -1,10 +1,11 @@
 """OptimalController 测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.optimal_controller import OptimalController
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.optimal_controller import OptimalController
+
 
 class TestOptimalController:
     def test_init(self):

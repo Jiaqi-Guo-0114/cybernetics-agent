@@ -1,14 +1,15 @@
 """最终补充测试 - runtime 模块"""
-import pytest
-import sys, time, json
+import json
+import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.runtime.event_bus import EventBus
-from cybernetics_agent.runtime.plugin_loader import PluginLoader
-from cybernetics_agent.runtime.config_watcher import ConfigWatcher
-from cybernetics_agent.runtime.metrics_collector import MetricsCollector
-from cybernetics_agent.runtime.state_manager import StateManager
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.runtime.config_watcher import ConfigWatcher
+from cybernetics_agent.runtime.event_bus import EventBus
+from cybernetics_agent.runtime.metrics_collector import MetricsCollector
+from cybernetics_agent.runtime.plugin_loader import PluginLoader
+
 
 class TestRuntimeFinal:
     # event_bus.py 剩余行 63-64, 88, 95
@@ -35,7 +36,6 @@ class TestRuntimeFinal:
 
     # config_watcher.py 剩余行 57-58, 72
     def test_config_watcher_init(self, tmp_path):
-        import json
         path = tmp_path / "cfg.json"
         path.write_text(json.dumps({"test": 1}))
         cw = ConfigWatcher(str(path), lambda cfg: None)

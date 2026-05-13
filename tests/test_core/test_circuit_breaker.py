@@ -1,10 +1,10 @@
 """CircuitBreaker 测试"""
-import pytest
-import time
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.core.circuit_breaker import CircuitBreaker
+
 
 class TestCircuitBreaker:
     def test_init_defaults(self):

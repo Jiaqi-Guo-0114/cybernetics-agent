@@ -1,10 +1,11 @@
 """EventBus 剩余代码补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.runtime.event_bus import EventBus
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.runtime.event_bus import EventBus
+
 
 class MockSubscriber:
     def __init__(self):

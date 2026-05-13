@@ -1,10 +1,11 @@
 """Context 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent import CyberneticsConfig, CyberneticsContext
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+
 
 class TestContextEdgeCases:
     def test_emit_tool_result(self):

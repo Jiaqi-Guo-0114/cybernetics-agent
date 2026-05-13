@@ -1,9 +1,11 @@
 """ConfigWatcher 剩余代码补充测试"""
-import pytest
-import sys, json
+import json
+import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.runtime.config_watcher import ConfigWatcher
+
 
 class TestConfigWatcherCoverage:
     def test_watch_file(self, tmp_path):

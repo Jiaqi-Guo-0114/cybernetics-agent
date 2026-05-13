@@ -1,11 +1,12 @@
 """MetricsCollector 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.runtime.metrics_collector import MetricsCollector
 
-class TestMetricsCollectorFinal:
+
+class TestMetricsCollectorFinal3:
     def test_record_multiple(self):
         col = MetricsCollector()
         for v in [0.1, 0.2, 0.3]:

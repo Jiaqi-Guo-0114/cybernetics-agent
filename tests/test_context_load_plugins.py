@@ -1,9 +1,10 @@
 """Context load_plugins 补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent import CyberneticsConfig, CyberneticsContext
+
 
 class TestContextLoadPlugins:
     def test_load_plugins_with_plugins_config(self, tmp_path):

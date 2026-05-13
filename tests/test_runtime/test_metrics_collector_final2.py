@@ -1,11 +1,12 @@
 """MetricsCollector 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.runtime.metrics_collector import MetricsCollector
 
-class TestMetricsCollectorFinal:
+
+class TestMetricsCollectorFinal2:
     def test_histogram_percentiles(self):
         col = MetricsCollector()
         for v in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:

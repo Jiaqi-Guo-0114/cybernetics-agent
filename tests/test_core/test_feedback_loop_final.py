@@ -1,10 +1,11 @@
 """FeedbackLoop 最终补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.feedback_loop import FeedbackLoop
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.feedback_loop import FeedbackLoop
+
 
 class TestFeedbackLoopFinal:
     def test_tool_result_no_tool_name(self):
@@ -54,7 +55,7 @@ class TestFeedbackLoopFinal:
 
     def test_context_limit(self):
         fl = FeedbackLoop({"max_feedback_depth": 2}, None)
-        for i in range(10):
+        for _i in range(10):
             fl.on_event(CyberneticsEvent.create(EventType.TOOL_RESULT, "s1", {"tool_name": "search"}))
         actions = fl.get_actions()
         assert isinstance(actions, list)

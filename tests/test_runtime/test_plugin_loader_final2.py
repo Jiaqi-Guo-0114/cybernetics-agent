@@ -1,9 +1,10 @@
 """PluginLoader 最终补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.runtime.plugin_loader import PluginLoader
+
 
 class TestPluginLoaderFinal2:
     def test_load_invalid_module(self):

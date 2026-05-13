@@ -1,12 +1,13 @@
 """HierarchyController 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.hierarchy_controller import HierarchyController
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.hierarchy_controller import HierarchyController
 
-class TestHierarchyControllerEdgeCases:
+
+class TestHierarchyControllerEdgeCases2:
     def test_on_event_llm_response(self):
         hc = HierarchyController({}, None)
         evt = CyberneticsEvent.create(EventType.LLM_RESPONSE, "s1", {})

@@ -1,10 +1,12 @@
 """EventBus 错误处理路径补充测试"""
-import pytest
+import contextlib
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.runtime.event_bus import EventBus
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.runtime.event_bus import EventBus
+
 
 class MockSubscriber:
     def __init__(self, fail=False):
@@ -20,15 +22,13 @@ class TestEventBusErrorPaths:
         bus = EventBus()
         sub = MockSubscriber(fail=True)
         bus.subscribe(sub)
-        try:
-            bus.emit(CyberneticsEvent.create(EventType.TOOL_CALL, "s1", {}))
-        except RuntimeError:
-            pass  # 预期的异常
+        with contextlib.suppress(RuntimeError):
+            bus.emit(CyberneticsEvent.create(EventType.TOOL_CALL, "s1", {}))  # 预期的异常
         assert len(sub.events) == 0
 
     def test_get_recent_events_limit(self):
         bus = EventBus()
-        for i in range(150):
+        for _i in range(150):
             bus.emit(CyberneticsEvent.create(EventType.TOOL_CALL, "s1", {}))
         events = bus.get_recent_events()
         assert len(events) <= 100

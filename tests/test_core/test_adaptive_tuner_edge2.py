@@ -1,12 +1,13 @@
 """AdaptiveTuner 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 
-class TestAdaptiveTunerEdgeCases:
+
+class TestAdaptiveTunerEdgeCases2:
     def test_on_event_llm_request(self):
         at = AdaptiveTuner({}, None)
         evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {"model": "gpt-4"})

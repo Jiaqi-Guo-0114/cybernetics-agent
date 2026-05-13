@@ -1,10 +1,11 @@
 """Context 剩余代码补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent import CyberneticsConfig, CyberneticsContext
-from cybernetics_agent.core.base import CyberneticsEvent, EventType, ICyberneticsModule
+from cybernetics_agent.core.base import ICyberneticsModule
+
 
 class MockModule(ICyberneticsModule):
     def __init__(self, name, enabled=True):

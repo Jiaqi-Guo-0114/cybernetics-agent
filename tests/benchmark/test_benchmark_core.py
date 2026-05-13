@@ -3,19 +3,18 @@
 测试各个核心模块在事件处理方面的性能表现。
 """
 import sys
+
 sys.path.insert(0, 'src')
 
-import pytest
 
+from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 from cybernetics_agent.core.feedback_loop import FeedbackLoop
-from cybernetics_agent.core.system_identifier import SystemIdentifier
-from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner
-from cybernetics_agent.core.optimal_controller import OptimalController
-from cybernetics_agent.core.stability_engine import StabilityEngine
 from cybernetics_agent.core.hierarchy_controller import HierarchyController
 from cybernetics_agent.core.info_flow import InfoFlow
-
+from cybernetics_agent.core.optimal_controller import OptimalController
+from cybernetics_agent.core.stability_engine import StabilityEngine
+from cybernetics_agent.core.system_identifier import SystemIdentifier
 
 # ---------------------------------------------------------------------------
 # 单事件处理基准

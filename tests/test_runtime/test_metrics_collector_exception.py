@@ -1,9 +1,10 @@
 """MetricsCollector 异常路径"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.runtime.metrics_collector import MetricsCollector
+
 
 class TestMetricsCollectorException:
     def test_record_nan(self):

@@ -1,9 +1,10 @@
 """AlertManager evaluate 异常路径"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.alert.manager import AlertManager
+
 
 class BadRule:
     name = "bad"

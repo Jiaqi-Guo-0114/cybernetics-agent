@@ -1,10 +1,11 @@
 """HierarchyController 补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.hierarchy_controller import HierarchyController, LayerType
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.hierarchy_controller import HierarchyController
+
 
 class TestHierarchyControllerExtra:
     def test_on_event(self):

@@ -1,10 +1,11 @@
 """SystemIdentifier 测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.system_identifier import SystemIdentifier
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.system_identifier import SystemIdentifier
+
 
 class TestSystemIdentifier:
     def test_init(self):

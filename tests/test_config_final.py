@@ -1,9 +1,10 @@
 """Config 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.config import CyberneticsConfig
+
 
 class TestConfigFinal:
     def test_to_dict(self):

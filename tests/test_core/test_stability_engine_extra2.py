@@ -1,12 +1,13 @@
 """StabilityEngine 补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.stability_engine import StabilityEngine
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.stability_engine import StabilityEngine
 
-class TestStabilityEngineExtra:
+
+class TestStabilityEngineExtra2:
     def test_on_event_llm_request(self):
         se = StabilityEngine({}, None)
         evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {"model": "gpt-4"})

@@ -1,9 +1,10 @@
 """Alert 补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.alert.rules import ThresholdRule
+
 
 class TestAlertExtra:
     def test_rule_duration_not_met(self):

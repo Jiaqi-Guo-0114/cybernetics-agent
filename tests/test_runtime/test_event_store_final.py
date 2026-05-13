@@ -1,9 +1,10 @@
 """EventStore 最终补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.runtime.event_store import EventStore
+
 
 class TestEventStoreFinal:
     def test_query_events_all_filters(self, tmp_path):

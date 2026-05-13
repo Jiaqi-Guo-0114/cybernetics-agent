@@ -1,12 +1,13 @@
 """SystemIdentifier 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.system_identifier import SystemIdentifier
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.system_identifier import SystemIdentifier
 
-class TestSystemIdentifierEdgeCases:
+
+class TestSystemIdentifierEdgeCases2:
     def test_on_event_tool_error_with_type(self):
         si = SystemIdentifier({}, None)
         evt = CyberneticsEvent.create(EventType.TOOL_ERROR, "s1", {"tool_name": "search", "error": "timeout", "error_type": "TimeoutError"})

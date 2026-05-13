@@ -1,12 +1,15 @@
 """StabilityEngine 最终补充"""
-import pytest
 import sys
+
+import pytest
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.stability_engine import StabilityEngine
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.stability_engine import StabilityEngine
 
-class TestStabilityEngineEdgeCases:
+
+class TestStabilityEngineEdgeCases2:
     def test_on_event_stage_transition(self):
         se = StabilityEngine({}, None)
         evt = CyberneticsEvent.create(EventType.STAGE_TRANSITION, "s1", {})

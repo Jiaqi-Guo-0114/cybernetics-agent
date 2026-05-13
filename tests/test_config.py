@@ -1,9 +1,11 @@
 """Config 测试"""
-import pytest
-import sys, json
+import json
+import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.config import CyberneticsConfig
+
 
 class TestCyberneticsConfig:
     def test_init_defaults(self):

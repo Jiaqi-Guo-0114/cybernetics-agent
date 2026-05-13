@@ -1,10 +1,11 @@
 """InfoFlow 剩余代码补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.info_flow import InfoFlow
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.info_flow import InfoFlow
+
 
 class TestInfoFlowCoverage:
     def test_on_event_tool_call(self):

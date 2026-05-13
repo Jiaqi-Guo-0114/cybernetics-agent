@@ -1,10 +1,11 @@
 """Alert 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.alert.manager import AlertManager
 from cybernetics_agent.alert.rules import ThresholdRule
+
 
 class TestAlertFinal:
     def test_manager_no_rules(self):

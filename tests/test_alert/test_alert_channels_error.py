@@ -1,7 +1,7 @@
 """Alert Channels 错误处理 Mock 测试"""
-import pytest
 import sys
 from unittest.mock import Mock, patch
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.alert.channels.dingtalk import DingTalkChannel
@@ -11,6 +11,7 @@ from cybernetics_agent.alert.channels.feishu import FeishuChannel
 from cybernetics_agent.alert.channels.slack import SlackChannel
 from cybernetics_agent.alert.channels.webhook import WebhookChannel
 from cybernetics_agent.alert.core import AlertEvent
+
 
 class TestAlertChannelsErrorHandling:
     @patch("urllib.request.urlopen")

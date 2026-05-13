@@ -4,14 +4,14 @@ Runtime 模块性能基准测试。
 测试 EventBus、MetricsCollector、EventStore 等运行时模块的性能。
 """
 import sys
+
 sys.path.insert(0, 'src')
 
-import pytest
 
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 from cybernetics_agent.runtime.event_bus import EventBus
-from cybernetics_agent.runtime.metrics_collector import MetricsCollector
 from cybernetics_agent.runtime.event_store import EventStore
+from cybernetics_agent.runtime.metrics_collector import MetricsCollector
 
 
 class TestEventBusBenchmark:
@@ -22,7 +22,7 @@ class TestEventBusBenchmark:
 
     def test_emit_100_events(self, benchmark):
         bus = EventBus()
-        events = [CyberneticsEvent.create(EventType.TOOL_CALL, f"s{i}", {"tool_name": "search"}) for i in range(100)]
+        events = [CyberneticsEvent.create(EventType.TOOL_CALL, f"s{idx}", {"tool_name": "search"}) for idx in range(100)]
         def emit_all():
             for evt in events:
                 bus.emit(evt)
@@ -45,8 +45,8 @@ class TestMetricsCollectorBenchmark:
     def test_record_100_metrics(self, benchmark):
         col = MetricsCollector()
         def record_all():
-            for i in range(100):
-                col.record("latency", float(i) / 100.0)
+            for _i in range(100):
+                col.record("latency", float(_i) / 100.0)
         benchmark(record_all)
 
     def test_increment_counter(self, benchmark):
@@ -55,8 +55,8 @@ class TestMetricsCollectorBenchmark:
 
     def test_get_summary(self, benchmark):
         col = MetricsCollector()
-        for i in range(1000):
-            col.record("latency", float(i) / 1000.0)
+        for _i in range(1000):
+            col.record("latency", float(_i) / 1000.0)
         benchmark(col.get_summary)
 
 
@@ -68,7 +68,7 @@ class TestEventStoreBenchmark:
 
     def test_query_recent(self, benchmark, tmp_path):
         store = EventStore(f"{tmp_path}/events.db")
-        for i in range(100):
+        for _i in range(100):
             store.write_event("tool_call", {"tool_name": "search"})
         benchmark(store.query_events, limit=10)
         store.close()

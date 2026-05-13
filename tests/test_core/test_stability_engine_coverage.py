@@ -1,10 +1,13 @@
 """StabilityEngine 剩余代码补充"""
-import pytest
 import sys
+
+import pytest
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.stability_engine import StabilityEngine, RetryPolicy
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.stability_engine import RetryPolicy, StabilityEngine
+
 
 class TestStabilityEngineCoverage:
     def test_on_event_tool_call(self):

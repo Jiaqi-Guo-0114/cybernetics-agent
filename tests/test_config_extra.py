@@ -1,9 +1,12 @@
 """Config 补充测试"""
+import sys
+
 import pytest
-import sys, json
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.config import CyberneticsConfig
+
 
 class TestConfigExtra:
     def test_from_dict(self):

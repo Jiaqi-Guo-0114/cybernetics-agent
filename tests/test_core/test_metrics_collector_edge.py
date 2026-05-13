@@ -1,9 +1,10 @@
 """MetricsCollector 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.runtime.metrics_collector import MetricsCollector
+
 
 class TestMetricsCollectorEdgeCases:
     def test_record_gauge(self):

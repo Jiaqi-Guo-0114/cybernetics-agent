@@ -1,12 +1,13 @@
 """OptimalController 最终补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.optimal_controller import OptimalController
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.optimal_controller import OptimalController
 
-class TestOptimalControllerEdgeCases:
+
+class TestOptimalControllerEdgeCases2:
     def test_on_event_stage_transition(self):
         oc = OptimalController({}, None)
         evt = CyberneticsEvent.create(EventType.STAGE_TRANSITION, "s1", {})

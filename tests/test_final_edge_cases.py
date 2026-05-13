@@ -1,15 +1,17 @@
 """最终补充测试 - 覆盖边缘情况"""
-import pytest
-import sys, time
+import sys
+import time
+
 sys.path.insert(0, 'src')
 
+from cybernetics_agent.alert.manager import AlertManager
+from cybernetics_agent.alert.rules import ThresholdRule
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 from cybernetics_agent.core.circuit_breaker import CircuitBreaker
 from cybernetics_agent.core.stage_metrics import StageMetrics
+from cybernetics_agent.presets import list_presets
 from cybernetics_agent.runtime.event_bus import EventBus
-from cybernetics_agent.alert.rules import ThresholdRule
-from cybernetics_agent.alert.manager import AlertManager
-from cybernetics_agent.presets import list_presets, get_preset
+
 
 class TestFinalEdgeCases:
     # base.py 行 128, 137
@@ -42,8 +44,8 @@ class TestFinalEdgeCases:
 
     # presets.py 行 136-150
     def test_preset_apply(self):
-        from cybernetics_agent.presets import apply_preset
         from cybernetics_agent.config import CyberneticsConfig
+        from cybernetics_agent.presets import apply_preset
         cfg = CyberneticsConfig()
         for name in list_presets():
             result = apply_preset(cfg, name)

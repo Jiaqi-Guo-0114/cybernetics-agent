@@ -1,9 +1,13 @@
 """Config 验证路径补充测试"""
+import json
+import sys
+
 import pytest
-import sys, json
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.config import CyberneticsConfig
+
 
 class TestConfigValidation:
     def test_invalid_project_name(self):
@@ -103,7 +107,6 @@ class TestConfigValidation:
         assert any("sampling_rate" in e for e in errors)
 
     def test_from_json_validated_fail(self, tmp_path):
-        import json
         path = tmp_path / "cfg.json"
         path.write_text(json.dumps({"project_name": ""}))
         with pytest.raises(ValueError):

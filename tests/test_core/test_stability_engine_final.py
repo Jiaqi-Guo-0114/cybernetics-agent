@@ -1,10 +1,13 @@
 """StabilityEngine 最终补充测试"""
-import pytest
 import sys
+
+import pytest
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.stability_engine import StabilityEngine, RetryPolicy
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.stability_engine import StabilityEngine
+
 
 class TestStabilityEngineFinal:
     def test_tool_result_no_tool_name(self):

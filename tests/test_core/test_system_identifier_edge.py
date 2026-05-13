@@ -1,10 +1,11 @@
 """SystemIdentifier 边界条件测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.system_identifier import SystemIdentifier
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.system_identifier import SystemIdentifier
+
 
 class TestSystemIdentifierEdgeCases:
     def test_on_event_tool_result_with_duration(self):

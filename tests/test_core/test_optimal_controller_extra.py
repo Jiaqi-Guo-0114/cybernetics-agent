@@ -1,10 +1,11 @@
 """OptimalController 补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.optimal_controller import OptimalController, BudgetPool
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.optimal_controller import BudgetPool, OptimalController
+
 
 class TestOptimalControllerExtra:
     def test_on_event_tool_result(self):

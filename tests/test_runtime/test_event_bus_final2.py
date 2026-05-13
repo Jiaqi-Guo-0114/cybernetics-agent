@@ -1,10 +1,11 @@
 """EventBus 最终补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.runtime.event_bus import EventBus
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.runtime.event_bus import EventBus
+
 
 class TestEventBusFinal2:
     def test_emit_no_subscribers(self):

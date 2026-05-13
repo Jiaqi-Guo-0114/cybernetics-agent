@@ -1,9 +1,10 @@
 """ConfigWatcher 最终补充测试"""
-import pytest
-import sys, json, time
+import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.runtime.config_watcher import ConfigWatcher
+
 
 class TestConfigWatcherFinal2:
     def test_watch_nonexistent(self):

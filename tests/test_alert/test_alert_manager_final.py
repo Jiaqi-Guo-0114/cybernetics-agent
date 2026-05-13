@@ -1,11 +1,12 @@
 """AlertManager 最终补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
+from cybernetics_agent.alert.core import AlertEvent
 from cybernetics_agent.alert.manager import AlertManager
 from cybernetics_agent.alert.rules import ThresholdRule
-from cybernetics_agent.alert.core import AlertEvent
+
 
 class MockRuleNoEvaluate:
     name = "no_eval"

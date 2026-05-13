@@ -1,10 +1,11 @@
 """SystemIdentifier 最终补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.system_identifier import SystemIdentifier
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.system_identifier import SystemIdentifier
+
 
 class TestSystemIdentifierFinal:
     def test_tool_result_no_tool_name(self):

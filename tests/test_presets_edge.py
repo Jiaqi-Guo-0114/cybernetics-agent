@@ -1,9 +1,12 @@
 """Presets 最终补充"""
-import pytest
 import sys
+
+import pytest
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.presets import list_presets, get_preset
+from cybernetics_agent.presets import get_preset, list_presets
+
 
 class TestPresetsEdgeCases:
     def test_list_presets(self):

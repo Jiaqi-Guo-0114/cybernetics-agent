@@ -1,10 +1,11 @@
 """AlertManager 剩余代码补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.alert.manager import AlertManager
 from cybernetics_agent.alert.rules import ThresholdRule
+
 
 class TestAlertManagerCoverage:
     def test_add_rule(self):

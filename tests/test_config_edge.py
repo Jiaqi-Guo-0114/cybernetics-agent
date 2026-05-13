@@ -1,9 +1,12 @@
 """Config 最终补充"""
+import sys
+
 import pytest
-import sys, json, os
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.config import CyberneticsConfig
+
 
 class TestConfigEdgeCases:
     def test_load_missing_json(self, tmp_path):

@@ -1,10 +1,11 @@
 """HierarchyController 边界条件测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.hierarchy_controller import HierarchyController
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.hierarchy_controller import HierarchyController
+
 
 class TestHierarchyControllerEdgeCases:
     def test_on_event_llm_request(self):

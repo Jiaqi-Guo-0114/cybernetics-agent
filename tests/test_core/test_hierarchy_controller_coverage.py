@@ -1,10 +1,11 @@
 """HierarchyController 剩余代码补充"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.hierarchy_controller import HierarchyController
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.hierarchy_controller import HierarchyController
+
 
 class TestHierarchyControllerCoverage:
     def test_on_event_tool_call(self):

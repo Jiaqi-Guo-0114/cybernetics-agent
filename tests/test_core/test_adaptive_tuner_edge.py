@@ -1,10 +1,11 @@
 """AdaptiveTuner 边界条件测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+
 
 class TestAdaptiveTunerEdgeCases:
     def test_on_event_user_feedback_rating_low(self):

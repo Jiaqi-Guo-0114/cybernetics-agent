@@ -1,16 +1,17 @@
 """综合最终补充测试 - 覆盖所有剩余代码"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner
+from cybernetics_agent.core.base import CyberneticsEvent, EventType
 from cybernetics_agent.core.feedback_loop import FeedbackLoop
 from cybernetics_agent.core.hierarchy_controller import HierarchyController
 from cybernetics_agent.core.info_flow import InfoFlow
 from cybernetics_agent.core.optimal_controller import OptimalController
 from cybernetics_agent.core.stability_engine import StabilityEngine
 from cybernetics_agent.core.system_identifier import SystemIdentifier
-from cybernetics_agent.core.base import CyberneticsEvent, EventType
+
 
 class TestAllRemainingBranches:
     # system_identifier 剩余分支
@@ -59,7 +60,7 @@ class TestAllRemainingBranches:
     # hierarchy_controller 剩余分支
     def test_hc_make_decision_no_meta(self):
         hc = HierarchyController({}, None)
-        hc.make_decision("layer1", "action")
+        hc.make_decision("layer1", "action", {})
         assert hc is not None
 
     # info_flow 剩余分支
@@ -79,11 +80,6 @@ class TestAllRemainingBranches:
         evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {"model": "gpt-4"})
         oc.on_event(evt)
 
-    # stability_engine 剩余分支
-    def test_hc_make_decision_no_meta(self):
-        hc = HierarchyController({}, None)
-        hc.make_decision("layer1", "action", {})
-        assert hc is not None
 
     def test_se_circuit_breaker_open(self):
         se = StabilityEngine({}, None)

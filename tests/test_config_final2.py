@@ -1,11 +1,15 @@
 """Config 最终补充"""
+import json
+import sys
+
 import pytest
-import sys, json, os
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.config import CyberneticsConfig
 
-class TestConfigFinal:
+
+class TestConfigFinal2:
     def test_load_json_with_comments(self, tmp_path):
         path = tmp_path / "cfg.json"
         path.write_text('{"project_name": "test"}')
@@ -35,5 +39,5 @@ class TestConfigFinal:
     def test_load_invalid_json(self, tmp_path):
         path = tmp_path / "cfg.json"
         path.write_text("invalid json")
-        with pytest.raises(Exception):
+        with pytest.raises((json.JSONDecodeError, ValueError)):
             CyberneticsConfig.from_json(str(path))

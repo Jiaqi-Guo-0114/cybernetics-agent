@@ -1,10 +1,11 @@
 """FeedbackLoop 边界条件测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.feedback_loop import FeedbackLoop
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.feedback_loop import FeedbackLoop
+
 
 class TestFeedbackLoopEdgeCases:
     def test_on_event_stage_transition(self):

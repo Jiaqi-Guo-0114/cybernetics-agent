@@ -1,9 +1,10 @@
 """StageMetrics 测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.core.stage_metrics import StageMetrics
+
 
 class TestStageMetrics:
     def test_init(self):

@@ -1,14 +1,15 @@
 """Alert Channels 最终补充测试"""
-import pytest
 import sys
 from unittest.mock import Mock, patch
+
 sys.path.insert(0, 'src')
 
 from cybernetics_agent.alert.channels.email import EmailChannel
 from cybernetics_agent.alert.channels.webhook import WebhookChannel
 from cybernetics_agent.alert.core import AlertEvent
 
-class TestAlertChannelsFinal:
+
+class TestAlertChannelsFinal2:
     @patch("smtplib.SMTP")
     def test_email_with_metric(self, mock_smtp):
         mock_smtp.return_value = Mock(

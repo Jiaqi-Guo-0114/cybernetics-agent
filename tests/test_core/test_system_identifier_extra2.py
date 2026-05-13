@@ -1,12 +1,13 @@
 """SystemIdentifier 补充测试"""
-import pytest
 import sys
+
 sys.path.insert(0, 'src')
 
-from cybernetics_agent.core.system_identifier import SystemIdentifier
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
+from cybernetics_agent.core.system_identifier import SystemIdentifier
 
-class TestSystemIdentifierExtra:
+
+class TestSystemIdentifierExtra2:
     def test_on_event_llm_request(self):
         si = SystemIdentifier({}, None)
         evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {"model": "gpt-4", "tokens": 100})
