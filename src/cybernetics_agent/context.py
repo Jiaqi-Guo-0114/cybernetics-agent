@@ -14,6 +14,7 @@ from .config import CyberneticsConfig
 from .core.base import CyberneticsEvent, EventType, ICyberneticsModule
 from .runtime.event_bus import EventBus
 from .runtime.metrics_collector import MetricsCollector
+from .runtime.plugin_loader import PluginLoader
 from .runtime.state_manager import StateManager
 
 
@@ -42,6 +43,48 @@ class CyberneticsContext:
         self._modules: Dict[str, ICyberneticsModule] = {}
         self._session_id = f"sess_{uuid.uuid4().hex[:8]}"
         self._lock = threading.Lock()
+        self._plugin_loader = PluginLoader()
+
+    def load_plugins(self, plugin_dirs: Optional[List[str]] = None) -> int:
+        """
+        加载插件目录中的所有插件。
+
+        Args:
+            plugin_dirs: 插件目录列表，默认使用配置中的 plugins.paths
+
+        Returns:
+            成功加载的插件数量
+        """
+        if plugin_dirs is None:
+            plugin_cfg = getattr(self.config, "plugins", None) or {}
+            plugin_dirs = plugin_cfg.get("paths", ["./plugins"]) if isinstance(plugin_cfg, dict) else ["./plugins"]
+
+        loaded = 0
+        for dir_str in plugin_dirs:
+            plugin_dir = Path(dir_str)
+            discovered = self._plugin_loader.discover(plugin_dir)
+            for info in discovered:
+                # 插件配置：优先使用配置文件中的插件特定配置
+                plugin_cfg = (getattr(self.config, "plugins", None) or {}).get(info.name, {}) if isinstance(getattr(self.config, "plugins", None), dict) else {}
+                instance = self._plugin_loader.load(info, plugin_cfg, self)
+                if instance:
+                    self.register_module(instance)
+                    loaded += 1
+
+        return loaded
+
+    def unload_plugin(self, name: str) -> bool:
+        """卸载指定插件。"""
+        self._plugin_loader.unload(name)
+        self.unregister_module(name)
+        return True
+
+    def list_plugins(self) -> Dict[str, Any]:
+        """列出已加载的插件状态。"""
+        return {
+            "loaded": self._plugin_loader.list_loaded(),
+            "modules": list(self._modules.keys()),
+        }
 
     @property
     def session_id(self) -> str:

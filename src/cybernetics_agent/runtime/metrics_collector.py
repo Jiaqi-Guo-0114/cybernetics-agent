@@ -220,3 +220,94 @@ class MetricsCollector:
     def _label_key(labels: Dict[str, str]) -> str:
         """将 label 字典转换为排序的字符串键。"""
         return "|".join(f"{k}={v}" for k, v in sorted(labels.items()))
+
+    def to_prometheus(self, prefix: str = "cybernetics") -> str:
+        """
+        导出 Prometheus 文本格式指标。
+
+        返回的字符串可以直接作为 /metrics 端点响应。
+
+        Args:
+            prefix: 指标前缀，默认 "cybernetics"
+
+        Returns:
+            Prometheus 暴露格式字符串
+        """
+        lines: List[str] = []
+        ts = __import__("time").time()
+
+        # Counter
+        for name, label_data in self._counters.items():
+            full_name = f"{prefix}_{name}"
+            lines.append(f"# HELP {full_name} Auto-generated counter")
+            lines.append(f"# TYPE {full_name} counter")
+            for label_key, value in label_data.items():
+                labels = self._parse_label_key(label_key)
+                label_str = ",".join(f'{k}="{v}"' for k, v in sorted(labels.items()))
+                if label_str:
+                    lines.append(f"{full_name}{{{label_str}}} {value}")
+                else:
+                    lines.append(f"{full_name} {value}")
+            lines.append("")
+
+        # Gauge
+        for name, label_data in self._gauges.items():
+            full_name = f"{prefix}_{name}"
+            lines.append(f"# HELP {full_name} Auto-generated gauge")
+            lines.append(f"# TYPE {full_name} gauge")
+            for label_key, value in label_data.items():
+                labels = self._parse_label_key(label_key)
+                label_str = ",".join(f'{k}="{v}"' for k, v in sorted(labels.items()))
+                if label_str:
+                    lines.append(f"{full_name}{{{label_str}}} {value}")
+                else:
+                    lines.append(f"{full_name} {value}")
+            lines.append("")
+
+        # Histogram
+        buckets = [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, float("inf")]
+        for name, label_data in self._histograms.items():
+            full_name = f"{prefix}_{name}"
+            lines.append(f"# HELP {full_name} Auto-generated histogram")
+            lines.append(f"# TYPE {full_name} histogram")
+            for label_key, values in label_data.items():
+                labels = self._parse_label_key(label_key)
+                for bucket in buckets:
+                    count = sum(1 for v in values if v <= bucket)
+                    bucket_labels = dict(labels)
+                    if bucket == float("inf"):
+                        bucket_labels["le"] = "+Inf"
+                    else:
+                        bucket_labels["le"] = str(bucket)
+                    label_str = ",".join(f'{k}="{v}"' for k, v in sorted(bucket_labels.items()))
+                    lines.append(f"{full_name}_bucket{{{label_str}}} {count}")
+                label_str = ",".join(f'{k}="{v}"' for k, v in sorted(labels.items()))
+                if label_str:
+                    lines.append(f"{full_name}_sum{{{label_str}}} {sum(values)}")
+                    lines.append(f"{full_name}_count{{{label_str}}} {len(values)}")
+                else:
+                    lines.append(f"{full_name}_sum {sum(values)}")
+                    lines.append(f"{full_name}_count {len(values)}")
+            lines.append("")
+
+        return "\n".join(lines)
+
+    @staticmethod
+    def _parse_label_key(label_key: str) -> Dict[str, str]:
+        """将 label 字符串键解析回字典。"""
+        result: Dict[str, str] = {}
+        if not label_key:
+            return result
+        for part in label_key.split("|"):
+            if "=" in part:
+                k, v = part.split("=", 1)
+                result[k] = v
+        return result
+
+    def to_openmetrics(self, prefix: str = "cybernetics") -> str:
+        """
+        导出 OpenMetrics 格式（Prometheus 超集）。
+
+        与 Prometheus 格式类似，但在末尾添加 EOF 标记。
+        """
+        return self.to_prometheus(prefix) + "\n# EOF\n"

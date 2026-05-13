@@ -75,6 +75,7 @@ class CyberneticsConfig:
     adaptive: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["adaptive"]))
     hierarchy: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["hierarchy"]))
     storage: Dict[str, Any] = field(default_factory=lambda: copy.deepcopy(_DEFAULTS["storage"]))
+    plugins: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "CyberneticsConfig":

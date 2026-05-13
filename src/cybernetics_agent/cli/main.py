@@ -41,6 +41,16 @@ def create_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", help="可用命令")
 
+    # plugin
+    plugin_parser = subparsers.add_parser("plugin", help="插件管理")
+    plugin_subparsers = plugin_parser.add_subparsers(dest="plugin_command", help="插件命令")
+
+    plugin_list = plugin_subparsers.add_parser("list", help="列出已加载的插件")
+    plugin_list.add_argument("-d", "--dir", default="./plugins", help="插件目录")
+
+    plugin_discover = plugin_subparsers.add_parser("discover", help="发现插件目录中的插件")
+    plugin_discover.add_argument("-d", "--dir", default="./plugins", help="插件目录")
+
     # init
     init_parser = subparsers.add_parser("init", help="初始化配置文件")
     init_parser.add_argument(
@@ -188,6 +198,10 @@ def main(args: Optional[List[str]] = None) -> int:
     elif command == "preset":
         from .preset import run_preset
         return run_preset(parsed)
+
+    elif command == "plugin":
+        from .plugin_cmd import run_plugin
+        return run_plugin(parsed)
 
     else:
         parser.print_help()
