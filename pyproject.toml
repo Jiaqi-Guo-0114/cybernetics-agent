@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cybernetics-agent"
-version = "0.6.0"
+version = "0.6.1"
 description = "A framework-agnostic cybernetics enhancement layer for AI agents, based on Qian Xuesen's Engineering Cybernetics."
 readme = "README.md"
 license = { text = "MIT" }
