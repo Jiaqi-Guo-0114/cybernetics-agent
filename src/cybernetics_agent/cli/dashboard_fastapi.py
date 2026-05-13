@@ -1,130 +1,110 @@
 """
-dashboard 命令。
+FastAPI Dashboard 实现。
 
-启动本地 Web 仪表盘，支持 Prometheus /metrics 端点。
-
-优先使用 FastAPI（如果安装了 [dashboard] 可选依赖），
-否则回退到标准库 http.server。
+提供真正的 Web 仪表盘服务，支持 SSE 实时事件流。
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
-import threading
 import time
-from argparse import Namespace
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, AsyncGenerator, Dict, Optional
 
 from ..config import CyberneticsConfig
 from ..context import CyberneticsContext
 
-
-def run_dashboard(args: Namespace) -> int:
-    """执行 dashboard 命令。"""
-    host = args.host
-    port = args.port
-    config_path = Path(args.config)
-
-    if config_path.exists():
-        config = CyberneticsConfig.from_json(config_path)
-    else:
-        print(f"⚠️  配置文件不存在: {config_path}")
-        print("先运行: cybernetix init")
-        return 1
-
-    ctx = CyberneticsContext(config)
-
-    print(f"📊 启动 Cybernetics Dashboard...")
-    print(f"   地址: http://{host}:{port}")
-    print(f"   Prometheus: http://{host}:{port}/metrics")
-    print(f"   API: http://{host}:{port}/api/metrics")
-    print()
-
-    # 尝试 FastAPI
-    try:
-        from .dashboard_fastapi import run_fastapi_server
-        if run_fastapi_server(host, port, config, ctx):
-            return 0
-    except Exception as e:
-        print(f"FastAPI 启动失败: {e}")
-        print("回退到标准库 HTTP 服务器...")
-        print()
-
-    # Fallback 到 http.server
-    try:
-        start_http_server(host, port, config, ctx)
-    except KeyboardInterrupt:
-        print("\n👋 Dashboard 已关闭")
-        ctx.shutdown()
-        return 0
-
-    return 0
+try:
+    from fastapi import FastAPI, Request
+    from fastapi.responses import HTMLResponse, StreamingResponse
+    from starlette.middleware.cors import CORSMiddleware
+    HAS_FASTAPI = True
+except ImportError:
+    HAS_FASTAPI = False
 
 
-def start_http_server(host: str, port: int, config: CyberneticsConfig, ctx: CyberneticsContext) -> None:
-    """启动 HTTP 服务器。"""
-    from http.server import BaseHTTPRequestHandler, HTTPServer
+def create_app(config: CyberneticsConfig, ctx: CyberneticsContext) -> Optional[Any]:
+    """创建 FastAPI 应用。"""
+    if not HAS_FASTAPI:
+        return None
 
-    class DashboardHandler(BaseHTTPRequestHandler):
-        def log_message(self, format: str, *args: Any) -> None:
-            pass
+    app = FastAPI(title="Cybernetics Dashboard", version="0.3.0")
 
-        def do_GET(self) -> None:
-            if self.path == "/" or self.path == "/index.html":
-                self._serve_html()
-            elif self.path == "/metrics":
-                self._serve_prometheus()
-            elif self.path == "/api/status":
-                self._serve_api_status()
-            elif self.path == "/api/config":
-                self._serve_api_config()
-            elif self.path == "/api/metrics":
-                self._serve_api_metrics()
-            else:
-                self.send_error(404)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-        def _serve_html(self) -> None:
-            html = _generate_dashboard_html(config, ctx)
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.end_headers()
-            self.wfile.write(html.encode("utf-8"))
+    @app.get("/", response_class=HTMLResponse)
+    async def index() -> str:
+        return _generate_dashboard_html(config, ctx)
 
-        def _serve_prometheus(self) -> None:
-            body = ctx.metrics.to_prometheus()
-            self.send_response(200)
-            self.send_header("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
-            self.end_headers()
-            self.wfile.write(body.encode("utf-8"))
+    @app.get("/metrics")
+    async def prometheus_metrics() -> str:
+        return ctx.metrics.to_prometheus()
 
-        def _serve_api_status(self) -> None:
-            status = ctx.get_status()
-            status["timestamp"] = time.time()
-            self._send_json(status)
+    @app.get("/api/status")
+    async def api_status() -> Dict[str, Any]:
+        status = ctx.get_status()
+        status["timestamp"] = time.time()
+        return status
 
-        def _serve_api_config(self) -> None:
-            self._send_json(config.to_dict())
+    @app.get("/api/config")
+    async def api_config() -> Dict[str, Any]:
+        return config.to_dict()
 
-        def _serve_api_metrics(self) -> None:
-            summary = ctx.metrics.get_summary()
-            summary["timestamp"] = time.time()
-            self._send_json(summary)
+    @app.get("/api/metrics")
+    async def api_metrics() -> Dict[str, Any]:
+        summary = ctx.metrics.get_summary()
+        summary["timestamp"] = time.time()
+        return summary
 
-        def _send_json(self, data: Dict[str, Any]) -> None:
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.end_headers()
-            self.wfile.write(json.dumps(data, ensure_ascii=False, default=str).encode("utf-8"))
+    @app.get("/api/events")
+    async def event_stream(request: Request) -> StreamingResponse:
+        async def generator() -> AsyncGenerator[str, None]:
+            last_index = 0
+            while True:
+                if await request.is_disconnected():
+                    break
+                events = ctx.metrics._raw_events
+                if len(events) > last_index:
+                    for evt in events[last_index:]:
+                        yield f"data: {json.dumps(evt, default=str)}\n\n"
+                    last_index = len(events)
+                await asyncio.sleep(1)
 
-    server = HTTPServer((host, port), DashboardHandler)
-    print(f"✅ Dashboard 已在 http://{host}:{port} 运行")
-    print("按 Ctrl+C 停止")
-    server.serve_forever()
+        return StreamingResponse(
+            generator(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+        )
+
+    return app
+
+
+def run_fastapi_server(
+    host: str,
+    port: int,
+    config: CyberneticsConfig,
+    ctx: CyberneticsContext,
+) -> bool:
+    """启动 FastAPI 服务器。返回 True 表示成功。"""
+    if not HAS_FASTAPI:
+        return False
+
+    import uvicorn
+    app = create_app(config, ctx)
+    if app is None:
+        return False
+
+    uvicorn.run(app, host=host, port=port, log_level="warning")
+    return True
 
 
 def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext) -> str:
-    """生成 Dashboard HTML 页面。"""
+    """生成 Dashboard HTML 页面（SSE 版本）。"""
     project_name = config.project_name
     status = ctx.get_status()
     modules = []
@@ -228,6 +208,23 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
             font-weight: 600;
             color: #6c7ae0;
         }}
+        .event-log {{
+            background: #0f0f23;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85em;
+        }}
+        .event-log .event-line {{
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1a2e;
+            color: #aaa;
+        }}
+        .event-log .event-line:last-child {{
+            border-bottom: none;
+        }}
         .modules-grid {{
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -325,13 +322,19 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
                 </div>
             </div>
         </div>
+        <div class="metrics-panel">
+            <h2>📡 实时事件流</h2>
+            <div class="event-log" id="event-log">
+                <div class="event-line">等待事件...</div>
+            </div>
+        </div>
         <h2>七大原则模块状态</h2>
         <div class="modules-grid">
             {''.join(modules)}
         </div>
     </div>
     <div class="footer">
-        <p>Cybernetics Agent v2.0 | 基于钱学森工程控制论</p>
+        <p>Cybernetics Agent v3.0 | 基于钱学森工程控制论</p>
     </div>
     <script>
         async function refreshMetrics() {{
@@ -373,8 +376,34 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
             }} catch (e) {{}}
         }}
 
+        function connectSSE() {{
+            const log = document.getElementById('event-log');
+            const evtSource = new EventSource('/api/events');
+            let count = 0;
+
+            evtSource.onmessage = (e) => {{
+                try {{
+                    const data = JSON.parse(e.data);
+                    const line = document.createElement('div');
+                    line.className = 'event-line';
+                    const time = new Date(data.timestamp * 1000).toLocaleTimeString();
+                    line.textContent = `[${{time}}] ${{data.event_type}} | ${{JSON.stringify(data.payload).slice(0, 80)}}`;
+                    log.insertBefore(line, log.firstChild);
+                    count++;
+                    if (count > 50) log.lastChild.remove();
+                }} catch (err) {{
+                    console.error('SSE parse error:', err);
+                }}
+            }};
+
+            evtSource.onerror = () => {{
+                console.log('SSE disconnected, retrying...');
+            }};
+        }}
+
         refreshMetrics();
         refreshStatus();
+        connectSSE();
         setInterval(refreshMetrics, 3000);
         setInterval(refreshStatus, 10000);
     </script>
