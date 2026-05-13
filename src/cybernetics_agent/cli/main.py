@@ -48,6 +48,23 @@ def create_parser() -> argparse.ArgumentParser:
     plugin_discover = plugin_subparsers.add_parser("discover", help="发现插件目录中的插件")
     plugin_discover.add_argument("-d", "--dir", default="./plugins", help="插件目录")
 
+    # alert
+    alert_parser = subparsers.add_parser("alert", help="告警管理")
+    alert_subparsers = alert_parser.add_subparsers(dest="alert_command", help="告警命令")
+
+    alert_test = alert_subparsers.add_parser("test", help="测试告警渠道")
+    alert_test.add_argument("-c", "--config", default="cybernetics.json", help="配置文件路径")
+    alert_test.add_argument("--channel", help="指定测试单个渠道")
+
+    alert_status = alert_subparsers.add_parser("status", help="查看告警规则状态")
+    alert_status.add_argument("-c", "--config", default="cybernetics.json", help="配置文件路径")
+
+    alert_fire = alert_subparsers.add_parser("fire", help="手动触发告警")
+    alert_fire.add_argument("-c", "--config", default="cybernetics.json", help="配置文件路径")
+    alert_fire.add_argument("-m", "--message", required=True, help="告警消息")
+    alert_fire.add_argument("-s", "--severity", default="warning", choices=["info", "warning", "error", "critical"], help="告警等级")
+    alert_fire.add_argument("--channel", help="指定发送渠道")
+
     # init
     init_parser = subparsers.add_parser("init", help="初始化配置文件")
     init_parser.add_argument(
@@ -199,6 +216,10 @@ def main(args: list[str] | None = None) -> int:
     elif command == "plugin":
         from .plugin_cmd import run_plugin
         return run_plugin(parsed)
+
+    elif command == "alert":
+        from .alert_cmd import run_alert
+        return run_alert(parsed)
 
     else:
         parser.print_help()
