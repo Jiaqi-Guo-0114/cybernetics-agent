@@ -1,12 +1,11 @@
 """
 OpenClaw 适配器。
 
-适配 OpenClaw Agent 框架（石榴，端口 18789）。
-通过 HTTP API 与 OpenClaw 交互，采集事件。
+适配 OpenClaw Agent 框架，通过 HTTP API 交互采集事件。
 
 使用示例:
     >>> from cybernetics_agent.adapters import OpenClawAdapter
-    >>> adapter = OpenClawAdapter(ctx, base_url="http://localhost:18789")
+    >>> adapter = OpenClawAdapter(ctx, base_url="http://localhost:8080")
     >>> adapter.install(None)
     >>> response = adapter.chat("你好")
 """
@@ -26,7 +25,7 @@ class OpenClawAdapter(BaseAdapter):
     def __init__(
         self,
         ctx: Any,
-        base_url: str = "http://localhost:18789",
+        base_url: str = "http://localhost:8080",
         api_key: Optional[str] = None,
     ) -> None:
         super().__init__(ctx)

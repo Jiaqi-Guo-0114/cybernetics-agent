@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 """
-Cybernetics Agent × Psychology Paper Pipeline 集成示例。
+Cybernetics Agent × Pipeline 集成示例。
 
-将控制论层接入现有的科研 pipeline，实现：
-- 自动故障检测与恢复
-- 阶段转化率监控
-- 资源消耗跟踪
-- 智能降级策略
+将控制论层接入 pipeline，实现自动故障检测与恢复、阶段转化率监控、资源消耗跟踪。
 
 Usage:
-    cd ~/projects/cybernetics-agent
-    PYTHONPATH=src:~/.hermes/skills/psychology-paper-digest/scripts \
-        python3 examples/pipeline_integration.py \
+    PYTHONPATH=src python3 examples/pipeline_integration.py \\
         --query "mindfulness depression" --max_papers 3
 """
 
@@ -26,8 +20,6 @@ from typing import Any, Dict, Optional
 # 添加路径
 CYBERNETICS_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(CYBERNETICS_ROOT / "src"))
-PIPELINE_DIR = Path.home() / ".hermes" / "skills" / "psychology-paper-digest" / "scripts"
-sys.path.insert(0, str(PIPELINE_DIR))
 
 from cybernetics_agent import CyberneticsConfig, CyberneticsContext
 from cybernetics_agent.adapters import NativeAdapter
@@ -45,7 +37,7 @@ class PipelineCyberneticsIntegration:
             self.config = CyberneticsConfig.from_json(config_path)
         else:
             self.config = CyberneticsConfig(
-                project_name="psychology-pipeline",
+                project_name="demo-pipeline",
                 feedback_loop={
                     "enabled": True,
                     "mode": "automatic",

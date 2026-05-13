@@ -58,10 +58,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/guojiaqi/cybernetics-agent"
-Documentation = "https://github.com/guojiaqi/cybernetics-agent#readme"
-Repository = "https://github.com/guojiaqi/cybernetics-agent"
-Issues = "https://github.com/guojiaqi/cybernetics-agent/issues"
+Homepage = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent"
+Documentation = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent#readme"
+Repository = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent"
+Issues = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cybernetics_agent"]

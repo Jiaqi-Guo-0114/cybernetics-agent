@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/guojiaqi/cybernetics-agent/main/schemas/cybernetics-schema.json",
+  "$schema": "https://raw.githubusercontent.com/Jiaqi-Guo-0114/cybernetics-agent/main/schemas/cybernetics-schema.json",
   "version": "1.0",
   "project_name": "my-research-pipeline",
 
