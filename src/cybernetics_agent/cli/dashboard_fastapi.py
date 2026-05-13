@@ -1,4 +1,5 @@
 """
+
 FastAPI Dashboard 实现。
 
 提供真正的 Web 仪表盘服务，支持 SSE 实时事件流。

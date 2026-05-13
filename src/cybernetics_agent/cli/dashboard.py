@@ -1,4 +1,5 @@
 """
+
 dashboard 命令。
 
 启动本地 Web 仪表盘，支持 Prometheus /metrics 端点。

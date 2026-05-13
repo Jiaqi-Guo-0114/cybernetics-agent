@@ -1,4 +1,5 @@
 """
+
 Claude Code 适配器。
 
 封装 Claude Code CLI (`claude`) 的调用，在命令执行前后采集事件。

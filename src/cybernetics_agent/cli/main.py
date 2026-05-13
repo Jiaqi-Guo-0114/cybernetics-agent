@@ -1,4 +1,5 @@
 """
+
 CLI 入口。
 
 提供 cybernetix 命令行工具。

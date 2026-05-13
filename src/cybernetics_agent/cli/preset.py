@@ -1,5 +1,6 @@
 """预设命令处理。"""
 
+
 from __future__ import annotations
 
 import json

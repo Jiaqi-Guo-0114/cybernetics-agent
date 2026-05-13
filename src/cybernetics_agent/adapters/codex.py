@@ -1,4 +1,5 @@
 """
+
 Codex 适配器。
 
 封装 OpenAI Codex CLI (`codex`) 的调用，在命令执行前后采集事件。

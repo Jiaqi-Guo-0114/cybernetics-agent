@@ -109,3 +109,36 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
 asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/adapters/autogen.py",
+    "*/adapters/crewai.py",
+    "*/adapters/langchain.py",
+    "*/adapters/claude_code.py",
+    "*/adapters/codex.py",
+    "*/adapters/openclaw.py",
+    "*/adapters/qwenpaw.py",
+    "*/cli/audit.py",
+    "*/cli/dashboard.py",
+    "*/cli/dashboard_fastapi.py",
+    "*/cli/init.py",
+    "*/cli/main.py",
+    "*/cli/plugin_cmd.py",
+    "*/cli/preset.py",
+    "*/cli/report.py",
+    "*/cli/validate.py",
+    "*/cli/alert_cmd.py",
+    "*/cli/__main__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

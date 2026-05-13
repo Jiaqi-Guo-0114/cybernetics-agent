@@ -1,4 +1,5 @@
 """
+
 validate 命令。
 
 验证控制论配置文件的合法性。复用 CyberneticsConfig.validate() 提供友好错误。

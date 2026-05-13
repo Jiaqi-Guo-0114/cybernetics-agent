@@ -1,4 +1,5 @@
 """
+
 OpenClaw 适配器。
 
 适配 OpenClaw Agent 框架，通过 HTTP API 交互采集事件。
