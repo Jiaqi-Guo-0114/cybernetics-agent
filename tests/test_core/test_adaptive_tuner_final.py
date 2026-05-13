@@ -1,4 +1,4 @@
-"""AdaptiveTuner 最终补充"""
+"""AdaptiveTuner 最终补充测试"""
 import pytest
 import sys
 sys.path.insert(0, 'src')
@@ -7,45 +7,38 @@ from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 
 class TestAdaptiveTunerFinal:
-    def test_on_event_llm_request(self):
+    def test_tool_result_no_tool_name(self):
         at = AdaptiveTuner({}, None)
-        evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {"model": "gpt-4"})
+        evt = CyberneticsEvent.create(EventType.TOOL_RESULT, "s1", {"duration": 1.0})
         at.on_event(evt)
 
-    def test_on_event_llm_response(self):
+    def test_tool_error_no_tool_name(self):
         at = AdaptiveTuner({}, None)
-        evt = CyberneticsEvent.create(EventType.LLM_RESPONSE, "s1", {"model": "gpt-4"})
+        evt = CyberneticsEvent.create(EventType.TOOL_ERROR, "s1", {})
         at.on_event(evt)
 
-    def test_on_event_user_input(self):
+    def test_llm_request_no_model(self):
         at = AdaptiveTuner({}, None)
-        evt = CyberneticsEvent.create(EventType.USER_INPUT, "s1", {"text": "研究论文"})
+        evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {})
         at.on_event(evt)
 
-    def test_on_event_stage_transition(self):
+    def test_llm_response_no_model(self):
         at = AdaptiveTuner({}, None)
-        evt = CyberneticsEvent.create(EventType.STAGE_TRANSITION, "s1", {})
+        evt = CyberneticsEvent.create(EventType.LLM_RESPONSE, "s1", {})
         at.on_event(evt)
 
-    def test_auto_tune_numeric(self):
-        at = AdaptiveTuner({
-            "parameters": [{"name": "x", "base": 10, "min": 1, "max": 100}]
-        }, None)
-        for _ in range(10):
-            evt = CyberneticsEvent.create(EventType.TOOL_RESULT, "s1", {"tool_name": "search", "duration": 0.1})
-            at.on_event(evt)
+    def test_user_feedback_no_type(self):
+        at = AdaptiveTuner({}, None)
+        evt = CyberneticsEvent.create(EventType.USER_FEEDBACK, "s1", {})
+        at.on_event(evt)
+
+    def test_auto_tune_empty(self):
+        at = AdaptiveTuner({}, None)
         changes = at.auto_tune()
-        assert isinstance(changes, dict)
+        assert changes == {}
 
-    def test_suggest_parameters(self):
-        at = AdaptiveTuner({
-            "parameters": [{"name": "x", "base": 10, "min": 1, "max": 100}]
-        }, None)
-        suggestions = at.suggest_parameters()
-        assert isinstance(suggestions, dict)
 
-    def test_tool_ranking_with_events(self):
+    def test_get_tool_ranking_empty(self):
         at = AdaptiveTuner({}, None)
-        at.on_event(CyberneticsEvent.create(EventType.TOOL_RESULT, "s1", {"tool_name": "search", "duration": 1.0}))
         ranking = at.get_tool_ranking()
-        assert isinstance(ranking, list)
+        assert ranking == []

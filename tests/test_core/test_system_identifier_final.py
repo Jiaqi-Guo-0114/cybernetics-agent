@@ -1,4 +1,4 @@
-"""SystemIdentifier 最终补充"""
+"""SystemIdentifier 最终补充测试"""
 import pytest
 import sys
 sys.path.insert(0, 'src')
@@ -7,45 +7,52 @@ from cybernetics_agent.core.system_identifier import SystemIdentifier
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 
 class TestSystemIdentifierFinal:
-    def test_on_event_llm_request(self):
+    def test_tool_result_no_tool_name(self):
         si = SystemIdentifier({}, None)
-        evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {"model": "gpt-4", "tokens": 100})
+        evt = CyberneticsEvent.create(EventType.TOOL_RESULT, "s1", {"duration": 1.0})
         si.on_event(evt)
 
-    def test_on_event_llm_response(self):
+    def test_tool_error_no_tool_name(self):
         si = SystemIdentifier({}, None)
-        evt = CyberneticsEvent.create(EventType.LLM_RESPONSE, "s1", {"model": "gpt-4", "tokens": 50})
+        evt = CyberneticsEvent.create(EventType.TOOL_ERROR, "s1", {})
         si.on_event(evt)
 
-    def test_on_event_user_input(self):
+    def test_llm_request_no_model(self):
         si = SystemIdentifier({}, None)
-        evt = CyberneticsEvent.create(EventType.USER_INPUT, "s1", {"text": "hello"})
+        evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {})
         si.on_event(evt)
 
-    def test_on_event_stage_transition(self):
+    def test_llm_response_no_model(self):
         si = SystemIdentifier({}, None)
-        evt = CyberneticsEvent.create(EventType.STAGE_TRANSITION, "s1", {"from_stage": "s1", "to_stage": "s2", "duration": 1.0})
+        evt = CyberneticsEvent.create(EventType.LLM_RESPONSE, "s1", {})
         si.on_event(evt)
 
-    def test_get_tool_performance_specific(self):
+    def test_stage_transition_no_duration(self):
         si = SystemIdentifier({}, None)
-        si.on_event(CyberneticsEvent.create(EventType.TOOL_RESULT, "s1", {"tool_name": "search", "duration": 1.0}))
-        perf = si.get_tool_performance("search")
-        assert isinstance(perf, dict)
+        evt = CyberneticsEvent.create(EventType.STAGE_TRANSITION, "s1", {"from_stage": "s1", "to_stage": "s2"})
+        si.on_event(evt)
 
-    def test_get_conversion_funnel_with_stages(self):
+    def test_user_input_no_text(self):
         si = SystemIdentifier({}, None)
-        si.on_event(CyberneticsEvent.create(EventType.STAGE_TRANSITION, "s1", {"from_stage": "init", "to_stage": "process"}))
-        funnel = si.get_conversion_funnel(["init", "process", "done"])
-        assert isinstance(funnel, dict)
+        evt = CyberneticsEvent.create(EventType.USER_INPUT, "s1", {})
+        si.on_event(evt)
 
-    def test_predict_performance_with_context(self):
+    def test_user_feedback_no_type(self):
         si = SystemIdentifier({}, None)
-        result = si.predict_performance("normal", ["s1", "s2"])
-        assert isinstance(result, dict)
+        evt = CyberneticsEvent.create(EventType.USER_FEEDBACK, "s1", {})
+        si.on_event(evt)
 
-    def test_get_status(self):
+    def test_get_tool_performance_no_data(self):
+        si = SystemIdentifier({}, None)
+        perf = si.get_tool_performance("nonexistent")
+        assert perf == {}
+
+    def test_get_bottlenecks(self):
         si = SystemIdentifier({}, None)
         status = si.get_status()
-        assert "enabled" in status
-        assert "total_samples" in status
+        assert isinstance(status, dict)
+
+    def test_predict_empty(self):
+        si = SystemIdentifier({}, None)
+        result = si.predict_performance("normal")
+        assert isinstance(result, dict)

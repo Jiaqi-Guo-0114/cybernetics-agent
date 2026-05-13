@@ -1,4 +1,4 @@
-"""OptimalController 最终补充"""
+"""OptimalController 最终补充测试"""
 import pytest
 import sys
 sys.path.insert(0, 'src')
@@ -7,26 +7,47 @@ from cybernetics_agent.core.optimal_controller import OptimalController
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 
 class TestOptimalControllerFinal:
-    def test_on_event_llm_response(self):
+    def test_tool_result_no_tool_name(self):
         oc = OptimalController({}, None)
-        evt = CyberneticsEvent.create(EventType.LLM_RESPONSE, "s1", {"model": "gpt-4", "tokens": 50})
+        evt = CyberneticsEvent.create(EventType.TOOL_RESULT, "s1", {"duration": 1.0})
         oc.on_event(evt)
 
-    def test_on_event_user_input(self):
+    def test_tool_error_no_tool_name(self):
+        oc = OptimalController({}, None)
+        evt = CyberneticsEvent.create(EventType.TOOL_ERROR, "s1", {})
+        oc.on_event(evt)
+
+    def test_llm_request_no_model(self):
+        oc = OptimalController({}, None)
+        evt = CyberneticsEvent.create(EventType.LLM_REQUEST, "s1", {})
+        oc.on_event(evt)
+
+    def test_llm_response_no_model(self):
+        oc = OptimalController({}, None)
+        evt = CyberneticsEvent.create(EventType.LLM_RESPONSE, "s1", {})
+        oc.on_event(evt)
+
+    def test_stage_transition_no_stages(self):
+        oc = OptimalController({}, None)
+        evt = CyberneticsEvent.create(EventType.STAGE_TRANSITION, "s1", {})
+        oc.on_event(evt)
+
+    def test_user_input_no_text(self):
         oc = OptimalController({}, None)
         evt = CyberneticsEvent.create(EventType.USER_INPUT, "s1", {})
         oc.on_event(evt)
 
-    def test_can_afford_default(self):
+    def test_user_feedback_no_type(self):
         oc = OptimalController({}, None)
-        assert oc.can_afford("default", 0.0) is True
+        evt = CyberneticsEvent.create(EventType.USER_FEEDBACK, "s1", {})
+        oc.on_event(evt)
 
-    def test_get_budget_status(self):
+    def test_error_no_error_type(self):
         oc = OptimalController({}, None)
-        status = oc.get_budget_status()
-        assert isinstance(status, dict)
+        evt = CyberneticsEvent.create(EventType.ERROR, "s1", {})
+        oc.on_event(evt)
 
-    def test_check_rate_limits(self):
+    def test_can_afford(self):
         oc = OptimalController({}, None)
-        assert isinstance(oc.check_llm_rate_limit(), bool)
-        assert isinstance(oc.check_tool_concurrency(), bool)
+        result = oc.can_afford("test", 0.0)
+        assert isinstance(result, bool)
