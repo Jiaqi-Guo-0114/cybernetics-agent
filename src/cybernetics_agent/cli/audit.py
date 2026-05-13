@@ -94,22 +94,22 @@ def run_audit(args: Namespace) -> int:
             findings.append({"rule_id": rid, "severity": sev, "desc": desc, "file": str(f), "line": r["line"], "msg": r["msg"]})
 
     counts = {"error": 0, "warning": 0, "info": 0}
-    for f in findings:
-        counts[f["severity"]] += 1
+    for finding in findings:
+        counts[finding["severity"]] += 1
 
     if not findings:
-        print("✅ 未发现问题！")
+        print("未发现问题！")
         return 0
 
     icons = {"error": "❌", "warning": "⚠️", "info": "ℹ️"}
     print(f"发现 {len(findings)} 个问题: 错误={counts['error']} 警告={counts['warning']} 信息={counts['info']}\n")
-    for f in findings:
-        print(f"{icons[f['severity']]} [{f['rule_id']}] {f['desc']}")
-        print(f"   {f['file']}:{f['line']} — {f['msg']}\n")
+    for finding in findings:
+        print(f"{icons[finding['severity']]} [{finding['rule_id']}] {finding['desc']}")
+        print(f"   {finding['file']}:{finding['line']} — {finding['msg']}\n")
 
     if args.output:
         report = {"summary": {"total": len(findings), **counts}, "findings": findings}
         Path(args.output).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-        print(f"📄️ 报告已保存: {args.output}")
+        print(f"报告已保存: {args.output}")
 
     return 1 if counts["error"] > 0 else 0

@@ -79,7 +79,7 @@ class EventBus:
             if len(self._event_log) > self._max_log_size:
                 self._event_log = self._event_log[-self._max_log_size // 2:]
 
-            current_event = event
+            current_event: CyberneticsEvent | None = event
             event_type_str = event.event_type.value
 
             # 通知全局订阅者

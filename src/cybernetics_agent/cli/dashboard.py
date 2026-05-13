@@ -176,6 +176,9 @@ def start_http_server(host: str, port: int, config: CyberneticsConfig, ctx: Cybe
             self._send_json(summary)
 
         def _serve_alert_status(self) -> None:
+            if alert_manager is None:
+                self.send_error(503)
+                return
             self._send_json(alert_manager.get_status())
 
         def _send_json(self, data: dict[str, Any]) -> None:

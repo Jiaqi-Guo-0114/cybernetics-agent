@@ -262,37 +262,37 @@ class MetricsCollector:
             lines.append("")
 
         # Gauge
-        for name, label_data in self._gauges.items():
-            full_name = f"{prefix}_{name}"
+        for gname, gdata in self._gauges.items():
+            full_name = f"{prefix}_{gname}"
             lines.append(f"# HELP {full_name} Auto-generated gauge")
             lines.append(f"# TYPE {full_name} gauge")
-            for label_key, value in label_data.items():
-                labels = self._parse_label_key(label_key)
-                label_str = ",".join(f'{k}="{v}"' for k, v in sorted(labels.items()))
+            for label_key, gvalue in gdata.items():
+                glabels = self._parse_label_key(label_key)
+                label_str = ",".join(f'{k}="{v}"' for k, v in sorted(glabels.items()))
                 if label_str:
-                    lines.append(f"{full_name}{{{label_str}}} {value}")
+                    lines.append(f"{full_name}{{{label_str}}} {gvalue}")
                 else:
-                    lines.append(f"{full_name} {value}")
+                    lines.append(f"{full_name} {gvalue}")
             lines.append("")
 
         # Histogram
         buckets = [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, float("inf")]
-        for name, label_data in self._histograms.items():
-            full_name = f"{prefix}_{name}"
+        for hname, hdata in self._histograms.items():
+            full_name = f"{prefix}_{hname}"
             lines.append(f"# HELP {full_name} Auto-generated histogram")
             lines.append(f"# TYPE {full_name} histogram")
-            for label_key, values in label_data.items():
-                labels = self._parse_label_key(label_key)
+            for label_key, values in hdata.items():
+                hlabels = self._parse_label_key(label_key)
                 for bucket in buckets:
                     count = sum(1 for v in values if v <= bucket)
-                    bucket_labels = dict(labels)
+                    bucket_labels = dict(hlabels)
                     if bucket == float("inf"):
                         bucket_labels["le"] = "+Inf"
                     else:
                         bucket_labels["le"] = str(bucket)
                     label_str = ",".join(f'{k}="{v}"' for k, v in sorted(bucket_labels.items()))
                     lines.append(f"{full_name}_bucket{{{label_str}}} {count}")
-                label_str = ",".join(f'{k}="{v}"' for k, v in sorted(labels.items()))
+                label_str = ",".join(f'{k}="{v}"' for k, v in sorted(hlabels.items()))
                 if label_str:
                     lines.append(f"{full_name}_sum{{{label_str}}} {sum(values)}")
                     lines.append(f"{full_name}_count{{{label_str}}} {len(values)}")
