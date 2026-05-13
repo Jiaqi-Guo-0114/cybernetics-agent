@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -101,11 +102,12 @@ class MetricsCollector:
 
         # 持久化到 SQLite
         if self._event_store is not None:
-            self._event_store.write_event(
-                event_type=et.value,
-                payload=payload,
-                session_id=event.session_id,
-            )
+            with contextlib.suppress(Exception):
+                self._event_store.write_event(
+                    event_type=et.value,
+                    payload=payload,
+                    session_id=event.session_id,
+                )
 
     def increment(self, name: str, value: int = 1, labels: dict[str, str] | None = None) -> None:
         """增加计数器。"""

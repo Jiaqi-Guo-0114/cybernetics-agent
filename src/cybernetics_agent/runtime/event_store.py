@@ -26,6 +26,7 @@ class EventStore:
         if db_path is None:
             db_path = str(Path.home() / ".hermes" / "cybernetics_events.db")
         self.db_path = db_path
+        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
         self._init_db()
 
@@ -73,33 +74,30 @@ class EventStore:
 
     def write_event(self, event_type: str, payload: dict[str, Any], session_id: str | None = None) -> None:
         """写入事件。"""
-        with self._lock:
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute(
-                    "INSERT INTO events (timestamp, event_type, payload, session_id) VALUES (?, ?, ?, ?)",
-                    (time.time(), event_type, json.dumps(payload, ensure_ascii=False, default=str), session_id),
-                )
-                conn.commit()
+        with self._lock, sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT INTO events (timestamp, event_type, payload, session_id) VALUES (?, ?, ?, ?)",
+                (time.time(), event_type, json.dumps(payload, ensure_ascii=False, default=str), session_id),
+            )
+            conn.commit()
 
     def write_metric(self, metric_name: str, metric_value: float, labels: dict[str, str] | None = None) -> None:
         """写入指标快照。"""
-        with self._lock:
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute(
-                    "INSERT INTO metrics (timestamp, metric_name, metric_value, labels) VALUES (?, ?, ?, ?)",
-                    (time.time(), metric_name, metric_value, json.dumps(labels or {}, ensure_ascii=False)),
-                )
-                conn.commit()
+        with self._lock, sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT INTO metrics (timestamp, metric_name, metric_value, labels) VALUES (?, ?, ?, ?)",
+                (time.time(), metric_name, metric_value, json.dumps(labels or {}, ensure_ascii=False)),
+            )
+            conn.commit()
 
     def write_alert(self, rule_name: str, severity: str, message: str, metric_name: str | None = None, metric_value: float | None = None, labels: dict[str, str] | None = None) -> None:
         """写入告警。"""
-        with self._lock:
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute(
-                    "INSERT INTO alerts (timestamp, rule_name, severity, message, metric_name, metric_value, labels) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (time.time(), rule_name, severity, message, metric_name, metric_value, json.dumps(labels or {}, ensure_ascii=False)),
-                )
-                conn.commit()
+        with self._lock, sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT INTO alerts (timestamp, rule_name, severity, message, metric_name, metric_value, labels) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (time.time(), rule_name, severity, message, metric_name, metric_value, json.dumps(labels or {}, ensure_ascii=False)),
+            )
+            conn.commit()
 
     def query_events(self, from_time: float | None = None, to_time: float | None = None, event_type: str | None = None, limit: int = 100) -> list[dict[str, Any]]:
         """查询事件。"""
@@ -216,10 +214,9 @@ class EventStore:
     def prune(self, max_age_days: float = 30.0) -> dict[str, int]:
         """清理超过指定天数的旧数据。"""
         cutoff = time.time() - (max_age_days * 86400)
-        with self._lock:
-            with sqlite3.connect(self.db_path) as conn:
-                c1 = conn.execute("DELETE FROM events WHERE timestamp < ?", (cutoff,)).rowcount
-                c2 = conn.execute("DELETE FROM metrics WHERE timestamp < ?", (cutoff,)).rowcount
-                c3 = conn.execute("DELETE FROM alerts WHERE timestamp < ?", (cutoff,)).rowcount
-                conn.commit()
-                return {"events": c1, "metrics": c2, "alerts": c3}
+        with self._lock, sqlite3.connect(self.db_path) as conn:
+            c1 = conn.execute("DELETE FROM events WHERE timestamp < ?", (cutoff,)).rowcount
+            c2 = conn.execute("DELETE FROM metrics WHERE timestamp < ?", (cutoff,)).rowcount
+            c3 = conn.execute("DELETE FROM alerts WHERE timestamp < ?", (cutoff,)).rowcount
+            conn.commit()
+            return {"events": c1, "metrics": c2, "alerts": c3}

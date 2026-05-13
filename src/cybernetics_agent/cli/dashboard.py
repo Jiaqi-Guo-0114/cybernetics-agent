@@ -59,7 +59,7 @@ def run_dashboard(args: Namespace) -> int:
         from ..runtime.config_watcher import ConfigWatcher
         def reload_config():
             nonlocal config, ctx, alert_manager
-            print(f"\n  配置文件变更，重新加载...")
+            print("\n  配置文件变更，重新加载...")
             try:
                 config = CyberneticsConfig.from_json(config_path)
                 ctx.shutdown()
@@ -404,7 +404,7 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext,
         </div>
     </div>
     <div class="footer">
-        <p>Cybernetics Agent v2.0 | 基于钱学森工程控制论</p>
+        <p>Cybernetics Agent v0.6.0 | 基于钱学森工程控制论</p>
     </div>
     <script>
         async function refreshMetrics() {{

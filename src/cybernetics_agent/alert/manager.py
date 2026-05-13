@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from collections import deque
 from typing import Any
 
@@ -62,14 +63,15 @@ class AlertManager:
                     triggered.append(evt)
                     self._history.append(evt)
                     if self._event_store is not None:
-                        self._event_store.write_alert(
-                            rule_name=evt.rule_name,
-                            severity=evt.severity,
-                            message=evt.message,
-                            metric_name=evt.metric_name,
-                            metric_value=evt.metric_value,
-                            labels=evt.labels,
-                        )
+                        with contextlib.suppress(Exception):
+                            self._event_store.write_alert(
+                                rule_name=evt.rule_name,
+                                severity=evt.severity,
+                                message=evt.message,
+                                metric_name=evt.metric_name,
+                                metric_value=evt.metric_value,
+                                labels=evt.labels,
+                            )
             except Exception:
                 continue
         return triggered

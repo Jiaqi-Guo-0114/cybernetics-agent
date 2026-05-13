@@ -7,10 +7,11 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import threading
 import time
-from typing import Any, Callable
+from typing import Callable
 
 
 class ConfigWatcher:
@@ -65,9 +66,7 @@ class ConfigWatcher:
             current = self._get_mtime()
             if current is not None and self._last_mtime is not None and current != self._last_mtime:
                 self._last_mtime = current
-                try:
+                with contextlib.suppress(Exception):
                     self.callback()
-                except Exception:
-                    pass
             elif current is not None and self._last_mtime is None:
                 self._last_mtime = current
