@@ -256,6 +256,164 @@ class AdaptiveTuner(ICyberneticsModule):
             "recent_feedback_count": len(self._user_feedback),
         }
 
+    def auto_tune(self) -> Dict[str, Any]:
+        """
+        基于历史数据自动调整所有参数。
+
+        返回调整日志，包含每个参数的旧值、新值和调整原因。
+        """
+        changes: Dict[str, Any] = {}
+
+        # 1. 数值型参数自动调整
+        for name, ps in self._parameters.items():
+            if isinstance(ps.base_value, (int, float)) and ps.min_value is not None and ps.max_value is not None:
+                old_val = ps.current_value
+                new_val = self._tune_numeric_parameter(name, ps)
+                if new_val != old_val:
+                    ps.current_value = new_val
+                    ps.adjustment_count += 1
+                    changes[name] = {
+                        "old": old_val,
+                        "new": new_val,
+                        "reason": "auto_tune_numeric",
+                    }
+
+            # 2. 选项型参数自动调整
+            elif ps.options:
+                old_val = ps.current_value
+                new_val = self._tune_option_parameter(name, ps)
+                if new_val != old_val:
+                    ps.current_value = new_val
+                    ps.adjustment_count += 1
+                    changes[name] = {
+                        "old": old_val,
+                        "new": new_val,
+                        "reason": "auto_tune_option",
+                    }
+
+        # 3. 如果工具评分过低，自动放宽重试参数
+        avg_tool_score = sum(self._tool_scores.values()) / len(self._tool_scores) if self._tool_scores else 0.5
+        if avg_tool_score < 0.3:
+            retry_param = self._parameters.get("max_retries")
+            if retry_param and isinstance(retry_param.current_value, int):
+                old_val = retry_param.current_value
+                new_val = min(old_val + 1, 10)
+                if new_val != old_val:
+                    retry_param.current_value = new_val
+                    retry_param.adjustment_count += 1
+                    changes["max_retries"] = {
+                        "old": old_val,
+                        "new": new_val,
+                        "reason": f"low_tool_score({avg_tool_score:.2f})",
+                    }
+
+        return changes
+
+    def _tune_numeric_parameter(self, name: str, ps: ParameterState) -> Any:
+        """
+        调整数值型参数。
+
+        策略：
+        - 工具成功率高 → 提高并发/规模
+        - 工具成功率低 → 降低并发/规模，增加保守性
+        - 10% 概率做探索性尝试
+        """
+        import random
+
+        # ε-greedy 探索
+        if random.random() < 0.1:
+            if isinstance(ps.base_value, int):
+                return random.randint(int(ps.min_value), int(ps.max_value))
+            return ps.min_value + random.random() * (ps.max_value - ps.min_value)
+
+        avg_score = sum(self._tool_scores.values()) / len(self._tool_scores) if self._tool_scores else 0.5
+
+        # 根据成功率调整
+        current = ps.current_value
+        if not isinstance(current, (int, float)):
+            current = ps.base_value
+
+        if avg_score > 0.7:
+            # 成功率高，可以提高负载
+            delta = (ps.max_value - ps.min_value) * 0.1 * self._learning_rate
+            new_val = current + delta
+        elif avg_score < 0.3:
+            # 成功率低，降低负载
+            delta = (ps.max_value - ps.min_value) * 0.1 * self._learning_rate
+            new_val = current - delta
+        else:
+            # 成功率中等，向基准值回归
+            new_val = current + (ps.base_value - current) * self._learning_rate * 0.3
+
+        # 边界限制
+        if isinstance(ps.base_value, int):
+            return int(max(ps.min_value, min(ps.max_value, new_val)))
+        return max(ps.min_value, min(ps.max_value, new_val))
+
+    def _tune_option_parameter(self, name: str, ps: ParameterState) -> Any:
+        """
+        调整选项型参数。
+
+        策略：
+        - 高负载/成功率低 → 选择更保守的选项
+        - 低负载/成功率高 → 选择更激进的选项
+        """
+        if not ps.options:
+            return ps.current_value
+
+        avg_score = sum(self._tool_scores.values()) / len(self._tool_scores) if self._tool_scores else 0.5
+
+        # 简单策略：选项列表左侧更保守，右侧更激进
+        idx = ps.options.index(ps.current_value) if ps.current_value in ps.options else len(ps.options) // 2
+
+        if avg_score > 0.7 and idx < len(ps.options) - 1:
+            return ps.options[idx + 1]  # 更激进
+        elif avg_score < 0.3 and idx > 0:
+            return ps.options[idx - 1]  # 更保守
+
+        return ps.current_value
+
+    def suggest_parameters(self) -> Dict[str, Dict[str, Any]]:
+        """
+        推荐参数调整方案（不应用）。
+
+        返回每个参数的建议新值和理由。
+        """
+        suggestions: Dict[str, Dict[str, Any]] = {}
+
+        for name, ps in self._parameters.items():
+            if isinstance(ps.base_value, (int, float)) and ps.min_value is not None:
+                suggested = self._tune_numeric_parameter(name, ps)
+                if suggested != ps.current_value:
+                    suggestions[name] = {
+                        "current": ps.current_value,
+                        "suggested": suggested,
+                        "confidence": self._estimate_confidence(name),
+                    }
+            elif ps.options:
+                suggested = self._tune_option_parameter(name, ps)
+                if suggested != ps.current_value:
+                    suggestions[name] = {
+                        "current": ps.current_value,
+                        "suggested": suggested,
+                        "confidence": self._estimate_confidence(name),
+                    }
+
+        return suggestions
+
+    def _estimate_confidence(self, name: str) -> float:
+        """估计对某参数调整的置信度。
+
+        基于已收集的样本数量：样本越多，置信度越高。
+        """
+        score_count = len(self._tool_scores)
+        feedback_count = len(self._user_feedback)
+        total_samples = score_count + feedback_count
+
+        # 归一化到 0-1
+        raw_confidence = min(total_samples / 20.0, 1.0)
+        return round(raw_confidence, 2)
+
     def reset(self) -> None:
         """重置学习状态。"""
         self._tool_scores.clear()
