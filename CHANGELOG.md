@@ -5,14 +5,17 @@
 ### Added
 - **核心基类测试** — `core/base.py` (EventType, CyberneticsEvent, ICyberneticsModule) + `alert/channels/base.py` (AlertChannel)
   - 25 个新增测试，基类模块覆盖率 96%–100%
+- **复杂分支补齐** — feedback_loop、system_identifier、hierarchy_controller、info_flow 剩余未覆盖行
+  - 61 个新增测试，覆盖异常分支、边界条件、隐藏逻辑
+  - system_identifier → 100%，hierarchy_controller → 100%，info_flow → 100%，feedback_loop → 99%
 - **性能基准测试** — pytest-benchmark 套件
   - 核心模块 7 个：单事件处理 + 批量 100 事件处理
   - Runtime 模块 3 个：EventBus、MetricsCollector、EventStore
   - 23 个 benchmark 测试全部通过
 - **CI 覆盖率检查** — GitHub Actions 新增 `--cov-fail-under=90`
-- **测试覆盖率大幅提升** — 从 58% → 92%（+34%）
-  - 新增 590+ 测试用例，总计 745 个测试全部通过
-  - 核心模块全覆盖：FeedbackLoop、SystemIdentifier、AdaptiveTuner、OptimalController、StabilityEngine、HierarchyController、InfoFlow、base
+- **测试覆盖率大幅提升** — 从 58% → 96%（+38%）
+  - 新增 650+ 测试用例，总计 806 个测试全部通过
+  - 核心模块全覆盖：FeedbackLoop（99%）、SystemIdentifier（100%）、AdaptiveTuner、OptimalController、StabilityEngine、HierarchyController（100%）、InfoFlow（100%）、base
   - Runtime 层全覆盖：EventBus、EventStore（100%）、MetricsCollector（98%）、PluginLoader、StateManager（99%）
   - Alert 层全覆盖：6 个渠道（含错误处理 mock）、Manager、Rules、AlertChannel
   - 新增 `.coveragerc` 配置文件，omit adapters/ 和 cli/ 目录
