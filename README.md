@@ -20,7 +20,10 @@
 - **策略预设** — 4 种开箱即用配置模板
 - **Metrics 导出** — Prometheus / OpenMetrics 文本格式
 - **Plugin 系统** — 热插拔自定义模块
-- **实时 Dashboard** — FastAPI + SSE 事件流
+- **实时 Dashboard** — FastAPI + SSE 事件流，告警面板 + 历史查询
+- **配置热重载** — 运行时修改配置文件自动生效
+- **告警系统** — 阈值规则 + 7 个通知渠道（飞书/钉钉/Discord/Slack/Email/Webhook/Stdout）
+- **事件持久化** — SQLite 存储，进程重启不丢失
 - **自适应调优** — ε-greedy 参数自动优化
 - **完整 CLI** — `cybernetix` 命令行工具
 - **线程安全** — 内置线程锁保护
@@ -84,6 +87,9 @@ cybernetix validate cfg.json             # 验证配置文件
 cybernetix plugin list                   # 列出插件
 cybernetix plugin discover               # 发现插件
 cybernetix dashboard                     # 启动监控仪表盘
+cybernetix alert test                    # 测试告警渠道
+cybernetix alert status                  # 查看告警规则状态
+cybernetix alert fire -m "msg" -s error  # 手动触发告警
 cybernetix audit ./src                   # 审计代码缺陷
 cybernetix run ./task.py                 # 运行任务并采集指标
 cybernetix --version                     # 查看版本号
