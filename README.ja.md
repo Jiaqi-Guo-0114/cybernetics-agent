@@ -5,7 +5,7 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-98%2F98-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-876%2F876-brightgreen.svg)]()
 
 🌐 **[日本語](README.ja.md)** · [中文](README.md) · [English](README.en.md) · [Français](README.fr.md) · [Español](README.es.md) · [한국어](README.ko.md)
 
