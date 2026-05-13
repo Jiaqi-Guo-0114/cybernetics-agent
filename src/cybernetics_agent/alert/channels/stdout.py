@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Any
 
 from .base import AlertChannel
 from ..core import AlertEvent
@@ -29,6 +30,3 @@ class StdoutChannel(AlertChannel):
             line += f" | {event.metric_name}={event.metric_value}"
         self._stream.write(line + "\n")
         return True
-
-
-from typing import Any
