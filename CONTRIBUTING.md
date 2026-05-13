@@ -45,6 +45,26 @@ PYTHONPATH=src python3 -m pytest tests/ --cov=src/cybernetics_agent -v
 - 纯标准库，无外部依赖
 - 类型注解尽量完整
 - 中文注释、中文用户面向字符串
+- **提交前必须运行 ruff 检查**
+  ```bash
+  ruff check src/ tests/
+  ```
+  常见问题：未使用的 import（F401）、未使用的变量（F841）。可自动修复：
+  ```bash
+  ruff check src/ tests/ --fix
+  ```
+
+## 测试规范
+
+- 每个新功能/修复必须配套测试
+- 测试文件名以 `test_` 开头
+- 使用 `unittest.mock` 模拟外部 I/O（HTTP、SMTP、文件系统）
+- 不要在测试中使用 `time.sleep`，如需待用 `monkeypatch`
+- 测试类名不要重复（跨文件重复会导致 pytest 收集异常）
+- 提交前确保本地通过全量测试：
+  ```bash
+  PYTHONPATH=src python3 -m pytest tests/ -q --tb=line
+  ```
 
 ## 问题反馈
 
