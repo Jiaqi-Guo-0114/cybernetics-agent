@@ -7,6 +7,14 @@
 from __future__ import annotations
 
 from .core import AlertEvent, AlertRule
+from .manager import AlertManager
 from .rules import RateRule, SilenceRule, ThresholdRule
 
-__all__ = ["AlertEvent", "AlertRule", "ThresholdRule", "RateRule", "SilenceRule"]
+__all__ = [
+    "AlertEvent",
+    "AlertRule",
+    "AlertManager",
+    "ThresholdRule",
+    "RateRule",
+    "SilenceRule",
+]

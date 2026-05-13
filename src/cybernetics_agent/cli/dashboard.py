@@ -28,13 +28,32 @@ def run_dashboard(args: Namespace) -> int:
     if config_path.exists():
         config = CyberneticsConfig.from_json(config_path)
     else:
-        print(f"⚠️  配置文件不存在: {config_path}")
+        print(f"  配置文件不存在: {config_path}")
         print("先运行: cybernetix init")
         return 1
 
     ctx = CyberneticsContext(config)
 
-    print("📊 启动 Cybernetics Dashboard...")
+    # 创建 AlertManager
+    alert_manager = None
+    alert_cfg = config.to_dict().get("alert", {})
+    if alert_cfg.get("enabled", False):
+        from ..alert import AlertManager, ThresholdRule
+        from ..alert.channels import StdoutChannel
+        alert_manager = AlertManager()
+        alert_manager.register_channel("stdout", StdoutChannel())
+        for rule_cfg in alert_cfg.get("rules", []):
+            if rule_cfg.get("type") == "threshold":
+                alert_manager.add_rule(ThresholdRule(
+                    name=rule_cfg["name"],
+                    metric=rule_cfg["metric"],
+                    operator=rule_cfg["operator"],
+                    threshold=rule_cfg["threshold"],
+                    duration=rule_cfg.get("duration", 0),
+                    severity=rule_cfg.get("severity", "warning"),
+                ))
+
+    print("启动 Cybernetics Dashboard...")
     print(f"   地址: http://{host}:{port}")
     print(f"   Prometheus: http://{host}:{port}/metrics")
     print(f"   API: http://{host}:{port}/api/metrics")
@@ -43,7 +62,7 @@ def run_dashboard(args: Namespace) -> int:
     # 尝试 FastAPI
     try:
         from .dashboard_fastapi import run_fastapi_server
-        if run_fastapi_server(host, port, config, ctx):
+        if run_fastapi_server(host, port, config, ctx, alert_manager=alert_manager):
             return 0
     except Exception as e:
         print(f"FastAPI 启动失败: {e}")
@@ -52,16 +71,16 @@ def run_dashboard(args: Namespace) -> int:
 
     # Fallback 到 http.server
     try:
-        start_http_server(host, port, config, ctx)
+        start_http_server(host, port, config, ctx, alert_manager=alert_manager)
     except KeyboardInterrupt:
-        print("\n👋 Dashboard 已关闭")
+        print("\n Dashboard 已关闭")
         ctx.shutdown()
         return 0
 
     return 0
 
 
-def start_http_server(host: str, port: int, config: CyberneticsConfig, ctx: CyberneticsContext) -> None:
+def start_http_server(host: str, port: int, config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager: Any | None = None) -> None:
     """启动 HTTP 服务器。"""
     from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -80,11 +99,13 @@ def start_http_server(host: str, port: int, config: CyberneticsConfig, ctx: Cybe
                 self._serve_api_config()
             elif self.path == "/api/metrics":
                 self._serve_api_metrics()
+            elif self.path == "/alert/status" and alert_manager is not None:
+                self._serve_alert_status()
             else:
                 self.send_error(404)
 
         def _serve_html(self) -> None:
-            html = _generate_dashboard_html(config, ctx)
+            html = _generate_dashboard_html(config, ctx, alert_manager=alert_manager)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
@@ -110,6 +131,9 @@ def start_http_server(host: str, port: int, config: CyberneticsConfig, ctx: Cybe
             summary["timestamp"] = time.time()
             self._send_json(summary)
 
+        def _serve_alert_status(self) -> None:
+            self._send_json(alert_manager.get_status())
+
         def _send_json(self, data: dict[str, Any]) -> None:
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -117,12 +141,12 @@ def start_http_server(host: str, port: int, config: CyberneticsConfig, ctx: Cybe
             self.wfile.write(json.dumps(data, ensure_ascii=False, default=str).encode("utf-8"))
 
     server = HTTPServer((host, port), DashboardHandler)
-    print(f"✅ Dashboard 已在 http://{host}:{port} 运行")
+    print(f" Dashboard 已在 http://{host}:{port} 运行")
     print("按 Ctrl+C 停止")
     server.serve_forever()
 
 
-def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext) -> str:
+def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager: Any | None = None) -> str:
     """生成 Dashboard HTML 页面。"""
     project_name = config.project_name
     status = ctx.get_status()
@@ -324,6 +348,12 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
                 </div>
             </div>
         </div>
+        <div class="metrics-panel">
+            <h2>告警状态</h2>
+            <div id="alert-panel">
+                <p style="color:#888">加载中...</p>
+            </div>
+        </div>
         <h2>七大原则模块状态</h2>
         <div class="modules-grid">
             {''.join(modules)}
@@ -372,10 +402,45 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
             }} catch (e) {{}}
         }}
 
+        async function refreshAlerts() {{
+            try {{
+                const res = await fetch('/alert/status');
+                if (!res.ok) {{
+                    document.getElementById('alert-panel').innerHTML = '<p style="color:#888">未启用告警系统</p>';
+                    return;
+                }}
+                const data = await res.json();
+                let html = '<div style="margin-bottom:12px;">';
+                html += '<strong>规则 (' + data.rules.length + '):</strong> ';
+                html += data.rules.map(r => r.name).join(', ') || '无';
+                html += '</div>';
+                html += '<div style="margin-bottom:12px;">';
+                html += '<strong>渠道:</strong> ';
+                html += data.channels.map(c => c.name + (c.healthy ? '(✓)' : '(✗)')).join(', ') || '无';
+                html += '</div>';
+                if (data.history.length > 0) {{
+                    html += '<div><strong>最近告警:</strong></div>';
+                    html += '<div class="event-log" style="margin-top:8px;">';
+                    data.history.slice(-10).reverse().forEach(h => {{
+                        const t = new Date(h.timestamp * 1000).toLocaleTimeString();
+                        const sev = h.severity || 'warning';
+                        const color = sev === 'critical' ? '#ff4444' : sev === 'error' ? '#ff8800' : '#aaa';
+                        html += '<div class="event-line" style="color:' + color + '">[' + t + '] ' + h.rule_name + ' | ' + h.message + '</div>';
+                    }});
+                    html += '</div>';
+                }}
+                document.getElementById('alert-panel').innerHTML = html;
+            }} catch (e) {{
+                document.getElementById('alert-panel').innerHTML = '<p style="color:#888">未启用告警系统</p>';
+            }}
+        }}
+
         refreshMetrics();
         refreshStatus();
+        refreshAlerts();
         setInterval(refreshMetrics, 3000);
         setInterval(refreshStatus, 10000);
+        setInterval(refreshAlerts, 5000);
     </script>
 </body>
 </html>"""

@@ -24,7 +24,7 @@ except ImportError:
     HAS_FASTAPI = False
 
 
-def create_app(config: CyberneticsConfig, ctx: CyberneticsContext) -> Any | None:
+def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager: Any | None = None) -> Any | None:
     """创建 FastAPI 应用。"""
     if not HAS_FASTAPI:
         return None
@@ -82,6 +82,11 @@ def create_app(config: CyberneticsConfig, ctx: CyberneticsContext) -> Any | None
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
         )
 
+    if alert_manager is not None:
+        @app.get("/alert/status")
+        async def alert_status() -> dict[str, Any]:
+            return alert_manager.get_status()
+
     return app
 
 
@@ -90,13 +95,14 @@ def run_fastapi_server(
     port: int,
     config: CyberneticsConfig,
     ctx: CyberneticsContext,
+    alert_manager: Any | None = None,
 ) -> bool:
     """启动 FastAPI 服务器。返回 True 表示成功。"""
     if not HAS_FASTAPI:
         return False
 
     import uvicorn
-    app = create_app(config, ctx)
+    app = create_app(config, ctx, alert_manager=alert_manager)
     if app is None:
         return False
 
@@ -329,6 +335,12 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
                 <div class="event-line">等待事件...</div>
             </div>
         </div>
+        <div class="metrics-panel">
+            <h2>告警状态</h2>
+            <div id="alert-panel">
+                <p style="color:#888">加载中...</p>
+            </div>
+        </div>
         <h2>七大原则模块状态</h2>
         <div class="modules-grid">
             {''.join(modules)}
@@ -377,6 +389,39 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
             }} catch (e) {{}}
         }}
 
+        async function refreshAlerts() {{
+            try {{
+                const res = await fetch('/alert/status');
+                if (!res.ok) {{
+                    document.getElementById('alert-panel').innerHTML = '<p style="color:#888">未启用告警系统</p>';
+                    return;
+                }}
+                const data = await res.json();
+                let html = '<div style="margin-bottom:12px;">';
+                html += '<strong>规则 (' + data.rules.length + '):</strong> ';
+                html += data.rules.map(r => r.name).join(', ') || '无';
+                html += '</div>';
+                html += '<div style="margin-bottom:12px;">';
+                html += '<strong>渠道:</strong> ';
+                html += data.channels.map(c => c.name + (c.healthy ? '(✓)' : '(✗)')).join(', ') || '无';
+                html += '</div>';
+                if (data.history.length > 0) {{
+                    html += '<div><strong>最近告警:</strong></div>';
+                    html += '<div class="event-log" style="margin-top:8px;">';
+                    data.history.slice(-10).reverse().forEach(h => {{
+                        const t = new Date(h.timestamp * 1000).toLocaleTimeString();
+                        const sev = h.severity || 'warning';
+                        const color = sev === 'critical' ? '#ff4444' : sev === 'error' ? '#ff8800' : '#aaa';
+                        html += '<div class="event-line" style="color:' + color + '">[' + t + '] ' + h.rule_name + ' | ' + h.message + '</div>';
+                    }});
+                    html += '</div>';
+                }}
+                document.getElementById('alert-panel').innerHTML = html;
+            }} catch (e) {{
+                document.getElementById('alert-panel').innerHTML = '<p style="color:#888">未启用告警系统</p>';
+            }}
+        }}
+
         function connectSSE() {{
             const log = document.getElementById('event-log');
             const evtSource = new EventSource('/api/events');
@@ -404,9 +449,11 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
 
         refreshMetrics();
         refreshStatus();
+        refreshAlerts();
         connectSSE();
         setInterval(refreshMetrics, 3000);
         setInterval(refreshStatus, 10000);
+        setInterval(refreshAlerts, 5000);
     </script>
 </body>
 </html>"""
