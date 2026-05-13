@@ -17,13 +17,15 @@
 - **七大原则** — 钱学森《工程控制论》全覆盖
 - **多框架适配** — 支持 LangChain、AutoGen、CrewAI、Hermes、Claude Code、Codex 等
 - **声明式配置** — JSON/YAML 配置，灵活可控
-- **策略预设** — 4 种开箱即用配置模板（高并发/低成本/高可靠/调试）
-- **Metrics 导出** — Prometheus / OpenMetrics 文本格式，可接入 Grafana
-- **Plugin 系统** — 热插拔自定义模块，自动发现插件目录
-- **实时 Dashboard** — FastAPI + SSE 事件流，前端实时刷新
-- **自适应调优** — ε-greedy 参数自动优化，置信度估计
-- **完整 CLI** — `cybernetix` 命令行工具（init / audit / dashboard / preset / plugin / validate / run）
+- **策略预设** — 4 种开箱即用配置模板
+- **Metrics 导出** — Prometheus / OpenMetrics 文本格式
+- **Plugin 系统** — 热插拔自定义模块
+- **实时 Dashboard** — FastAPI + SSE 事件流
+- **自适应调优** — ε-greedy 参数自动优化
+- **完整 CLI** — `cybernetix` 命令行工具
 - **线程安全** — 内置线程锁保护
+
+**设计哲学**: ① 如无必要，勿增实体 ② 大把拆小，组合为工作流
 
 ## 🚀 快速开始
 
