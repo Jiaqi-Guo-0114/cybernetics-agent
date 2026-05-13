@@ -5,7 +5,7 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-15%2F15-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-63%2F63-brightgreen.svg)]()
 
 🌐 **[English](README.en.md)** · [中文](README.md) · [Français](README.fr.md) · [Español](README.es.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
@@ -13,12 +13,17 @@
 
 ## ✅ Features
 
-- **Framework-agnostic** — Pure standard library, zero external dependencies
-- **Seven Principles** — Full coverage of Tsien's *Engineering Cybernetics*
-- **Multi-framework adapters** — LangChain, AutoGen, CrewAI, Hermes, Claude Code, Codex, and more
-- **Declarative config** — JSON/YAML configuration, flexible and controllable
-- **Full CLI toolkit** — `cybernetix` command-line tools (init / audit / dashboard / run)
-- **Thread-safe** — Built-in threading locks for safety
+- **Framework-agnostic** — No dependency on any LLM framework, pure stdlib
+- **Seven Principles** — Full coverage of Qian Xuesen's Engineering Cybernetics
+- **Multi-framework Adapters** — LangChain, AutoGen, CrewAI, Hermes, Claude Code, Codex, etc.
+- **Declarative Config** — JSON/YAML configuration, flexible and controllable
+- **Strategy Presets** — 4 out-of-the-box templates (high-concurrency / low-cost / high-reliability / debug)
+- **Metrics Export** — Prometheus / OpenMetrics text format, Grafana-ready
+- **Plugin System** — Hot-swappable custom modules, auto-discovery
+- **Real-time Dashboard** — FastAPI + SSE streaming, live frontend
+- **Auto-tuning** — ε-greedy parameter optimization with confidence scoring
+- **Full CLI Toolkit** — `cybernetix` (init / audit / dashboard / preset / plugin / validate / run / --version)
+- **Thread-safe** — Built-in thread lock protection
 
 ## 🚀 Quick Start
 
@@ -69,10 +74,17 @@ from cybernetics_agent.adapters import (
 ## 📁 CLI Tools
 
 ```bash
-cybernetix init              # Initialize config
-cybernetix audit ./src       # Audit code defects
-cybernetix dashboard         # Launch monitoring dashboard
-cybernetix run ./task.py     # Run task and collect metrics
+cybernetix init                          # Initialize config
+cybernetix preset list                   # List strategy presets
+cybernetix preset show <name>            # Show preset details
+cybernetix preset apply <name> -o cfg.json  # Apply preset
+cybernetix validate cfg.json             # Validate config file
+cybernetix plugin list                   # List plugins
+cybernetix plugin discover               # Discover plugins
+cybernetix dashboard                     # Launch monitoring dashboard
+cybernetix audit ./src                   # Audit code issues
+cybernetix run ./task.py                 # Run task with metrics
+cybernetix --version                     # Show version
 ```
 
 ## 📊 Dashboard
