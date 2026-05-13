@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 from cybernetics_agent.core.hierarchy_controller import HierarchyController
 

@@ -5,8 +5,6 @@ from __future__ import annotations
 import time
 from unittest.mock import MagicMock
 
-import pytest
-
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 from cybernetics_agent.core.info_flow import InfoFlow
 

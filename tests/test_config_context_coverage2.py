@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -42,7 +42,7 @@ class TestContextPluginBranches:
         config = CyberneticsConfig()
         config.plugins = {}
         ctx = CyberneticsContext(config)
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory():
             # no plugins in default ./plugins, should return 0
             with patch.object(Path, "exists", return_value=False):
                 count = ctx.load_plugins()

@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from cybernetics_agent.core.adaptive_tuner import AdaptiveTuner
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
 
