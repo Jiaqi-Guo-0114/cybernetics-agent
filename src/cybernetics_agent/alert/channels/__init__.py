@@ -7,13 +7,13 @@
 from __future__ import annotations
 
 from .base import AlertChannel
+from .dingtalk import DingTalkChannel
+from .discord import DiscordChannel
+from .email import EmailChannel
+from .feishu import FeishuChannel
+from .slack import SlackChannel
 from .stdout import StdoutChannel
 from .webhook import WebhookChannel
-from .feishu import FeishuChannel
-from .discord import DiscordChannel
-from .dingtalk import DingTalkChannel
-from .slack import SlackChannel
-from .email import EmailChannel
 
 __all__ = [
     "AlertChannel",

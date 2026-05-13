@@ -4,18 +4,15 @@
 测试各种渠道的构造和格式化输出（不发送真实网络请求）。
 """
 
-import json
 import sys
 from io import StringIO
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from cybernetics_agent.alert.channels import (
-    AlertChannel,
-    DiscordChannel,
     DingTalkChannel,
+    DiscordChannel,
     EmailChannel,
     FeishuChannel,
     SlackChannel,
@@ -51,8 +48,6 @@ def test_feishu_channel_sign():
 def test_discord_channel_payload():
     """DiscordChannel 构造正确。"""
     ch = DiscordChannel(webhook_url="https://discord.com/api/webhooks/xxx")
-    evt = AlertEvent(rule_name="r", severity="error", message="m")
-    # 验证 payload 格式（不发送）
     assert ch.name == "discord"
 
 

@@ -2,9 +2,8 @@
 告警规则引擎测试。
 """
 
-import time
-
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))

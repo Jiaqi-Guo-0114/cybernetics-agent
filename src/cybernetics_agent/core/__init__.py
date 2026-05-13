@@ -12,8 +12,8 @@ from .hierarchy_controller import Decision, HierarchyController, LayerType
 from .info_flow import InfoFlow
 from .optimal_controller import BudgetPool, OptimalController
 from .parameter_state import ParameterState
-from .stage_metrics import StageMetrics
 from .stability_engine import RetryPolicy, StabilityEngine
+from .stage_metrics import StageMetrics
 from .system_identifier import SystemIdentifier
 
 __all__ = [

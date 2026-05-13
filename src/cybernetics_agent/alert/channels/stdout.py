@@ -9,8 +9,8 @@ from __future__ import annotations
 import sys
 from typing import Any
 
-from .base import AlertChannel
 from ..core import AlertEvent
+from .base import AlertChannel
 
 
 class StdoutChannel(AlertChannel):

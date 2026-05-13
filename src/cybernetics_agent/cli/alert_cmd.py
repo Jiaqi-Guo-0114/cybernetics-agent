@@ -7,12 +7,11 @@
 from __future__ import annotations
 
 import json
-import sys
 from typing import Any
 
 from ..alert.channels import (
-    DiscordChannel,
     DingTalkChannel,
+    DiscordChannel,
     EmailChannel,
     FeishuChannel,
     SlackChannel,
@@ -20,7 +19,6 @@ from ..alert.channels import (
     WebhookChannel,
 )
 from ..alert.core import AlertEvent
-
 
 CHANNEL_MAP: dict[str, type] = {
     "stdout": StdoutChannel,

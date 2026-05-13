@@ -8,10 +8,9 @@ from __future__ import annotations
 
 import smtplib
 from email.mime.text import MIMEText
-from typing import Any
 
-from .base import AlertChannel
 from ..core import AlertEvent
+from .base import AlertChannel
 
 
 class EmailChannel(AlertChannel):

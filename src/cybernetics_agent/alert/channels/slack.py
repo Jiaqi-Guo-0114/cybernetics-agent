@@ -6,10 +6,9 @@ from __future__ import annotations
 
 import json
 import urllib.request
-from typing import Any
 
-from .base import AlertChannel
 from ..core import AlertEvent
+from .base import AlertChannel
 
 
 class SlackChannel(AlertChannel):

@@ -14,8 +14,8 @@ import time
 import urllib.request
 from typing import Any
 
-from .base import AlertChannel
 from ..core import AlertEvent
+from .base import AlertChannel
 
 
 class DingTalkChannel(AlertChannel):
