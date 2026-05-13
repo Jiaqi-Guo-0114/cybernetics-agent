@@ -45,7 +45,14 @@ jobs:
           PYTHONPATH=src python -m pytest tests/ -v --tb=long \
             --cov=src/cybernetics_agent \
             --cov-report=term-missing \
-            --cov-fail-under=85
+            --cov-fail-under=85 2>&1 | tee pytest-output.txt
+
+      - name: Upload pytest output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-output-${{ matrix.python-version }}
+          path: pytest-output.txt
 
       - name: Upload coverage report
         if: matrix.python-version == '3.12'

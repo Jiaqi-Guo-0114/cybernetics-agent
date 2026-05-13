@@ -9,7 +9,7 @@
   - 23 个 benchmark 测试全部通过
 - **CI 覆盖率检查** — GitHub Actions 新增 `--cov-fail-under=90`
 - **测试覆盖率大幅提升** — 从 58% → 92%（+34%）
-  - 新增 590+ 测试用例，总计 697 个测试全部通过
+  - 新增 590+ 测试用例，总计 720 个测试全部通过
   - 核心模块全覆盖：FeedbackLoop、SystemIdentifier、AdaptiveTuner、OptimalController、StabilityEngine、HierarchyController、InfoFlow
   - Runtime 层全覆盖：EventBus、EventStore（100%）、MetricsCollector（98%）、PluginLoader、StateManager（99%）
   - Alert 层全覆盖：6 个渠道（含错误处理 mock）、Manager、Rules
