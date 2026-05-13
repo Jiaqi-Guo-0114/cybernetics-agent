@@ -24,7 +24,7 @@ except ImportError:
     HAS_FASTAPI = False
 
 
-def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager: Any | None = None) -> Any | None:
+def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager: Any | None = None, event_store: Any | None = None) -> Any | None:
     """创建 FastAPI 应用。"""
     if not HAS_FASTAPI:
         return None
@@ -87,6 +87,38 @@ def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager
         async def alert_status() -> dict[str, Any]:
             return alert_manager.get_status()
 
+    if event_store is not None:
+        @app.get("/api/history/events")
+        async def history_events(
+            from_time: float | None = None,
+            to_time: float | None = None,
+            event_type: str | None = None,
+            limit: int = 100,
+        ) -> list[dict[str, Any]]:
+            return event_store.query_events(from_time=from_time, to_time=to_time, event_type=event_type, limit=limit)
+
+        @app.get("/api/history/metrics")
+        async def history_metrics(
+            metric_name: str | None = None,
+            from_time: float | None = None,
+            to_time: float | None = None,
+            limit: int = 100,
+        ) -> list[dict[str, Any]]:
+            return event_store.query_metrics(metric_name=metric_name, from_time=from_time, to_time=to_time, limit=limit)
+
+        @app.get("/api/history/alerts")
+        async def history_alerts(
+            from_time: float | None = None,
+            to_time: float | None = None,
+            severity: str | None = None,
+            limit: int = 100,
+        ) -> list[dict[str, Any]]:
+            return event_store.query_alerts(from_time=from_time, to_time=to_time, severity=severity, limit=limit)
+
+        @app.get("/api/history/stats")
+        async def history_stats() -> dict[str, Any]:
+            return event_store.get_stats()
+
     return app
 
 
@@ -96,13 +128,14 @@ def run_fastapi_server(
     config: CyberneticsConfig,
     ctx: CyberneticsContext,
     alert_manager: Any | None = None,
+    event_store: Any | None = None,
 ) -> bool:
     """启动 FastAPI 服务器。返回 True 表示成功。"""
     if not HAS_FASTAPI:
         return False
 
     import uvicorn
-    app = create_app(config, ctx, alert_manager=alert_manager)
+    app = create_app(config, ctx, alert_manager=alert_manager, event_store=event_store)
     if app is None:
         return False
 

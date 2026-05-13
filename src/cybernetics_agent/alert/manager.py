@@ -20,10 +20,11 @@ class AlertManager:
     管理规则引擎、通知渠道和告警历史。
     """
 
-    def __init__(self, history_size: int = 100) -> None:
+    def __init__(self, history_size: int = 100, event_store: Any | None = None) -> None:
         self._rules: list[AlertRule] = []
         self._channels: dict[str, AlertChannel] = {}
         self._history: deque[AlertEvent] = deque(maxlen=history_size)
+        self._event_store = event_store
 
     def add_rule(self, rule: AlertRule) -> None:
         """添加告警规则。"""
@@ -60,6 +61,15 @@ class AlertManager:
                 if evt is not None:
                     triggered.append(evt)
                     self._history.append(evt)
+                    if self._event_store is not None:
+                        self._event_store.write_alert(
+                            rule_name=evt.rule_name,
+                            severity=evt.severity,
+                            message=evt.message,
+                            metric_name=evt.metric_name,
+                            metric_value=evt.metric_value,
+                            labels=evt.labels,
+                        )
             except Exception:
                 continue
         return triggered

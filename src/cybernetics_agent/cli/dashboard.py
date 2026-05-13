@@ -87,10 +87,16 @@ def run_dashboard(args: Namespace) -> int:
         watcher = ConfigWatcher(str(config_path), reload_config, interval=5.0)
         watcher.start()
 
+    # 创建 EventStore
+    event_store = None
+    from ..runtime.event_store import EventStore
+    event_store = EventStore()
+
     print("启动 Cybernetics Dashboard...")
     print(f"   地址: http://{host}:{port}")
     print(f"   Prometheus: http://{host}:{port}/metrics")
     print(f"   API: http://{host}:{port}/api/metrics")
+    print(f"   历史: http://{host}:{port}/api/history/stats")
     if watcher:
         print(f"   热重载: 已启用 (监听 {config_path})")
     print()
@@ -98,7 +104,7 @@ def run_dashboard(args: Namespace) -> int:
     # 尝试 FastAPI
     try:
         from .dashboard_fastapi import run_fastapi_server
-        if run_fastapi_server(host, port, config, ctx, alert_manager=alert_manager):
+        if run_fastapi_server(host, port, config, ctx, alert_manager=alert_manager, event_store=event_store):
             return 0
     except Exception as e:
         print(f"FastAPI 启动失败: {e}")

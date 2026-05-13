@@ -39,7 +39,7 @@ class MetricsCollector:
         >>> summary = collector.get_summary()
     """
 
-    def __init__(self) -> None:
+    def __init__(self, event_store: Any | None = None) -> None:
         # Counter: metric_name -> {label_key: count}
         self._counters: dict[str, dict[str, int]] = {}
         # Gauge: metric_name -> {label_key: current_value}
@@ -49,6 +49,7 @@ class MetricsCollector:
         # 时间窗口：保留最近 N 条原始记录
         self._raw_events: list[dict[str, Any]] = []
         self._max_raw_events = 5000
+        self._event_store = event_store
 
     def record_event(self, event: CyberneticsEvent) -> None:
         """
@@ -97,6 +98,14 @@ class MetricsCollector:
         elif et.value == "error":
             error_type = payload.get("error_type", "unknown")
             self.increment("errors_total", labels={"type": error_type})
+
+        # 持久化到 SQLite
+        if self._event_store is not None:
+            self._event_store.write_event(
+                event_type=et.value,
+                payload=payload,
+                session_id=event.session_id,
+            )
 
     def increment(self, name: str, value: int = 1, labels: dict[str, str] | None = None) -> None:
         """增加计数器。"""
