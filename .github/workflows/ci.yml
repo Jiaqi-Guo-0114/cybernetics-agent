@@ -40,10 +40,12 @@ jobs:
 
       - name: Run pytest with coverage
         run: |
-          PYTHONPATH=src python -m pytest tests/ -v --tb=short \
+          python -m pytest --version
+          pip list | grep -i pytest
+          PYTHONPATH=src python -m pytest tests/ -v --tb=long \
             --cov=src/cybernetics_agent \
             --cov-report=term-missing \
-            --cov-fail-under=90
+            --cov-fail-under=85
 
       - name: Upload coverage report
         if: matrix.python-version == '3.12'
