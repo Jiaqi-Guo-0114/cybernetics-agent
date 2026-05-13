@@ -45,6 +45,7 @@ cybernetix = "cybernetics_agent.cli.main:main"
 dev = [
     "pytest>=7.0",
     "pytest-asyncio>=0.21",
+    "pytest-benchmark>=4.0",
     "ruff>=0.1",
     "mypy>=1.0",
 ]
