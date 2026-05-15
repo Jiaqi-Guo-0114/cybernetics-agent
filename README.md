@@ -34,13 +34,14 @@ pip install cybernetics-agent
 ```
 
 ```python
-from cybernetics_agent import CyberneticsConfig, CyberneticsContext, StabilityPreset
+from cybernetics_agent import CyberneticsConfig, CyberneticsContext
+from cybernetics_agent.presets import apply_preset
 
 # 生产级稳定性配置
 ctx = CyberneticsContext(CyberneticsConfig(
     project_name='my-agent',
-    stability=StabilityPreset.PRODUCTION
 ))
+apply_preset(ctx.config, 'high_reliability')
 
 # 你的业务代码——Cybernetics 自动包裹
 result = ctx.emit_tool_result('search_api', query="machine learning")
@@ -137,7 +138,10 @@ cybernetix dashboard  # 默认 http://localhost:8080
 
 ## 📚 Documentation
 
-- [Getting Started](docs/)
+- [Getting Started](docs/getting-started.md) — 5分钟上手
+- [Adapters](docs/adapters.md) — 接入 LangChain / AutoGen / CrewAI 等框架
+- [Configuration](docs/configuration.md) — 8大模块配置详解
+- [Dashboard](docs/dashboard.md) — 实时监控与告警面板
 - [Architecture & Design](docs/v0.6.0-design.md)
 - [RFC-001](docs/RFC-001.md)
 - [Changelog](CHANGELOG.md)
