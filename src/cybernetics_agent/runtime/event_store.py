@@ -33,11 +33,11 @@ class EventStore:
 
     def _ensure_conn(self) -> sqlite3.Connection:
         if self._conn is None:
-            self._conn = sqlite3.connect(self.db_path)
+            self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         return self._conn
 
     def close(self) -> None:
-        if self._conn is not None:
+        if getattr(self, "_conn", None) is not None:
             self._conn.close()
             self._conn = None
 
