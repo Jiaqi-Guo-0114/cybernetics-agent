@@ -39,9 +39,12 @@ def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager
         allow_headers=["*"],
     )
 
-    @app.get("/", response_class=HTMLResponse)
-    async def index() -> str:
-        return _generate_dashboard_html(config, ctx)
+    @app.get("/")
+    async def index() -> HTMLResponse:
+        return HTMLResponse(
+            content=_generate_dashboard_html(config, ctx),
+            media_type="text/html; charset=utf-8",
+        )
 
     @app.get("/metrics")
     async def prometheus_metrics() -> str:
