@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.2] - 2026-05-15
+
+### Fixed
+- **Dashboard 中文乱码** — FastAPI `HTMLResponse` 显式设置 `charset=utf-8`，确保 CJK 字符正确渲染
+- **版本号一致性** — 修复 `__init__.py`、`dashboard.py`、`dashboard_fastapi.py` 中的版本号与 `pyproject.toml` 不一致的问题
+
+### Changed
+- **吉祥物更新** — 将 🦙 羊驼替换为 🐙 章鱼（分布式神经系统 = 分层控制的完美隐喻），覆盖6个 README、2个示例、2个 Dashboard 文件、report、小红书帖子
+
+### Added
+- **pytest-cov** — 添加到 `pyproject.toml` dev 依赖，支持本地覆盖率检查
+
 ## [0.6.1] - 2026-05-13
 
 ### Added
