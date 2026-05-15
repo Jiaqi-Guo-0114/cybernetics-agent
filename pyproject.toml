@@ -10,7 +10,7 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
 authors = [
-    { name = "Cybernetics Agent Contributors", email = "your-email@example.com" },
+    { name = "Cybernetics Agent Contributors", email = "agent@cybernetics.dev" },
 ]
 keywords = [
     "agent",
