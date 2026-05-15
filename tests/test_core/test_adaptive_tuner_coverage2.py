@@ -71,7 +71,8 @@ class TestAdaptiveTunerBranches:
             ctx=ctx,
         )
         at._tool_scores = {"t1": 0.1, "t2": 0.1}
-        changes = at.auto_tune()
+        with patch("random.random", return_value=0.5):
+            changes = at.auto_tune()
         # numeric tune first lowers from 2 to 1, then retry logic raises from 1 to 2
         assert changes["max_retries"]["new"] == 2
         assert "low_tool_score" in changes["max_retries"]["reason"]
