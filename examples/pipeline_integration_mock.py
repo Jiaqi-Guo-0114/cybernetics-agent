@@ -34,7 +34,7 @@ def mock_generate(papers: list):
 
 
 def run_mock_pipeline():
-    print("🦙 启动 Mock Pipeline 集成测试\n")
+    print("🐙 启动 Mock Pipeline 集成测试\n")
 
     # 创建控制论层
     config = CyberneticsConfig(
@@ -76,7 +76,7 @@ def run_mock_pipeline():
 
     # 打印状态
     print("\n" + "=" * 50)
-    print("🦙 控制论层状态报告")
+    print("🐙 控制论层状态报告")
     print("=" * 50)
 
     status = ctx.get_status()

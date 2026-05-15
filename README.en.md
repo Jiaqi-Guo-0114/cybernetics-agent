@@ -1,4 +1,4 @@
-# 🦙 Cybernetics Agent
+# 🐙 Cybernetics Agent
 
 > A framework-agnostic cybernetics enhancement layer for AI agents.
 > Based on H.S. Tsien's *Engineering Cybernetics* seven core principles, enabling any Python agent with self-adaptive, self-healing, and self-optimizing capabilities.

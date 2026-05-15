@@ -1,4 +1,4 @@
-# 🦙 Cybernetics Agent
+# 🐙 Cybernetics Agent
 
 > Une couche d'amélioration cybernétique indépendante du framework pour les agents IA.
 > Basée sur les sept principes fondamentaux de l'*Ingénierie Cybernétique* de H.S. Tsien, permettant à tout agent Python d'être auto-adaptatif, auto-réparant et auto-optimisant.

@@ -121,7 +121,7 @@ cybernetix dashboard # 启动监控仪表盘
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║              🦙 Cybernetics Agent Dashboard              ║
+║              🐙 Cybernetics Agent Dashboard              ║
 ╠══════════════════════════════════════════════════════════════════╓
 ║  Session: sess_a39878fa                                 ║
 ║  Project: demo-project                                  ║

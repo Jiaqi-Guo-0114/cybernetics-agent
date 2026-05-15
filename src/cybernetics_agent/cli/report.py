@@ -57,7 +57,7 @@ def _generate_markdown(data: dict[str, Any]) -> str:
     findings = data["findings"]
 
     lines = [
-        "# 🦙 Cybernetics Agent 审计报告",
+        "# 🐙 Cybernetics Agent 审计报告",
         "",
         "## 括要",
         "",
@@ -133,7 +133,7 @@ def _generate_html(data: dict[str, Any]) -> str:
     </style>
 </head>
 <body>
-    <h1>🦙 Cybernetics Agent 审计报告</h1>
+    <h1>🐙 Cybernetics Agent 审计报告</h1>
     <div class="summary">
         <h2>括要</h2>
         <table>

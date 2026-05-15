@@ -179,7 +179,7 @@ class PipelineCyberneticsIntegration:
     def print_report(self, results: Dict[str, Any]) -> None:
         """打印运行报告。"""
         print("\n" + "=" * 60)
-        print("🦙 Cybernetics Pipeline 运行报告")
+        print("🐙 Cybernetics Pipeline 运行报告")
         print("=" * 60)
 
         print(f"\n查询: {results['query']}")
@@ -227,7 +227,7 @@ def main() -> None:
     parser.add_argument("--config", help="控制论配置文件路径")
     args = parser.parse_args()
 
-    print(f"🦙 启动 Cybernetics Pipeline 集成测试")
+    print(f"🐙 启动 Cybernetics Pipeline 集成测试")
     print(f"   查询: {args.query}")
     print(f"   最大论文数: {args.max_papers}")
     print()

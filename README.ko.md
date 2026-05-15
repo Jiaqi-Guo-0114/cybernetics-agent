@@ -1,4 +1,4 @@
-# 🦙 Cybernetics Agent
+# 🐙 Cybernetics Agent
 
 > 프레임워크 방지적 사이버네틱스 Agent 강화 계층입니다.
 > 진학심《공학제어론》7대 핵심 원칙을 기반으로, 어떤 Python Agent든 자연적응, 자가복구, 자돕화 능력을 확보합니다.

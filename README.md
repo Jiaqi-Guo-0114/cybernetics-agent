@@ -1,4 +1,4 @@
-# 🦙 Cybernetics Agent
+# 🐙 Cybernetics Agent
 
 > 一个框架无关的控制论 Agent 增强层。
 > 让任何 Python Agent 获得自适应、自恢复、自优化的生产级能力。

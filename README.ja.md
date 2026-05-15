@@ -1,4 +1,4 @@
-# 🦙 Cybernetics Agent
+# 🐙 Cybernetics Agent
 
 > フレームワーク非依存のサイバネティクス強化層。
 > 錦学森《工程制御論》の7大核心原則に基づき、いかなる Python Agent も自适応、自修復、自最適化の能力を获得。
