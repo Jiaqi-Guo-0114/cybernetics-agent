@@ -37,8 +37,9 @@ class EventStore:
         return self._conn
 
     def close(self) -> None:
-        if getattr(self, "_conn", None) is not None:
-            self._conn.close()
+        conn = getattr(self, "_conn", None)
+        if conn is not None:
+            conn.close()
             self._conn = None
 
     def __del__(self) -> None:
