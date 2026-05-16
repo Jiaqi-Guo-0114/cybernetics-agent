@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.6.4] - 2026-05-16
+
+### Added
+- **EventStore 增强** — SQLite WAL 模式 + 批量写入 API (`write_events_batch`)
+- **Pydantic 配置 Schema** — `CyberneticsConfigModel` 支持 JSON/YAML 验证，环境变量注入 (`${VAR}` / `env://VAR` / `${VAR:default}`)
+- **异步支持** — `AsyncCyberneticsContext` + `AsyncEventBus`，全链路 async/await
+- **OpenTelemetry 追踪** — `CyberneticsTracer` 自动为每个事件发射创建 span
+- **健康检查** — `/health` / `/ready` FastAPI 端点，适配 K8s liveness/readiness 探针
+- **性能回归测试** — pytest-benchmark 基线 + CI 对比脚本 + benchmark 测试套件
+- **告警聚合/抑制** — `AlertAggregator` 支持 group_by + 3 种策略 (first/last/count) + 窗口抑制 + max_groups
+- **数据归档** — `EventArchiver` 冷数据 gzip 压缩归档，支持本地文件系统和可选 S3
+- **Dashboard 独立前端** — `dashboard_static/` 纯静态 HTML/CSS/JS，可直接用浏览器打开
+- **控制论深度算法** — PID 控制器 (含自动整定)、UCB1/Thompson Sampling 多臂老虎机、MPC 模型预测控制
+- **Docker / K8s 部署** — 多阶段 Dockerfile + docker-compose.yml + K8s 清单 (namespace/deployment/service/configmap/ingress)
+- **CLI shell 自动补全** — `cybernetix completion bash/zsh/fish`
+
+### Changed
+- **测试数量** — 876 → 950 (+74)
+- **代码质量** — ruff lint 全绿
+
 ## [0.6.3] - 2026-05-15
 
 ### Fixed

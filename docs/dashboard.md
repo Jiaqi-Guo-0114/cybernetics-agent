@@ -77,11 +77,27 @@ Dashboard 首页显示核心指标的实时数值：
 | 端点 | 说明 | 格式 |
 |------|------|------|
 | `GET /` | Dashboard 页面 | HTML |
+| `GET /static/*` | 独立前端静态资源 | CSS/JS |
 | `GET /metrics` | Prometheus 指标 | OpenMetrics |
 | `GET /api/status` | 系统状态 | JSON |
 | `GET /api/config` | 当前配置 | JSON |
 | `GET /api/metrics` | 指标摘要 | JSON |
 | `GET /api/events` | SSE 事件流 | text/event-stream |
+
+### 健康检查（v0.6.4+）
+
+| 端点 | 说明 | 用途 |
+|------|------|------|
+| `GET /health` | 健康状态 | K8s livenessProbe |
+| `GET /ready` | 就绪状态 | K8s readinessProbe |
+
+```bash
+curl http://localhost:8080/health
+# {"status": "healthy", "version": "0.6.4"}
+
+curl http://localhost:8080/ready
+# {"ready": true, "modules": {"feedback_loop": true, ...}}
+```
 
 ### 历史查询（v0.6.0+）
 
@@ -96,7 +112,7 @@ Dashboard 首页显示核心指标的实时数值：
 
 | 端点 | 说明 |
 |------|------|
-| `GET /alert/status` | 告警系统状态 |
+| `GET /alert/status` | 告警系统状态（含聚合器状态 v0.6.4+） |
 
 ---
 
@@ -161,7 +177,26 @@ alerts = store.query_alerts(
 
 ## 前端自定义
 
-Dashboard 前端是内嵌的 HTML/JS，你可以：
+### 独立前端（v0.6.4+）
+
+Dashboard 提供独立的静态前端，位于 `dashboard_static/` 目录：
+
+```
+dashboard_static/
+├── index.html   # 主页面
+├── style.css    # 样式
+└── app.js       # 交互逻辑
+```
+
+特点：
+- 纯静态文件，无需后端渲染
+- 通过 AJAX 轮询 API 获取数据
+- 自动检测 API 可用性，未检测到 agent 时提示启动
+- 可直接用浏览器打开 `dashboard_static/index.html`
+
+### 内嵌前端（回退）
+
+如果 `dashboard_static/` 不存在，自动回退到内嵌 HTML：
 
 1. **修改主题色**: 编辑 `cli/dashboard.py` 或 `cli/dashboard_fastapi.py` 中的 CSS
 2. **添加自定义面板**: 在 HTML 模板中新增 `<div>` 和对应的 JS 刷新逻辑
@@ -179,18 +214,40 @@ cybernetix dashboard --port 8080
 
 ### 生产环境
 
-使用 gunicorn + uvicorn 部署 FastAPI 版本：
+#### Docker（v0.6.4+）
+
+```bash
+# 构建镜像
+docker build -t cybernetics-agent:latest .
+
+# 运行
+docker run -p 8080:8080 cybernetics-agent:latest
+
+# 或使用 docker-compose
+docker-compose up -d
+```
+
+#### Kubernetes（v0.6.4+）
+
+```bash
+# 部署到 K8s
+kubectl apply -f k8s/
+
+# 查看状态
+kubectl get pods -n cybernetics
+kubectl get svc -n cybernetics
+```
+
+K8s 清单包含：
+- `namespace.yaml` — 命名空间
+- `configmap.yaml` — 配置
+- `deployment.yaml` — 部署（含 liveness/readiness 探针）
+- `service.yaml` — ClusterIP 服务
+- `ingress.yaml` — Ingress 规则
+
+#### 传统方式
 
 ```bash
 pip install gunicorn uvicorn
 gunicorn -w 2 -k uvicorn.workers.UvicornWorker cybernetics_agent.cli.dashboard_fastapi:app
-```
-
-或使用 Docker：
-
-```dockerfile
-FROM python:3.11-slim
-RUN pip install cybernetics-agent[dashboard]
-COPY cfg.json /app/cfg.json
-CMD ["cybernetix", "dashboard", "--config", "/app/cfg.json", "--host", "0.0.0.0"]
 ```

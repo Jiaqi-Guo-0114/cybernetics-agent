@@ -220,6 +220,124 @@ cfg = CyberneticsConfig.from_json_validated("config.json")
 
 ---
 
+## 环境变量注入（v0.6.4+）
+
+配置文件支持动态环境变量注入，无需硬编配置值。
+
+### 语法
+
+| 语法 | 示例 | 结果 |
+|------|------|------|
+| `${VAR}` | `"project_name": "${CYBER_PROJECT}"` | 从环境变量读取 |
+| `${VAR:default}` | `"api_key": "${CYBER_API_KEY:sk-default}"` | 未设置时使用默认值 |
+| `env://VAR` | `"secret": "env://CYBER_SECRET"` | 从环境变量读取 |
+
+### 示例
+
+```json
+{
+    "project_name": "${CYBER_PROJECT_NAME:my-agent}",
+    "stability": {
+        "timeout": {
+            "llm": ${CYBER_LLM_TIMEOUT:120.0}
+        }
+    },
+    "alert": {
+        "channels": {
+            "feishu": {
+                "webhook_url": "env://FEISHU_WEBHOOK_URL"
+            }
+        }
+    }
+}
+```
+
+### 安全建议
+
+- 敏感配置（API key、webhook URL）使用 `env://` 或 `${VAR}` 语法
+- 不要将 `.env` 文件提交到版本控制
+- 生产环境使用秘密管理工具（如 Vault、AWS Secrets Manager）
+
+---
+
+## Pydantic Schema 验证（v0.6.4+）
+
+安装 `pydantic` 后可使用强类型验证：
+
+```bash
+pip install pydantic
+```
+
+```python
+from cybernetics_agent.config_schema import CyberneticsConfigModel
+
+# 强类型验证
+model = CyberneticsConfigModel(
+    project_name="my-agent",
+    stability={"timeout": {"default": 30.0}},
+)
+
+# 自动验证规则：负数 timeout 报错、空 project_name 报错
+```
+
+---
+
+## OpenTelemetry 配置（v0.6.4+）
+
+安装 `opentelemetry-api` 后自动启用追踪：
+
+```bash
+pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp
+```
+
+```python
+from cybernetics_agent.runtime.tracing import CyberneticsTracer
+
+ctx = CyberneticsContext(
+    config,
+    tracer=CyberneticsTracer("my-agent"),
+)
+# 每次 emit() 自动创建 span
+```
+
+环境变量配置 OTLP 导出：
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://jaeger.example.com:4317
+```
+
+---
+
+## 异步配置（v0.6.4+）
+
+```python
+import asyncio
+from cybernetics_agent.async_support import AsyncCyberneticsContext
+
+async def main():
+    ctx = AsyncCyberneticsContext(config)
+    await ctx.emit("tool_result", result="ok")
+    await ctx.close()
+
+asyncio.run(main())
+```
+
+异步 EventBus 示例：
+
+```python
+from cybernetics_agent.async_support import AsyncEventBus
+
+bus = AsyncEventBus()
+
+async def handler(event):
+    print(f"收到: {event}")
+
+bus.subscribe("tool_result", handler)
+await bus.emit("tool_result", {"status": "ok"})
+```
+
+---
+
 ## 配置热重载
 
 Dashboard 启动时自动监听配置文件变更，修改后自动重载：

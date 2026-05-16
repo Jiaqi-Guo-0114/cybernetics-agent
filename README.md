@@ -5,7 +5,7 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-876%2F876-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-950%2F950-brightgreen.svg)]()
 
 🌐 **[English](README.en.md)** · **[Français](README.fr.md)** · **[Español](README.es.md)** · **[日本語](README.ja.md)** · **[한国어](README.ko.md)**
 
@@ -59,18 +59,26 @@ result = ctx.emit_tool_result('search_api', query="machine learning")
 ### Operations & Monitoring
 - **稳定性引擎** — 重试、熔断器、降级、超时控制
 - **Metrics 导出** — Prometheus / OpenMetrics 文本格式
-- **实时 Dashboard** — FastAPI + SSE 事件流，告警面板 + 历史查询
-- **告警系统** — 阈值规则 + 7 个通知渠道（飞书/钉钉/Discord/Slack/Email/Webhook/Stdout）
-- **事件持久化** — SQLite 存储，进程重启不丢失
+- **实时 Dashboard** — FastAPI + 独立前端，SSE 事件流，告警面板 + 历史查询
+- **告警系统** — 阈值规则 + 7 个通知渠道，支持 group_by 聚合与窗口抑制
+- **事件持久化** — SQLite WAL 模式，批量写入，进程重启不丢失
+- **数据归档** — 冷数据 gzip 压缩归档，支持本地/S3，自动清理
 - **配置热重载** — 运行时修改配置文件自动生效
+- **环境变量注入** — `${VAR}` / `env://VAR` 语法，支持默认值
+- **健康检查** — `/health` / `/ready` 探针，适配 K8s
+- **性能回归测试** — pytest-benchmark + CI 基线对比
 
 ### Integration & Developer Experience
 - **多框架适配** — LangChain、AutoGen、CrewAI、Hermes、Claude Code、Codex 等
+- **异步支持** — AsyncCyberneticsContext + async EventBus，全链路 async/await
+- **OpenTelemetry 追踪** — 分布式追踪集成（可选依赖）
+- **控制论深度算法** — PID 控制器、UCB/Thompson Sampling、MPC 资源分配
 - **Plugin 系统** — 热插拔自定义模块
-- **完整 CLI** — `cybernetix` 命令行工具
-- **声明式配置** — JSON/YAML 配置，灵活可控
+- **完整 CLI** — `cybernetix` 命令行工具，含 shell 自动补全
+- **声明式配置** — JSON/YAML + Pydantic Schema 验证
 - **策略预设** — 4 种开箱即用配置模板
 - **线程安全** — 内置线程锁保护
+- **Docker / K8s** — 多阶段镜像 + Helm-ready 清单
 
 ## 🎯 Seven Principles
 
@@ -118,6 +126,7 @@ cybernetix alert status                  # 查看告警规则状态
 cybernetix alert fire -m "msg" -s error  # 手动触发告警
 cybernetix audit ./src                   # 审计代码缺陷
 cybernetix run ./task.py                 # 运行任务并采集指标
+cybernetix completion bash               # 生成 bash 自动补全脚本
 cybernetix --version                     # 查看版本号
 ```
 
