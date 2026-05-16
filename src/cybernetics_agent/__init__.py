@@ -18,7 +18,7 @@ cybernetics-agent: 一个框架无关的控制论 Agent 增强层。
 """
 
 __version__ = "0.7.0"
-__author__ = "Cybernetics Agent Contributors"
+__author__ = "Cybernetics Agent"
 
 from .config import CyberneticsConfig
 from .context import CyberneticsContext
