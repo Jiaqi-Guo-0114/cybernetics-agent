@@ -3,6 +3,7 @@
 
 使用 SQLite 标准库，零外部依赖。
 支持事件、指标快照、告警历史的持久化存储和查询。
+支持 WAL 模式（高并发写入）和批量写入（减少事务开销）。
 """
 
 from __future__ import annotations
@@ -11,6 +12,8 @@ import json
 import sqlite3
 import threading
 import time
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +23,9 @@ class EventStore:
     事件持久化存储。
 
     使用 SQLite 存储事件、指标快照和告警历史。
+    特性：
+    - WAL 模式：读写不阻塞，高并发友好
+    - 批量写入：减少事务开销，提升吞吐量
     """
 
     def __init__(self, db_path: str | None = None) -> None:
@@ -29,6 +35,7 @@ class EventStore:
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
         self._conn: sqlite3.Connection | None = None
+        self._batch_depth = 0  # 批量模式嵌套计数
         self._init_db()
 
     def _ensure_conn(self) -> sqlite3.Connection:
@@ -46,8 +53,10 @@ class EventStore:
         self.close()
 
     def _init_db(self) -> None:
-        """初始化数据库表结构。"""
+        """初始化数据库表结构和优化参数。"""
         conn = self._ensure_conn()
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -86,6 +95,36 @@ class EventStore:
         conn.execute("CREATE INDEX IF NOT EXISTS idx_alerts_severity ON alerts(severity)")
         conn.commit()
 
+    @contextmanager
+    def batch(self) -> Generator[None, None, None]:
+        """
+        批量写入上下文管理器。
+
+        在 with 块内所有写入操作延迟到退出时统一 commit，
+        大幅减少事务开销。支持嵌套（只有最外层才真正 commit）。
+
+        示例:
+            with store.batch():
+                for i in range(1000):
+                    store.write_event("click", {"id": i})
+            # 退出时统一 commit
+        """
+        with self._lock:
+            self._batch_depth += 1
+        try:
+            yield
+        finally:
+            with self._lock:
+                self._batch_depth -= 1
+                if self._batch_depth == 0:
+                    conn = self._ensure_conn()
+                    conn.commit()
+
+    def _maybe_commit(self) -> None:
+        """如果不在批量模式中，立即 commit。"""
+        if self._batch_depth == 0:
+            self._ensure_conn().commit()
+
     def write_event(self, event_type: str, payload: dict[str, Any], session_id: str | None = None) -> None:
         """写入事件。"""
         with self._lock:
@@ -94,7 +133,28 @@ class EventStore:
                 "INSERT INTO events (timestamp, event_type, payload, session_id) VALUES (?, ?, ?, ?)",
                 (time.time(), event_type, json.dumps(payload, ensure_ascii=False, default=str), session_id),
             )
-            conn.commit()
+            self._maybe_commit()
+
+    def write_events_batch(self, events: list[dict[str, Any]], session_id: str | None = None) -> None:
+        """
+        批量写入事件。
+
+        参数:
+            events: 每个元素为 {"event_type": str, "payload": dict}
+            session_id: 可选的会话 ID
+        """
+        with self._lock:
+            conn = self._ensure_conn()
+            now = time.time()
+            data = [
+                (now, evt["event_type"], json.dumps(evt.get("payload", {}), ensure_ascii=False, default=str), session_id)
+                for evt in events
+            ]
+            conn.executemany(
+                "INSERT INTO events (timestamp, event_type, payload, session_id) VALUES (?, ?, ?, ?)",
+                data,
+            )
+            self._maybe_commit()
 
     def write_metric(self, metric_name: str, metric_value: float, labels: dict[str, str] | None = None) -> None:
         """写入指标快照。"""
@@ -104,7 +164,27 @@ class EventStore:
                 "INSERT INTO metrics (timestamp, metric_name, metric_value, labels) VALUES (?, ?, ?, ?)",
                 (time.time(), metric_name, metric_value, json.dumps(labels or {}, ensure_ascii=False)),
             )
-            conn.commit()
+            self._maybe_commit()
+
+    def write_metrics_batch(self, metrics: list[dict[str, Any]]) -> None:
+        """
+        批量写入指标。
+
+        参数:
+            metrics: 每个元素为 {"metric_name": str, "metric_value": float, "labels": dict}
+        """
+        with self._lock:
+            conn = self._ensure_conn()
+            now = time.time()
+            data = [
+                (now, m["metric_name"], m["metric_value"], json.dumps(m.get("labels", {}), ensure_ascii=False))
+                for m in metrics
+            ]
+            conn.executemany(
+                "INSERT INTO metrics (timestamp, metric_name, metric_value, labels) VALUES (?, ?, ?, ?)",
+                data,
+            )
+            self._maybe_commit()
 
     def write_alert(self, rule_name: str, severity: str, message: str, metric_name: str | None = None, metric_value: float | None = None, labels: dict[str, str] | None = None) -> None:
         """写入告警。"""
@@ -114,7 +194,35 @@ class EventStore:
                 "INSERT INTO alerts (timestamp, rule_name, severity, message, metric_name, metric_value, labels) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (time.time(), rule_name, severity, message, metric_name, metric_value, json.dumps(labels or {}, ensure_ascii=False)),
             )
-            conn.commit()
+            self._maybe_commit()
+
+    def write_alerts_batch(self, alerts: list[dict[str, Any]]) -> None:
+        """
+        批量写入告警。
+
+        参数:
+            alerts: 每个元素包含 rule_name, severity, message 等字段
+        """
+        with self._lock:
+            conn = self._ensure_conn()
+            now = time.time()
+            data = [
+                (
+                    now,
+                    a["rule_name"],
+                    a["severity"],
+                    a["message"],
+                    a.get("metric_name"),
+                    a.get("metric_value"),
+                    json.dumps(a.get("labels", {}), ensure_ascii=False),
+                )
+                for a in alerts
+            ]
+            conn.executemany(
+                "INSERT INTO alerts (timestamp, rule_name, severity, message, metric_name, metric_value, labels) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                data,
+            )
+            self._maybe_commit()
 
     def query_events(self, from_time: float | None = None, to_time: float | None = None, event_type: str | None = None, limit: int = 100) -> list[dict[str, Any]]:
         """查询事件。"""
@@ -131,7 +239,7 @@ class EventStore:
             params.append(event_type)
 
         where = "WHERE " + " AND ".join(conditions) if conditions else ""
-        sql = f"SELECT id, timestamp, event_type, payload, session_id FROM events {where} ORDER BY timestamp DESC LIMIT ?"
+        sql = f"SELECT id, timestamp, event_type, payload, session_id FROM events {where} ORDER BY timestamp DESC, id DESC LIMIT ?"
         params.append(limit)
 
         with self._lock:
@@ -164,7 +272,7 @@ class EventStore:
             params.append(to_time)
 
         where = "WHERE " + " AND ".join(conditions) if conditions else ""
-        sql = f"SELECT id, timestamp, metric_name, metric_value, labels FROM metrics {where} ORDER BY timestamp DESC LIMIT ?"
+        sql = f"SELECT id, timestamp, metric_name, metric_value, labels FROM metrics {where} ORDER BY timestamp DESC, id DESC LIMIT ?"
         params.append(limit)
 
         with self._lock:
@@ -197,7 +305,7 @@ class EventStore:
             params.append(severity)
 
         where = "WHERE " + " AND ".join(conditions) if conditions else ""
-        sql = f"SELECT id, timestamp, rule_name, severity, message, metric_name, metric_value, labels FROM alerts {where} ORDER BY timestamp DESC LIMIT ?"
+        sql = f"SELECT id, timestamp, rule_name, severity, message, metric_name, metric_value, labels FROM alerts {where} ORDER BY timestamp DESC, id DESC LIMIT ?"
         params.append(limit)
 
         with self._lock:
