@@ -408,7 +408,7 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext,
         </div>
     </div>
     <div class="footer">
-        <p>🐙 Cybernetics Agent v0.6.3 | 基于钱学森工程控制论</p>
+        <p>🐙 Cybernetics Agent v0.7.0 | 基于钱学森工程控制论</p>
     </div>
     <script>
         async function refreshMetrics() {{

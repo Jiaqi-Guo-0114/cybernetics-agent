@@ -17,7 +17,7 @@ cybernetics-agent: 一个框架无关的控制论 Agent 增强层。
     >>> ctx.emit_tool_result(tool_name="search", result=["paper1", "paper2"])
 """
 
-__version__ = "0.6.3"
+__version__ = "0.7.0"
 __author__ = "Cybernetics Agent Contributors"
 
 from .config import CyberneticsConfig

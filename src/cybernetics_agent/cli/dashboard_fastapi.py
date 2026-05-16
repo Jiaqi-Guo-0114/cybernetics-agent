@@ -32,7 +32,7 @@ def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager
     if not HAS_FASTAPI:
         return None
 
-    app = FastAPI(title="Cybernetics Dashboard", version="0.6.3")
+    app = FastAPI(title="Cybernetics Dashboard", version="0.7.0")
 
     app.add_middleware(
         CORSMiddleware,
@@ -86,7 +86,7 @@ def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager
         return {
             "status": "healthy",
             "timestamp": time.time(),
-            "version": "0.6.3",
+            "version": "0.7.0",
         }
 
     @app.get("/ready")
@@ -436,7 +436,7 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
         </div>
     </div>
     <div class="footer">
-        <p>🐙 Cybernetics Agent v0.6.3 | 基于钱学森工程控制论</p>
+        <p>🐙 Cybernetics Agent v0.7.0 | 基于钱学森工程控制论</p>
     </div>
     <script>
         async function refreshMetrics() {{

@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from cybernetics_agent import CyberneticsConfig
+from cybernetics_agent import __version__ as _version
 from cybernetics_agent.cli.dashboard_fastapi import create_app
 from cybernetics_agent.context import CyberneticsContext
 
@@ -35,7 +36,7 @@ def test_health_endpoint():
     data = response.json()
     assert data["status"] == "healthy"
     assert "timestamp" in data
-    assert data["version"] == "0.6.3"
+    assert data["version"] == _version
 
 
 def test_ready_endpoint_no_modules():
