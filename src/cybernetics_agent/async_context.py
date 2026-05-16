@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, Any
 from .config import CyberneticsConfig
 from .core.base import CyberneticsEvent, EventType, ICyberneticsModule
 from .runtime.async_event_bus import AsyncEventBus
-from .runtime.event_store import EventStore
 from .runtime.metrics_collector import MetricsCollector
 from .runtime.plugin_loader import PluginLoader
 from .runtime.state_manager import StateManager

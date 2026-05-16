@@ -25,7 +25,6 @@ from cybernetics_agent.core import (
     HierarchyController,
     InfoFlow,
     OptimalController,
-    StabilityEngine,
     SystemIdentifier,
 )
 from cybernetics_agent.runtime.event_bus import EventBus
@@ -38,7 +37,6 @@ class TestEventBusBenchmark:
     def test_emit_single_event(self, benchmark) -> None:
         """单条事件发射性能。"""
         bus = EventBus()
-        event = bus._event_log  # 假事件
         from cybernetics_agent.core.base import CyberneticsEvent, EventType
         evt = CyberneticsEvent.create(
             event_type=EventType.TOOL_RESULT,

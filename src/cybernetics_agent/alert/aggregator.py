@@ -23,7 +23,6 @@
 from __future__ import annotations
 
 import time
-from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -144,18 +143,18 @@ class AlertAggregator:
     def _make_key(self, event: AlertEvent) -> str:
         """根据 group_by 字段生成组键。"""
         parts: list[str] = []
-        for field in self.group_by:
-            if field == "rule_name":
+        for field_name in self.group_by:
+            if field_name == "rule_name":
                 parts.append(f"rule={event.rule_name}")
-            elif field == "severity":
+            elif field_name == "severity":
                 parts.append(f"sev={event.severity}")
-            elif field == "metric_name":
+            elif field_name == "metric_name":
                 parts.append(f"metric={event.metric_name or ''}")
-            elif field.startswith("labels."):
-                label_key = field[7:]
+            elif field_name.startswith("labels."):
+                label_key = field_name[7:]
                 parts.append(f"l_{label_key}={event.labels.get(label_key, '')}")
             else:
-                parts.append(f"{field}={getattr(event, field, '')}")
+                parts.append(f"{field_name}={getattr(event, field_name, '')}")
         return "|".join(parts)
 
     def _make_aggregated_event(self, group: _AlertGroup) -> AlertEvent:

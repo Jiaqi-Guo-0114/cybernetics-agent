@@ -20,10 +20,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
-import shutil
-import sqlite3
-import tempfile
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -191,10 +187,7 @@ class EventArchiver:
         """
         results: list[dict] = []
 
-        if day:
-            patterns = [f"events_{day}.jsonl*"]
-        else:
-            patterns = ["events_*.jsonl*"]
+        patterns = [f"events_{day}.jsonl*"] if day else ["events_*.jsonl*"]
 
         for pattern in patterns:
             for path in self.archive_dir.glob(pattern):
@@ -214,7 +207,7 @@ class EventArchiver:
                         if line:
                             events.append(json.loads(line))
             else:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         if line:

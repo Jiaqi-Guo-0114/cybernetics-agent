@@ -137,8 +137,8 @@ class ThompsonSamplingBandit:
         """
         self.arms = arms
         # Beta(α, β) 参数，α=成功次数+1，β=失败次数+1
-        self.alpha: dict[str, float] = {arm: 1.0 for arm in arms}
-        self.beta: dict[str, float] = {arm: 1.0 for arm in arms}
+        self.alpha: dict[str, float] = dict.fromkeys(arms, 1.0)
+        self.beta: dict[str, float] = dict.fromkeys(arms, 1.0)
         self.total_pulls = 0
 
     def select(self) -> str:

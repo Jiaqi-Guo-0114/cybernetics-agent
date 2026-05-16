@@ -29,7 +29,8 @@ except ImportError:  # pragma: no cover
     HAS_OPENTELEMETRY = False
 
     # 占位类，避免编译错误
-    class trace:  # type: ignore[no-redef]
+    # 占位类，避免编译错误（名称与 opentelemetry.trace 保持一致）
+    class trace:  # type: ignore[no-redef]  # noqa: N801
         @staticmethod
         def get_tracer(*_args: Any, **_kwargs: Any) -> Any:
             return None

@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from cybernetics_agent.config import _resolve_env_vars, CyberneticsConfig
+from cybernetics_agent.config import CyberneticsConfig, _resolve_env_vars
 
 
 def test_resolve_env_var_plain():
@@ -43,7 +43,7 @@ def test_resolve_env_var_missing_raises():
     """未设置的环境变量应报错。"""
     try:
         _resolve_env_vars({"key": "${CYBER_TEST_VAR_DEFINITELY_MISSING}"})
-        assert False, "应该抛出 ValueError"
+        raise AssertionError("应该抛出 ValueError")
     except ValueError as e:
         assert "CYBER_TEST_VAR_DEFINITELY_MISSING" in str(e)
 
@@ -113,11 +113,13 @@ def test_mixed_string_with_env():
 def test_pydantic_schema_available():
     """如果安装了 pydantic，schema 应该可用。"""
     try:
-        from cybernetics_agent.config_schema import CyberneticsConfigModel, HAS_PYDANTIC
+        from cybernetics_agent.config_schema import HAS_PYDANTIC, CyberneticsConfigModel
     except ImportError:
-        HAS_PYDANTIC = False
+        has_pydantic = False
+    else:
+        has_pydantic = HAS_PYDANTIC
 
-    if not HAS_PYDANTIC:
+    if not has_pydantic:
         return  # 跳过
 
     # 验证有效配置
@@ -129,13 +131,15 @@ def test_pydantic_schema_available():
 def test_pydantic_schema_invalid():
     """Pydantic schema 应该报错无效配置。"""
     try:
-        from cybernetics_agent.config_schema import CyberneticsConfigModel, HAS_PYDANTIC
+        from cybernetics_agent.config_schema import HAS_PYDANTIC, CyberneticsConfigModel
     except ImportError:
-        HAS_PYDANTIC = False
+        has_pydantic = False
+    else:
+        has_pydantic = HAS_PYDANTIC
 
-    if not HAS_PYDANTIC:
+    if not has_pydantic:
         return  # 跳过
 
     import pytest
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         CyberneticsConfigModel(project_name="", stability={"timeout": {"default": -1}})

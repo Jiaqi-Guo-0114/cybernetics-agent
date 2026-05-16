@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from cybernetics_agent import CyberneticsConfig
 from cybernetics_agent.context import CyberneticsContext
 from cybernetics_agent.core.base import CyberneticsEvent, EventType
-from cybernetics_agent.runtime.tracing import CyberneticsTracer, HAS_OPENTELEMETRY
+from cybernetics_agent.runtime.tracing import CyberneticsTracer
 
 
 def test_tracer_without_opentelemetry():

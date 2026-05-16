@@ -7,9 +7,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from cybernetics_agent.core.pid_controller import AutoTuningPID, PIDController
 from cybernetics_agent.core.bandit import ThompsonSamplingBandit, UCBBandit
 from cybernetics_agent.core.mpc_controller import MPCController, ResourceMPC
+from cybernetics_agent.core.pid_controller import AutoTuningPID, PIDController
 
 
 def test_pid_basic():
