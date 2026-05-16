@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.eggs
+*.egg
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+.tox
+.venv
+venv
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / Docs
+tests/
+docs/
+scripts/
+.benchmarks
+
+# Local data
+data/
+archives/
+*.db
+*.db-shm
+*.db-wal
+
+# CI
+.github/
+.pre-commit-config.yaml

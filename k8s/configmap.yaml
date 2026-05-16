@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cybernetics-config
+  namespace: cybernetics
+data:
+  CYBERNETICS_PROJECT_NAME: "k8s-deployment"
+  CYBERNETICS_STORAGE_BACKEND: "jsonl"
+  CYBERNETICS_LOG_LEVEL: "info"

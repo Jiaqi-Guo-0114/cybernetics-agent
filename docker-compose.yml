@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  cybernetics-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cybernetics-agent:latest
+    container_name: cybernetics-agent
+    ports:
+      - "8080:8080"
+    environment:
+      - CYBERNETICS_PROJECT_NAME=${CYBERNETICS_PROJECT_NAME:-default}
+      - CYBERNETICS_STORAGE_BACKEND=${CYBERNETICS_STORAGE_BACKEND:-jsonl}
+      - CYBERNETICS_STORAGE_PATH=/app/data
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    volumes:
+      - cybernetics-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  cybernetics-data:
