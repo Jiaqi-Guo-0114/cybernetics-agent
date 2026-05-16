@@ -47,6 +47,30 @@ jobs:
             --cov-report=term-missing \
             --cov-fail-under=85 2>&1 | tee pytest-output.txt
 
+      - name: Run benchmark tests and compare baseline
+        run: |
+          # 如果存在上次基线，进行对比
+          if [ -d ".benchmarks" ] && [ "$(ls -A .benchmarks)" ]; then
+            PYTHONPATH=src python -m pytest tests/benchmark/ \
+              --benchmark-only \
+              --benchmark-compare \
+              --benchmark-compare-fail=mean:10% \
+              --benchmark-json=benchmark-results.json
+          else
+            # 首次运行，保存基线
+            PYTHONPATH=src python -m pytest tests/benchmark/ \
+              --benchmark-only \
+              --benchmark-save=baseline \
+              --benchmark-json=benchmark-results.json
+          fi
+        continue-on-error: true
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ matrix.python-version }}
+          path: benchmark-results.json
+
       - name: Upload pytest output
         if: failure()
         uses: actions/upload-artifact@v4

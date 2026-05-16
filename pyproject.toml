@@ -112,6 +112,15 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 asyncio_mode = "auto"
 
+[tool.benchmark]
+# pytest-benchmark 配置
+# 保存基线到 .benchmarks/ 目录
+# CI 中使用 --benchmark-compare 对比上次基线
+# 性能下降 >10% 则报错
+store = ".benchmarks"
+compare = true
+fail = "10%"
+
 [tool.coverage.run]
 source = ["src"]
 omit = [
