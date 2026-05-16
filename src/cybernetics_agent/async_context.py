@@ -44,7 +44,7 @@ class AsyncCyberneticsContext:
         >>> await ctx.emit_tool_result("search", ["result1", "result2"])
     """
 
-    def __init__(self, config: CyberneticsConfig) -> None:
+    def __init__(self, config: CyberneticsConfig, tracer: Any | None = None) -> None:
         self.config = config
         self.event_bus = AsyncEventBus()
         self.state_manager = StateManager(config.storage)
@@ -53,6 +53,7 @@ class AsyncCyberneticsContext:
         self._session_id = f"sess_{uuid.uuid4().hex[:8]}"
         self._lock = asyncio.Lock()
         self._plugin_loader = PluginLoader()
+        self._tracer = tracer
 
     async def load_plugins(self, plugin_dirs: list[str] | None = None) -> int:
         """
@@ -126,10 +127,16 @@ class AsyncCyberneticsContext:
 
         所有订阅了该事件类型的模块会收到通知。
         """
+        if self._tracer is not None:
+            with self._tracer.trace_event(event):
+                await self._do_emit(event)
+        else:
+            await self._do_emit(event)
+
+    async def _do_emit(self, event: CyberneticsEvent) -> None:
+        """内部异步发射事件。"""
         await self.event_bus.emit(event)
-        # MetricsCollector 是 CPU 轻量级操作，直接执行
         self.metrics.record_event(event)
-        # EventStore 写入是 IO 密集型，投射到线程池
         await asyncio.to_thread(self.state_manager.save_event, event)
 
     async def emit_tool_result(

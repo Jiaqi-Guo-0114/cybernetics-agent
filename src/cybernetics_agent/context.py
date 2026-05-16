@@ -39,7 +39,7 @@ class CyberneticsContext:
         >>> ctx.emit_tool_result("search", ["result1", "result2"])
     """
 
-    def __init__(self, config: CyberneticsConfig) -> None:
+    def __init__(self, config: CyberneticsConfig, tracer: Any | None = None) -> None:
         self.config = config
         self.event_bus = EventBus()
         self.state_manager = StateManager(config.storage)
@@ -48,6 +48,7 @@ class CyberneticsContext:
         self._session_id = f"sess_{uuid.uuid4().hex[:8]}"
         self._lock = threading.Lock()
         self._plugin_loader = PluginLoader()
+        self._tracer = tracer
 
     def load_plugins(self, plugin_dirs: list[str] | None = None) -> int:
         """
@@ -122,6 +123,14 @@ class CyberneticsContext:
 
         所有订阅了该事件类型的模块会收到通知。
         """
+        if self._tracer is not None:
+            with self._tracer.trace_event(event):
+                self._do_emit(event)
+        else:
+            self._do_emit(event)
+
+    def _do_emit(self, event: CyberneticsEvent) -> None:
+        """内部发射事件。"""
         self.event_bus.emit(event)
         self.metrics.record_event(event)
         self.state_manager.save_event(event)
