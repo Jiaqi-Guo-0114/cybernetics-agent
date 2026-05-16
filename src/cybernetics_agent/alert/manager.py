@@ -10,6 +10,7 @@ import contextlib
 from collections import deque
 from typing import Any
 
+from .aggregator import AlertAggregator
 from .channels.base import AlertChannel
 from .core import AlertEvent, AlertRule
 
@@ -26,6 +27,11 @@ class AlertManager:
         self._channels: dict[str, AlertChannel] = {}
         self._history: deque[AlertEvent] = deque(maxlen=history_size)
         self._event_store = event_store
+        self._aggregator: AlertAggregator | None = None
+
+    def set_aggregator(self, aggregator: AlertAggregator) -> None:
+        """设置告警聚合器。"""
+        self._aggregator = aggregator
 
     def add_rule(self, rule: AlertRule) -> None:
         """添加告警规则。"""
@@ -60,21 +66,32 @@ class AlertManager:
             try:
                 evt = rule.evaluate(metrics)
                 if evt is not None:
-                    triggered.append(evt)
-                    self._history.append(evt)
-                    if self._event_store is not None:
-                        with contextlib.suppress(Exception):
-                            self._event_store.write_alert(
-                                rule_name=evt.rule_name,
-                                severity=evt.severity,
-                                message=evt.message,
-                                metric_name=evt.metric_name,
-                                metric_value=evt.metric_value,
-                                labels=evt.labels,
-                            )
+                    # 应用聚合器
+                    if self._aggregator is not None:
+                        aggregated = self._aggregator.process(evt)
+                        if aggregated is not None:
+                            triggered.append(aggregated)
+                            self._record_event(aggregated)
+                    else:
+                        triggered.append(evt)
+                        self._record_event(evt)
             except Exception:
                 continue
         return triggered
+
+    def _record_event(self, evt: AlertEvent) -> None:
+        """记录告警事件到历史和 EventStore。"""
+        self._history.append(evt)
+        if self._event_store is not None:
+            with contextlib.suppress(Exception):
+                self._event_store.write_alert(
+                    rule_name=evt.rule_name,
+                    severity=evt.severity,
+                    message=evt.message,
+                    metric_name=evt.metric_name,
+                    metric_value=evt.metric_value,
+                    labels=evt.labels,
+                )
 
     def dispatch(self, event: AlertEvent, channel_names: list[str] | None = None) -> dict[str, bool]:
         """
@@ -95,9 +112,18 @@ class AlertManager:
                 results[name] = False
         return results
 
+    def flush_aggregator(self) -> list[AlertEvent]:
+        """强制刷新聚合器，返回待发送的聚合告警。"""
+        if self._aggregator is None:
+            return []
+        events = self._aggregator.flush()
+        for evt in events:
+            self._record_event(evt)
+        return events
+
     def get_status(self) -> dict[str, Any]:
         """获取告警系统状态。"""
-        return {
+        status = {
             "rules": [
                 {
                     "name": getattr(r, "name", "unknown"),
@@ -111,6 +137,9 @@ class AlertManager:
             ],
             "history": [evt.to_dict() for evt in self._history],
         }
+        if self._aggregator is not None:
+            status["aggregator"] = self._aggregator.get_stats()
+        return status
 
     def clear_history(self) -> None:
         """清空告警历史。"""
