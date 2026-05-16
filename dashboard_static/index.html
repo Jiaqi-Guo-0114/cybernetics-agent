@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybernetics Agent Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🐙 Cybernetics Agent</h1>
+        <p id="project-name">加载中...</p>
+        <div class="links">
+            <a href="/metrics" target="_blank">📊 Prometheus</a>
+            <a href="/health" target="_blank">💓 Health</a>
+            <a href="/ready" target="_blank">✅ Ready</a>
+        </div>
+    </header>
+    <div class="container">
+        <div class="metrics-panel">
+            <h2>📊 实时指标</h2>
+            <div class="metric-grid" id="metrics-grid">
+                <div class="metric-item"><div class="label">工具调用</div><div class="value" id="tool-calls">-</div></div>
+                <div class="metric-item"><div class="label">工具成功率</div><div class="value" id="tool-success">-</div></div>
+                <div class="metric-item"><div class="label">LLM 调用</div><div class="value" id="llm-calls">-</div></div>
+                <div class="metric-item"><div class="label">LLM 成功率</div><div class="value" id="llm-success">-</div></div>
+                <div class="metric-item"><div class="label">错误总数</div><div class="value" id="errors">-</div></div>
+                <div class="metric-item"><div class="label">会话 ID</div><div class="value" id="session-id" style="font-size:0.85em">-</div></div>
+            </div>
+        </div>
+        <div class="metrics-panel">
+            <h2>🔔 告警状态</h2>
+            <div id="alert-panel"><p style="color:#888">加载中...</p></div>
+        </div>
+        <div class="metrics-panel">
+            <h2>📋 最新事件</h2>
+            <div id="events-panel"><p style="color:#888">加载中...</p></div>
+        </div>
+        <h2>七大原则模块状态</h2>
+        <div class="modules-grid" id="modules-grid"></div>
+    </div>
+    <div class="footer">
+        <p>🐙 Cybernetics Agent | 基于钱学森工程控制论</p>
+        <p id="version" style="color:#666; font-size:0.85em; margin-top:4px"></p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

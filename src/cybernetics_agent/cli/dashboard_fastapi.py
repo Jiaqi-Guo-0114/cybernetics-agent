@@ -11,6 +11,7 @@ import asyncio
 import json
 import time
 from collections.abc import AsyncGenerator
+from pathlib import Path
 from typing import Any
 
 from ..config import CyberneticsConfig
@@ -19,6 +20,7 @@ from ..context import CyberneticsContext
 try:
     from fastapi import FastAPI, Request
     from fastapi.responses import HTMLResponse, StreamingResponse
+    from fastapi.staticfiles import StaticFiles
     from starlette.middleware.cors import CORSMiddleware
     HAS_FASTAPI = True
 except ImportError:
@@ -39,8 +41,20 @@ def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager
         allow_headers=["*"],
     )
 
+    # 挂载独立前端静态文件
+    import cybernetics_agent
+    static_dir = Path(cybernetics_agent.__file__).parent.parent.parent / "dashboard_static"
+    if static_dir.exists():
+        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
     @app.get("/")
     async def index() -> HTMLResponse:
+        # 优先使用独立前端
+        if static_dir.exists():
+            html_path = static_dir / "index.html"
+            if html_path.exists():
+                return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+        # 回退到内嵌 HTML
         return HTMLResponse(
             content=_generate_dashboard_html(config, ctx),
             media_type="text/html; charset=utf-8",
