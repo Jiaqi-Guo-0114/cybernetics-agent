@@ -66,6 +66,44 @@ def create_app(config: CyberneticsConfig, ctx: CyberneticsContext, alert_manager
         summary["timestamp"] = time.time()
         return summary
 
+    @app.get("/health")
+    async def health() -> dict[str, Any]:
+        """基本健康检查。返回 HTTP 200 表示服务活着。"""
+        return {
+            "status": "healthy",
+            "timestamp": time.time(),
+            "version": "0.6.3",
+        }
+
+    @app.get("/ready")
+    async def ready() -> dict[str, Any]:
+        """就绪检查。检查各模块是否正常运行。"""
+        try:
+            status = ctx.get_status()
+            modules = status.get("modules", {})
+            total_modules = len(modules)
+            healthy_modules = sum(
+                1 for m in modules.values()
+                if isinstance(m, dict) and m.get("enabled", False)
+            )
+
+            is_ready = total_modules > 0 and healthy_modules == total_modules
+
+            return {
+                "status": "ready" if is_ready else "not_ready",
+                "timestamp": time.time(),
+                "modules": {
+                    "total": total_modules,
+                    "healthy": healthy_modules,
+                },
+            }
+        except Exception as e:
+            return {
+                "status": "not_ready",
+                "timestamp": time.time(),
+                "error": str(e),
+            }
+
     @app.get("/api/events")
     async def event_stream(request: Request) -> StreamingResponse:
         async def generator() -> AsyncGenerator[str, None]:
