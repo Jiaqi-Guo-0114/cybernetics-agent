@@ -1,9 +1,13 @@
-"""配置中心。支持 JSON 加载与 schema 验证。"""
+"""配置中心。支持 JSON 加载与 schema 验证。
+支持环境变量注入：${ENV_VAR} 或 ${ENV_VAR:default} 或 env://ENV_VAR。
+"""
 
 from __future__ import annotations
 
 import copy
 import json
+import os
+import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -60,6 +64,52 @@ _DEFAULTS: dict[str, Any] = {
     },
 }
 
+# 环境变量正则：${VAR} 或 ${VAR:default}
+_ENV_PLACEHOLDER_RE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::([^}]*))?\}")
+# env:// 语法
+_ENV_URI_RE = re.compile(r"^env://([A-Za-z_][A-Za-z0-9_]*)$")
+
+
+def _resolve_env_vars(obj: Any) -> Any:
+    """
+    递归解析字典/列表中的环境变量占位符。
+
+    支持的语法：
+    - ${ENV_VAR} → 从环境变量读取
+    - ${ENV_VAR:default} → 从环境变量读取，不存在时使用默认值
+    - env://ENV_VAR → 同 ${ENV_VAR}
+    """
+    if isinstance(obj, str):
+        # 处理 env:// 语法
+        match = _ENV_URI_RE.match(obj)
+        if match:
+            var_name = match.group(1)
+            value = os.environ.get(var_name)
+            if value is None:
+                raise ValueError(f"环境变量未设置: {var_name}")
+            return value
+
+        # 处理 ${VAR} 和 ${VAR:default} 语法
+        def replacer(m: re.Match[str]) -> str:
+            var_name = m.group(1)
+            default = m.group(2)
+            value = os.environ.get(var_name)
+            if value is None:
+                if default is not None:
+                    return default
+                raise ValueError(f"环境变量未设置: {var_name}")
+            return value
+
+        return _ENV_PLACEHOLDER_RE.sub(replacer, obj)
+
+    if isinstance(obj, dict):
+        return {k: _resolve_env_vars(v) for k, v in obj.items()}
+
+    if isinstance(obj, list):
+        return [_resolve_env_vars(item) for item in obj]
+
+    return obj
+
 
 @dataclass
 class CyberneticsConfig:
@@ -78,21 +128,22 @@ class CyberneticsConfig:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CyberneticsConfig:
-        """从字典加载。"""
-        return cls(**{k: data.get(k, getattr(cls(), k)) for k in cls.__dataclass_fields__})
+        """从字典加载（支持环境变量注入）。"""
+        resolved = _resolve_env_vars(data)
+        return cls(**{k: resolved.get(k, getattr(cls(), k)) for k in cls.__dataclass_fields__})
 
     @classmethod
     def from_json(cls, path: str | Path) -> CyberneticsConfig:
-        """从 JSON 文件加载。"""
+        """从 JSON 文件加载（支持环境变量注入）。"""
         data = json.loads(Path(path).read_text(encoding="utf-8"))
-        return cls(**{k: data.get(k, getattr(cls(), k)) for k in cls.__dataclass_fields__})
+        return cls.from_dict(data)
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> CyberneticsConfig:
-        """从 YAML 文件加载（需要 PyYAML）。"""
+        """从 YAML 文件加载（需要 PyYAML，支持环境变量注入）。"""
         import yaml
         data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
-        return cls(**{k: data.get(k, getattr(cls(), k)) for k in cls.__dataclass_fields__})
+        return cls.from_dict(data)
 
     def to_dict(self) -> dict[str, Any]:
         """转为字典。"""
@@ -157,7 +208,21 @@ class CyberneticsConfig:
             if not isinstance(rate, (int, float)) or not 0 <= rate <= 1:
                 errors.append("system_id.sampling_rate 必须在 [0, 1] 区间内")
 
+        # 可选：Pydantic 校验
+        errors.extend(self._validate_with_pydantic())
+
         return errors
+
+    def _validate_with_pydantic(self) -> list[str]:
+        """如果安装了 pydantic，使用 Pydantic schema 做更严格的类型校验。"""
+        try:
+            from .config_schema import _config_to_pydantic  # type: ignore[import-not-found]
+            _config_to_pydantic(self)
+            return []
+        except ImportError:
+            return []
+        except Exception as e:
+            return [f"Pydantic 校验失败: {e}"]
 
     @classmethod
     def from_json_validated(cls, path: str | Path) -> CyberneticsConfig:
