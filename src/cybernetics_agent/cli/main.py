@@ -156,6 +156,14 @@ def create_parser() -> argparse.ArgumentParser:
         help="配置文件路径 (默认: cybernetics.json)",
     )
 
+    # completion
+    completion_parser = subparsers.add_parser("completion", help="生成 shell 自动补全脚本")
+    completion_parser.add_argument(
+        "shell",
+        choices=["bash", "zsh", "fish"],
+        help="目标 shell",
+    )
+
     # preset
     preset_parser = subparsers.add_parser("preset", help="策略预设管理")
     preset_subparsers = preset_parser.add_subparsers(dest="preset_command", help="预设命令")
@@ -222,6 +230,189 @@ def main(args: list[str] | None = None) -> int:
         from .alert_cmd import run_alert
         return run_alert(parsed)
 
+    elif command == "completion":
+        return generate_completion(parsed.shell)
+
     else:
         parser.print_help()
         return 1
+
+
+def generate_completion(shell: str) -> int:
+    """生成 shell 自动补全脚本。"""
+    if shell == "bash":
+        script = _bash_completion()
+    elif shell == "zsh":
+        script = _zsh_completion()
+    elif shell == "fish":
+        script = _fish_completion()
+    else:
+        print(f"不支持的 shell: {shell}")
+        return 1
+
+    print(script)
+    return 0
+
+
+def _bash_completion() -> str:
+    return '''_cybernetix_completion() {
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    # 主命令
+    local commands="init audit report dashboard validate preset plugin alert completion"
+
+    # 子命令
+    local plugin_cmds="list discover"
+    local alert_cmds="test status fire"
+    local preset_cmds="list show apply init"
+
+    # 如果在第一个位置，补全主命令
+    if [ $COMP_CWORD -eq 1 ]; then
+        COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
+        return 0
+    fi
+
+    # 根据前一个词补全
+    case "${COMP_WORDS[1]}" in
+        plugin)
+            if [ $COMP_CWORD -eq 2 ]; then
+                COMPREPLY=( $(compgen -W "${plugin_cmds}" -- ${cur}) )
+            fi
+            ;;
+        alert)
+            if [ $COMP_CWORD -eq 2 ]; then
+                COMPREPLY=( $(compgen -W "${alert_cmds}" -- ${cur}) )
+            fi
+            ;;
+        preset)
+            if [ $COMP_CWORD -eq 2 ]; then
+                COMPREPLY=( $(compgen -W "${preset_cmds}" -- ${cur}) )
+            fi
+            ;;
+        init)
+            COMPREPLY=( $(compgen -W "--output --force --format" -- ${cur}) )
+            ;;
+        audit)
+            COMPREPLY=( $(compgen -W "--output --format --recursive -o -f -r" -- ${cur}) )
+            ;;
+        dashboard)
+            COMPREPLY=( $(compgen -W "--port --host --config -p -H -c" -- ${cur}) )
+            ;;
+        validate)
+            COMPREPLY=( $(compgen -f -- ${cur}) )
+            ;;
+        completion)
+            COMPREPLY=( $(compgen -W "bash zsh fish" -- ${cur}) )
+            ;;
+    esac
+
+    return 0
+}
+
+complete -F _cybernetix_completion cybernetix
+'''
+
+
+def _zsh_completion() -> str:
+    return '''#compdef cybernetix
+
+_cybernetix() {
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    _arguments -C \\
+        '(-h --help)'{-h,--help}'[显示帮助信息]' \\
+        '(-v --version)'{-v,--version}'[显示版本号]' \\
+        '1: :→_cybernetix_commands' \\
+        '*:: :→_cybernetix_args'
+}
+
+_cybernetix_commands() {
+    local commands=(
+        "init:初始化配置文件"
+        "audit:审计代码目录"
+        "report:生成审计报告"
+        "dashboard:启动 Web 仪表盘"
+        "validate:验证配置文件"
+        "preset:策略预设管理"
+        "plugin:插件管理"
+        "alert:告警管理"
+        "completion:生成 shell 补全脚本"
+    )
+    _describe -t commands 'cybernetix commands' commands
+}
+
+_cybernetix_args() {
+    case "$line[1]" in
+        init)
+            _arguments \\
+                '(-o --output)'{-o,--output}'[输出文件路径]' \\
+                '(-f --force)'{-f,--force}'[强制覆盖]' \\
+                '--format[配置文件格式]' \\
+                '*:file:_files'
+            ;;
+        audit)
+            _arguments \\
+                '(-o --output)'{-o,--output}'[输出报告路径]' \\
+                '(-f --format)'{-f,--format}'[报告格式]' \\
+                '(-r --recursive)'{-r,--recursive}'[递归审计]' \\
+                '*:path:_files -/'
+            ;;
+        dashboard)
+            _arguments \\
+                '(-p --port)'{-p,--port}'[监听端口]' \\
+                '(-H --host)'{-H,--host}'[监听地址]' \\
+                '(-c --config)'{-c,--config}'[配置文件路径]'
+            ;;
+        validate)
+            _arguments '*:file:_files'
+            ;;
+        completion)
+            _arguments '1:shell:(bash zsh fish)'
+            ;;
+        *)
+            _files
+            ;;
+    esac
+}
+
+compdef _cybernetix cybernetix
+'''
+
+
+def _fish_completion() -> str:
+    return '''complete -c cybernetix -f
+
+# 主命令
+complete -c cybernetix -n '__fish_use_subcommand' -a 'init' -d '初始化配置文件'
+complete -c cybernetix -n '__fish_use_subcommand' -a 'audit' -d '审计代码目录'
+complete -c cybernetix -n '__fish_use_subcommand' -a 'report' -d '生成审计报告'
+complete -c cybernetix -n '__fish_use_subcommand' -a 'dashboard' -d '启动 Web 仪表盘'
+complete -c cybernetix -n '__fish_use_subcommand' -a 'validate' -d '验证配置文件'
+complete -c cybernetix -n '__fish_use_subcommand' -a 'preset' -d '策略预设管理'
+complete -c cybernetix -n '__fish_use_subcommand' -a 'plugin' -d '插件管理'
+complete -c cybernetix -n '__fish_use_subcommand' -a 'alert' -d '告警管理'
+complete -c cybernetix -n '__fish_use_subcommand' -a 'completion' -d '生成 shell 补全脚本'
+
+# init 选项
+complete -c cybernetix -n '__fish_seen_subcommand_from init' -l output -s o -d '输出文件路径'
+complete -c cybernetix -n '__fish_seen_subcommand_from init' -l force -s f -d '强制覆盖'
+complete -c cybernetix -n '__fish_seen_subcommand_from init' -l format -d '配置文件格式' -a 'json yaml'
+
+# audit 选项
+complete -c cybernetix -n '__fish_seen_subcommand_from audit' -l output -s o -d '输出报告路径'
+complete -c cybernetix -n '__fish_seen_subcommand_from audit' -l format -s f -d '报告格式' -a 'json markdown html'
+complete -c cybernetix -n '__fish_seen_subcommand_from audit' -l recursive -s r -d '递归审计'
+
+# dashboard 选项
+complete -c cybernetix -n '__fish_seen_subcommand_from dashboard' -l port -s p -d '监听端口'
+complete -c cybernetix -n '__fish_seen_subcommand_from dashboard' -l host -s H -d '监听地址'
+complete -c cybernetix -n '__fish_seen_subcommand_from dashboard' -l config -s c -d '配置文件路径'
+
+# completion 选项
+complete -c cybernetix -n '__fish_seen_subcommand_from completion' -a 'bash zsh fish'
+'''
+
