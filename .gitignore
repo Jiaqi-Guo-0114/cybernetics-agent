@@ -49,5 +49,8 @@ htmlcov/
 *_report.md
 *_report.html
 
+# Cache
+.ruff_cache/
+
 # Session recaps
 SESSION-*.md

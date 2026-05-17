@@ -21,8 +21,8 @@
 ## 开发环境
 
 ```bash
-# 克隆仓库
-git clone https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git
+# 克隆仓库（将 YOUR_GITHUB_USERNAME 替换为你的 GitHub 用户名）
+git clone https://github.com/YOUR_GITHUB_USERNAME/cybernetics-agent.git
 cd cybernetics-agent
 
 # 运行测试

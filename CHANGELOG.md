@@ -3,7 +3,7 @@
 ## [0.7.0] - 2026-05-17
 
 ### Security
-- **隐私修复** — 移除所有文件中的真实姓名（"Cybernetics Agent Contributors"）和个人邮箱，替换为 "Cybernetics Agent Contributors"
+- **隐私修复** — 移除所有文件中的真实姓名和个人邮箱，替换为 "Cybernetics Agent Contributors"
 - **作者信息匿名化** — `pyproject.toml` authors、`__init__.py` `__author__`、LICENSE、6 种语言 README 全部更新
 
 ### Changed
@@ -84,4 +84,4 @@
 - **Bug 修复**: EventStore 目录自动创建、Dashboard 版本号统一、SQLite 异常保护
 
 ### Previous Versions
-See [Git history](https://github.com/Jiaqi-Guo-0114/cybernetics-agent/commits/main) for earlier releases (v0.1.0–v0.5.0).
+See [Git history](https://github.com/YOUR_GITHUB_USERNAME/cybernetics-agent/commits/main) for earlier releases (v0.1.0–v0.5.0).
