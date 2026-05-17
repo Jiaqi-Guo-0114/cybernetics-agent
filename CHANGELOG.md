@@ -84,4 +84,4 @@
 - **Bug 修复**: EventStore 目录自动创建、Dashboard 版本号统一、SQLite 异常保护
 
 ### Previous Versions
-See [Git history](https://github.com/YOUR_GITHUB_USERNAME/cybernetics-agent/commits/main) for earlier releases (v0.1.0–v0.5.0).
+See [Git history](https://github.com/Jiaqi-Guo-0114/cybernetics-agent/commits/main) for earlier releases (v0.1.0–v0.5.0).

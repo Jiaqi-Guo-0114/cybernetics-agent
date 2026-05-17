@@ -60,11 +60,11 @@ all = [
 ]
 
 [project.urls]
-# 请将 YOUR_GITHUB_USERNAME 替换为你的 GitHub 用户名
-Homepage = "https://github.com/YOUR_GITHUB_USERNAME/cybernetics-agent"
-Documentation = "https://github.com/YOUR_GITHUB_USERNAME/cybernetics-agent#readme"
-Repository = "https://github.com/YOUR_GITHUB_USERNAME/cybernetics-agent"
-Issues = "https://github.com/YOUR_GITHUB_USERNAME/cybernetics-agent/issues"
+# 请将 Jiaqi-Guo-0114 替换为你的 GitHub 用户名
+Homepage = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent"
+Documentation = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent#readme"
+Repository = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent"
+Issues = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cybernetics_agent"]
