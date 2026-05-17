@@ -47,19 +47,28 @@ class TestStabilityEngineBranches:
         async def async_func():
             return "async_result"
 
-        # _async_with_timeout just returns the coroutine without awaiting
         coro = se._async_with_timeout(async_func, 1.0)
         assert asyncio.iscoroutine(coro)
+        # 正确 await 并验证结果，避免 coroutine never awaited warning
+        result = asyncio.run(coro)
+        assert result == "async_result"
 
     def test_with_timeout_detects_async(self):
         ctx = MagicMock()
         se = StabilityEngine(config={}, ctx=ctx)
 
-        async def async_func():
+        async def actual_async():
             return "async_result"
 
-        result = se.with_timeout(async_func, timeout_type="default")
+        # 预创建 coroutine object，避免在 ThreadPoolExecutor 线程中创建未 awaited 的 coroutine
+        coro = actual_async()
+
+        def func_that_returns_coro():
+            return coro
+
+        result = se.with_timeout(func_that_returns_coro, timeout_type="default")
         assert asyncio.iscoroutine(result)
+        result.close()  # 清理 coroutine 避免 warning
 
     def test_sync_timeout_raises(self):
         ctx = MagicMock()

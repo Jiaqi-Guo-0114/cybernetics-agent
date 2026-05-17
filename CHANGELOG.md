@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.0] - 2026-05-17
+
+### Security
+- **隐私修复** — 移除所有文件中的真实姓名（"Cybernetics Agent Contributors"）和个人邮箱，替换为 "Cybernetics Agent Contributors"
+- **作者信息匿名化** — `pyproject.toml` authors、`__init__.py` `__author__`、LICENSE、6 种语言 README 全部更新
+
+### Changed
+- **版本号统一提升** — `__init__.py`、`pyproject.toml`、`dashboard.py`、`dashboard_fastapi.py` 同步至 0.7.0
+- **测试改进** — `test_dashboard_health.py` 改用动态 `__version__` 引用，消除硬编码版本号
+
 ## [0.6.4] - 2026-05-16
 
 ### Added

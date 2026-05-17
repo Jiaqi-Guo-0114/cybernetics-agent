@@ -151,7 +151,7 @@ cybernetix dashboard  # 默认 http://localhost:8080
 - [Adapters](docs/adapters.md) — 接入 LangChain / AutoGen / CrewAI 等框架
 - [Configuration](docs/configuration.md) — 8大模块配置详解
 - [Dashboard](docs/dashboard.md) — 实时监控与告警面板
-- [Architecture & Design](docs/v0.6.0-design.md)
+- [Architecture & Design](docs/v0.7.0-design.md)
 - [RFC-001](docs/RFC-001.md)
 - [Changelog](CHANGELOG.md)
 

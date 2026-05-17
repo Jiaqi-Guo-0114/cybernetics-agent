@@ -48,3 +48,6 @@ htmlcov/
 # Reports
 *_report.md
 *_report.html
+
+# Session recaps
+SESSION-*.md
