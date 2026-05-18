@@ -20,7 +20,7 @@
 - **Strategy Presets** — 4 out-of-the-box templates (high-concurrency / low-cost / high-reliability / debug)
 - **Metrics Export** — Prometheus / OpenMetrics text format, Grafana-ready
 - **Plugin System** — Hot-swappable custom modules, auto-discovery
-- **Real-time Dashboard** — FastAPI + SSE streaming, live frontend
+- **Real-time Dashboard** — FastAPI + standalone frontend, live metrics + alert status + module health
 - **Auto-tuning** — ε-greedy parameter optimization with confidence scoring
 - **Full CLI Toolkit** — `cybernetix` (init / audit / dashboard / preset / plugin / validate / run / --version)
 - **Thread-safe** — Built-in thread lock protection

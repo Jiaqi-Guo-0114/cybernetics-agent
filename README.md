@@ -138,10 +138,16 @@ cybernetix --version                     # 查看版本号
 cybernetix dashboard  # 默认 http://localhost:8080
 ```
 
-- 实时事件流（SSE）
-- 告警规则可视化
-- 历史查询与过滤
-- 性能指标趋势图
+功能概览：
+
+- **实时指标面板** — 工具调用、成功率、LLM 调用、错误数，3 秒自动刷新
+- **七大原则模块状态** — 反馈闭环、稳定性引擎、系统辨识等 7 个模块启用/未启用状态
+- **告警状态** — 规则列表、渠道健康、最近告警历史，5 秒自动刷新
+- **最新事件** — 轮询 `/api/events` 获取最新 20 条事件流
+- **健康探针** — `/health` 健康状态、`/ready` 就绪状态（K8s 兼容）
+- **Prometheus 集成** — `/metrics` 端点输出 OpenMetrics 格式
+
+前端为独立静态页面（`dashboard_static/`），支持直接用浏览器打开。未检测到 agent 时自动提示启动。
 
 ![Dashboard Preview](assets/dashboard_preview.png)
 
