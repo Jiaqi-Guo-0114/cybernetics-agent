@@ -37,8 +37,9 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Cybernetics Agent runtime data
+# Cybernetics
 .cybernetics/
+cybernetics_config.json
 
 # Test artifacts
 .pytest_cache/
