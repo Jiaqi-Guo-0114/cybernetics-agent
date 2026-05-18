@@ -121,7 +121,7 @@ def _generate_html(data: dict[str, Any]) -> str:
     <meta charset="utf-8">
     <title>Cybernetics Agent 审计报告</title>
     <style>
-        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }}
         .summary {{ background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }}
         .finding {{ border-left: 4px solid #dee2e6; padding-left: 20px; margin-bottom: 30px; }}
         .badge {{ display: inline-block; padding: 4px 12px; border-radius: 4px; color: white; font-size: 12px; }}

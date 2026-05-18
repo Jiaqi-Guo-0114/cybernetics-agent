@@ -234,7 +234,7 @@ def _generate_dashboard_html(config: CyberneticsConfig, ctx: CyberneticsContext)
     <style>
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
             background: #0f0f23;
             color: #e0e0e0;
             min-height: 100vh;
