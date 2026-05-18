@@ -123,7 +123,7 @@ class AlertManager:
 
     def get_status(self) -> dict[str, Any]:
         """获取告警系统状态。"""
-        status = {
+        status: dict[str, Any] = {
             "rules": [
                 {
                     "name": getattr(r, "name", "unknown"),

@@ -161,6 +161,8 @@ class EventArchiver:
         """从 EventStore 删除已归档的事件。"""
         try:
             conn = event_store._conn
+            if conn is None:
+                return
             cursor = conn.cursor()
             cursor.execute(
                 "DELETE FROM events WHERE timestamp < ?",

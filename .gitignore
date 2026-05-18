@@ -51,6 +51,11 @@ htmlcov/
 
 # Cache
 .ruff_cache/
+.mypy_cache/
+
+# Environment
+.env
+.env.local
 
 # Session recaps
 SESSION-*.md

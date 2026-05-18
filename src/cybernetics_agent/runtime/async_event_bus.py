@@ -107,7 +107,7 @@ class AsyncEventBus:
             else:
                 # 同步回调投射到线程池
                 loop = asyncio.get_running_loop()
-                event = await loop.run_in_executor(None, handler, event)
+                event = await loop.run_in_executor(None, handler, event)  # type: ignore[arg-type]
 
         return event
 
