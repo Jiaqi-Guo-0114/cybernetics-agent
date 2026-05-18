@@ -45,14 +45,31 @@ PYTHONPATH=src python3 -m pytest tests/ --cov=src/cybernetics_agent -v
 - 纯标准库，无外部依赖
 - 类型注解尽量完整
 - 中文注释、中文用户面向字符串
-- **提交前必须运行 ruff 检查**
+- **提交前三件套**：
   ```bash
+  # 1. ruff 代码检查
   ruff check src/ tests/
+  
+  # 2. 全量测试
+  PYTHONPATH=src python3 -m pytest tests/ -q --tb=line
+  
+  # 3. 覆盖率检查（不得低于 90%）
+  PYTHONPATH=src python3 -m pytest tests/ --cov=src/cybernetics_agent --cov-fail-under=90 -q
   ```
   常见问题：未使用的 import（F401）、未使用的变量（F841）。可自动修复：
   ```bash
   ruff check src/ tests/ --fix
   ```
+- **类型检查（推荐）**：
+  ```bash
+  python3 -m mypy src/cybernetics_agent --ignore-missing-imports --no-error-summary
+  ```
+
+## 隐私安全
+
+- **git author 必须匿名**—不得使用真实姓名或个人邮箱作为 commit author
+- 提交前请确认：`git config user.name` 和 `user.email` 均为匿名值
+- 如已泄露实名，使用 `git-filter-repo` 重写历史
 
 ## 测试规范
 
