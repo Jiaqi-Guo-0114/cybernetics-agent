@@ -101,6 +101,11 @@ cybernetix alert test
 # 审计代码
 cybernetix audit ./src
 
+# Shell 自动补全（v0.6.4+）
+cybernetix completion bash   # 或 zsh / fish
+source <(cybernetix completion bash)  # 临时激活
+echo 'eval "$(cybernetix completion bash)"' >> ~/.bashrc  # 永久激活
+
 # 查看版本
 cybernetix --version
 ```

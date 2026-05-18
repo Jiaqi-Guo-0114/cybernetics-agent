@@ -156,6 +156,43 @@ result = adapter.run("codex", ["--files", "src/"])
 
 ---
 
+## 异步适配器（v0.6.4+）
+
+对于异步框架（如 asyncio、FastAPI、aiohttp），使用 `AsyncCyberneticsContext` 和 `AsyncEventBus`：
+
+```python
+import asyncio
+from cybernetics_agent import CyberneticsConfig
+from cybernetics_agent.runtime.async_context import AsyncCyberneticsContext
+
+cfg = CyberneticsConfig(project_name="async-agent")
+
+async def main():
+    async with AsyncCyberneticsContext(cfg) as ctx:
+        # 异步工具调用自动被包裹
+        result = await ctx.emit_tool_call("search_api", {"query": "AI"})
+        # 重试、熔断、降级在异步环境下同样生效
+
+asyncio.run(main())
+```
+
+所有同步适配器都有对应的异步版本，使用方式相同：
+
+```python
+from cybernetics_agent.adapters import AsyncNativeAdapter
+
+async with AsyncCyberneticsContext(cfg) as ctx:
+    adapter = AsyncNativeAdapter(ctx)
+
+    @adapter.wrap("async_search")
+    async def search(query: str):
+        return await aiohttp.get(f"https://api.example.com/search?q={query}")
+
+    results = await search("machine learning")
+```
+
+---
+
 ## 自定义适配器
 
 如果现有适配器不满足需求，可以继承 `BaseAdapter` 自定义：
