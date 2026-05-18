@@ -30,7 +30,7 @@ Cybernetics Agent 是一个 Python 库，为你的 AI Agent 添加**生产级稳
 ## 🚀 Quick Start
 
 ```bash
-pip install cybernetics-agent
+pip install git+https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git
 ```
 
 ```python

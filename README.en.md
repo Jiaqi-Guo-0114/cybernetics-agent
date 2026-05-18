@@ -29,7 +29,7 @@
 
 ```bash
 # Install
-pip install cybernetics-agent
+pip install git+https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git
 
 # Initialize config
 cybernetix init

@@ -7,19 +7,19 @@
 ## 安装
 
 ```bash
-pip install cybernetics-agent
+pip install git+https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git
 ```
 
 可选依赖：
 ```bash
 # 监控仪表盘（FastAPI + SSE）
-pip install cybernetics-agent[dashboard]
+pip install git+https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git[dashboard]
 
 # YAML 配置支持
-pip install cybernetics-agent[yaml]
+pip install git+https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git[yaml]
 
 # 全部可选依赖
-pip install cybernetics-agent[all]
+pip install git+https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git[all]
 ```
 
 ---

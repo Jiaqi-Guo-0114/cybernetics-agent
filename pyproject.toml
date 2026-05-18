@@ -60,7 +60,6 @@ all = [
 ]
 
 [project.urls]
-# 请将 Jiaqi-Guo-0114 替换为你的 GitHub 用户名
 Homepage = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent"
 Documentation = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent#readme"
 Repository = "https://github.com/Jiaqi-Guo-0114/cybernetics-agent"

@@ -24,7 +24,7 @@
 
 ```bash
 # 설치
-pip install cybernetics-agent
+pip install git+https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git
 
 # 구성 초기화
 cybernetix init

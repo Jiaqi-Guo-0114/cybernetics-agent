@@ -24,7 +24,7 @@
 
 ```bash
 # Instalar
-pip install cybernetics-agent
+pip install git+https://github.com/Jiaqi-Guo-0114/cybernetics-agent.git
 
 # Inicializar configuración
 cybernetix init

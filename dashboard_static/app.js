@@ -140,7 +140,7 @@ async function checkAPI() {
     const health = await fetchJSON('/health');
     if (health && health.status === 'healthy') {
         apiAvailable = true;
-        document.getElementById('version').textContent = 'v' + (health.version || '0.6.3');
+        document.getElementById('version').textContent = 'v' + (health.version || '0.7.0');
     } else {
         apiAvailable = false;
         document.getElementById('version').textContent = 'API 未连接 - 请启动 agent';
