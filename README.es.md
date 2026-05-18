@@ -19,6 +19,10 @@
 - **Configuración declarativa** — Configuración JSON/YAML, flexible y controlable
 - **CLI completa** — Herramientas de línea de comandos `cybernetix` (init / audit / dashboard / run)
 - **Thread-safe** — Bloqueos de threading integrados para seguridad
+- **Soporte asíncrono** — `AsyncCyberneticsContext` + `AsyncEventBus`, cadena async/await completa
+- **Sondas de salud** — `/health` / `/ready`, compatible con K8s
+- **Docker / K8s** — Dockerfile de múltiples etapas + manifiestos K8s
+- **Completado de shell** — `cybernetix completion bash/zsh/fish`
 
 ## 🚀 Inicio Rápido
 

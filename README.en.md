@@ -24,6 +24,10 @@
 - **Auto-tuning** — ε-greedy parameter optimization with confidence scoring
 - **Full CLI Toolkit** — `cybernetix` (init / audit / dashboard / preset / plugin / validate / run / --version)
 - **Thread-safe** — Built-in thread lock protection
+- **Async Support** — `AsyncCyberneticsContext` + `AsyncEventBus`, full async/await chain
+- **Health Checks** — `/health` / `/ready` probes, K8s-ready
+- **Docker / K8s** — Multi-stage Dockerfile + K8s manifests
+- **Shell Completion** — `cybernetix completion bash/zsh/fish`
 
 ## 🚀 Quick Start
 

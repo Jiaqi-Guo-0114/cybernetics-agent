@@ -87,3 +87,10 @@ cybernetix dashboard
 ## 📝 라이센스
 
 MIT License © 2026 Cybernetics Agent Contributors
+
+
+## 주요 기능
+- **비동기 지원** — `AsyncCyberneticsContext` + `AsyncEventBus`, 전체 async/await 체인
+- **건강 검색** — `/health` / `/ready` 프로브, K8s 환경 준비
+- **Docker / K8s** — 다단계 Dockerfile + K8s 매니페스트
+- **쉘 자동 완성** — `cybernetix completion bash/zsh/fish`
