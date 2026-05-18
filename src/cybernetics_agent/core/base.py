@@ -64,12 +64,20 @@ class CyberneticsEvent:
     @classmethod
     def create(
         cls,
-        event_type: EventType,
+        event_type: EventType | str,
         session_id: str,
         payload: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> CyberneticsEvent:
-        """便捷构造方法。"""
+        """便捷构造方法。
+
+        event_type 支持 EventType 枚举或字符串（字符串会尝试匹配枚举，匹配失败则使用 CUSTOM）。
+        """
+        if isinstance(event_type, str):
+            try:
+                event_type = EventType(event_type)
+            except ValueError:
+                event_type = EventType.CUSTOM
         return cls(
             event_type=event_type,
             timestamp=time.time(),

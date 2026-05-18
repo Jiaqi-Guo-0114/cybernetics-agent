@@ -12,6 +12,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..core.base import CyberneticsEvent, ICyberneticsModule
 
+from ..core.base import EventType  # 运行时导入，用于 isinstance 检查
+
+
+def _event_type_str(event_type) -> str:
+    """获取事件类型字符串，支持 EventType 枚举或字符串。"""
+    return event_type.value if isinstance(event_type, EventType) else str(event_type)
+
 
 class EventBus:
     """
@@ -80,7 +87,7 @@ class EventBus:
                 self._event_log = self._event_log[-self._max_log_size // 2:]
 
             current_event: CyberneticsEvent | None = event
-            event_type_str = event.event_type.value
+            event_type_str = _event_type_str(event.event_type)
 
             # 通知全局订阅者
             for subscriber in list(self._all_subscribers):
@@ -109,7 +116,7 @@ class EventBus:
         """
         events = self._event_log
         if event_type:
-            events = [e for e in events if e.event_type.value == event_type]
+            events = [e for e in events if _event_type_str(e.event_type) == event_type]
         return events[-limit:]
 
     def clear_log(self) -> None:
@@ -120,6 +127,6 @@ class EventBus:
         """获取事件统计。"""
         stats: dict[str, int] = {}
         for event in self._event_log:
-            key = event.event_type.value
+            key = _event_type_str(event.event_type)
             stats[key] = stats.get(key, 0) + 1
         return stats
